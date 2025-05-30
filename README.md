@@ -13,6 +13,24 @@ Why is it Filmz2? Guess what, there was another Filmz before 😀
 - **iOS 17.0+** device or simulator
 - **Node.js 18+** (for documentation tools)
 
+### Development Tools
+
+#### XcodeBuildMCP Setup
+
+For enhanced Xcode development with AI assistance, install XcodeBuildMCP:
+
+1. **Prerequisites:**
+   - macOS 14.5+ and Xcode 16.x+ (for XcodeBuildMCP)
+   - mise package manager: `brew install mise`
+
+2. **Optional UI automation** (beta):
+
+   ```bash
+   brew tap facebook/fb
+   brew install idb-companion
+   pipx install fb-idb==1.1.7
+   ```
+
 ### Quick Setup
 
 1. **Clone the repository**
