@@ -89,5 +89,14 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.npm
+.yarn-integrity
+
 # macOS
 .DS_Store

@@ -6,14 +6,14 @@
 
 The main elemenst of our application:
 
-* ImdbSearchcService
-* MyFilmsStore: The service that stores my films locally (or where ever).
-* UI:
-  * Search: The window in which a user searches for films. Mainly contains a search entry, some switches for filtering and sorting and the list of IMDB films that the search returned.
-  * * ImdbFilm: The details of a film from the search.
-  * My Filmz: The list of films I have stored (both, the ones I plan to see and the ones I saw).
-  * My Film Detail: Viewing and editing the details of a Film: Wether I saw and liked it, for which audience I would recommend it...
-  
+- ImdbSearchcService
+- MyFilmsStore: The service that stores my films locally (or where ever).
+- UI:
+  - Search: The window in which a user searches for films. Mainly contains a search entry, some switches for filtering and sorting and the list of IMDB films that the search returned.
+    - ImdbFilm: The details of a film from the search.
+  - My Filmz: The list of films I have stored (both, the ones I plan to see and the ones I saw).
+  - My Film Detail: Viewing and editing the details of a Film: Wether I saw and liked it, for which audience I would recommend it...
+
 ## Services
 
 ### ImdbSearchService
@@ -22,7 +22,7 @@ Allows us to search films in the OMDb API. We call it _IMDB_ nevertheless, becau
 
 #### Technical
 
-The OMDB API is located [here](https://www.omdbapi.com). For data requests (i.e. search requests) we use `http://www.omdbapi.com/?apikey=[yourkey]&`. For requesting posters we use `http://img.omdbapi.com/?apikey=[yourkey]&`.
+The OMDB API is located at the [OMDb API documentation](https://www.omdbapi.com). For data requests (i.e. search requests) we use `http://www.omdbapi.com/?apikey=[yourkey]&`. For requesting posters we use `http://img.omdbapi.com/?apikey=[yourkey]&`.
 
 When searching we get a list of films within a JSON. An example would be:
 
@@ -56,7 +56,7 @@ When searching we get a list of films within a JSON. An example would be:
 }
 ```
 
-See [here](OMDb_API_example.json).
+See the [OMDb API example JSON file](OMDb_API_example.json).
 Note: Not all the fields are relevant to us.
 
-The description of the search parameters is [here](https://www.omdbapi.com/#parameters).
+The description of the search parameters is available at [OMDb API search parameters](https://www.omdbapi.com/#parameters).

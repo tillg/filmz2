@@ -1,0 +1,30 @@
+{
+  "name": "filmz2",
+  "version": "1.0.0",
+  "description": "Keeping track of my films and series",
+  "scripts": {
+    "lint:md": "markdownlint **/*.md --ignore node_modules",
+    "lint:md:fix": "markdownlint **/*.md --ignore node_modules --fix",
+    "format:md": "prettier --write **/*.md --ignore-path .gitignore",
+    "check:md": "npm run lint:md && npm run format:md --check",
+    "fix:md": "npm run lint:md:fix && npm run format:md"
+  },
+  "devDependencies": {
+    "markdownlint-cli": "^0.37.0",
+    "prettier": "^3.1.0"
+  },
+  "keywords": [
+    "ios",
+    "swift",
+    "swiftui",
+    "cloudkit",
+    "films",
+    "movies"
+  ],
+  "author": "Till Gartner",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tillg/filmz2.git"
+  }
+}

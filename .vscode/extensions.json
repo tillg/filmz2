@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "DavidAnson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "streetsidesoftware.code-spell-checker",
+    "bierner.markdown-preview-github-styles",
+    "shd101wyy.markdown-preview-enhanced"
+  ],
+  "unwantedRecommendations": []
+}

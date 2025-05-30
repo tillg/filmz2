@@ -13,7 +13,8 @@ A dedicated screen that displays comprehensive information about a film retrieve
 ## Visual Design
 
 ### Layout Structure
-```
+
+```text
 ┌─────────────────────────┐
 │       Film Poster       │
 │     (AspectRatio)       │
@@ -76,6 +77,7 @@ A dedicated screen that displays comprehensive information about a film retrieve
 ## Technical Requirements
 
 ### Data Model
+
 ```swift
 struct IMDBFilm: Codable, Identifiable {
     let id: String // imdbID
@@ -138,6 +140,7 @@ struct IMDBFilm: Codable, Identifiable {
 ```
 
 ### SwiftUI View Structure
+
 ```swift
 struct IMDBFilmDetailView: View {
     let film: IMDBFilm
@@ -162,6 +165,7 @@ struct IMDBFilmDetailView: View {
 ## Test Data
 
 ### Film 1: Mission: Impossible - The Final Reckoning (2025)
+
 ```json
 {
   "Title": "Mission: Impossible - The Final Reckoning",
@@ -189,6 +193,7 @@ struct IMDBFilmDetailView: View {
 ```
 
 ### Film 2: The Dark Knight (2008)
+
 ```json
 {
   "Title": "The Dark Knight",
@@ -220,6 +225,7 @@ struct IMDBFilmDetailView: View {
 ```
 
 ### Film 3: Inception (2010)
+
 ```json
 {
   "Title": "Inception",
@@ -255,6 +261,7 @@ struct IMDBFilmDetailView: View {
 ### Test Categories
 
 #### 1. Data Model Tests (`IMDBFilmTests.swift`)
+
 ```swift
 class IMDBFilmTests: XCTestCase {
     
@@ -284,6 +291,7 @@ class IMDBFilmTests: XCTestCase {
 ```
 
 #### 2. View Model Tests (`IMDBFilmDetailViewModelTests.swift`)
+
 ```swift
 class IMDBFilmDetailViewModelTests: XCTestCase {
     
@@ -312,6 +320,7 @@ class IMDBFilmDetailViewModelTests: XCTestCase {
 ```
 
 #### 3. View Tests (`IMDBFilmDetailViewTests.swift`)
+
 ```swift
 class IMDBFilmDetailViewTests: XCTestCase {
     
@@ -341,6 +350,7 @@ class IMDBFilmDetailViewTests: XCTestCase {
 ```
 
 #### 4. Integration Tests (`IMDBFilmIntegrationTests.swift`)
+
 ```swift
 class IMDBFilmIntegrationTests: XCTestCase {
     
@@ -353,6 +363,7 @@ class IMDBFilmIntegrationTests: XCTestCase {
 ```
 
 ### Test Data Constants
+
 ```swift
 struct TestData {
     static let missionImpossible = IMDBFilm(/* test data 1 */)
@@ -380,24 +391,28 @@ struct TestData {
 ## Acceptance Criteria
 
 ✅ **Display Requirements**
+
 - [ ] Poster image loads and displays correctly with proper aspect ratio
 - [ ] All film metadata is clearly visible and properly formatted
 - [ ] Layout adapts to different screen sizes (iPhone/iPad)
 - [ ] Loading states are handled gracefully
 
 ✅ **Functionality**
+
 - [ ] View accepts IMDBFilm model and displays all relevant data
 - [ ] Ratings from multiple sources display correctly
 - [ ] Genre tags are properly separated and styled
 - [ ] Scrollable content for long descriptions
 
 ✅ **Quality Assurance**
+
 - [ ] All unit tests pass with >90% coverage
 - [ ] View handles missing/null data gracefully
 - [ ] Accessibility features work correctly
 - [ ] Performance is acceptable with large images
 
 ✅ **Integration**
+
 - [ ] View integrates smoothly with navigation stack
 - [ ] Can be instantiated with test data
 - [ ] Error states are properly communicated to user
