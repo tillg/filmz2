@@ -56,6 +56,7 @@ When searching we get a list of films within a JSON. An example would be:
 }
 ```
 
+See [here](OMDb_API_example.json).
 Note: Not all the fields are relevant to us.
 
 The description of the search parameters is [here](https://www.omdbapi.com/#parameters).
