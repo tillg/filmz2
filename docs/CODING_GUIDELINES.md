@@ -60,7 +60,7 @@ Extensions: Show Recommended Extensions
 
 ## Code Quality
 
-### ✅ Implementation Standards
+### Implementation Standards
 
 - [ ] Code follows Swift style guidelines and project conventions
 - [ ] All new code has meaningful variable and function names
@@ -68,7 +68,7 @@ Extensions: Show Recommended Extensions
 - [ ] No compiler warnings or errors
 - [ ] Code is properly formatted and consistent with existing codebase
 
-### ✅ Architecture Compliance
+### Architecture Compliance
 
 - [ ] Implementation follows established architectural patterns
 - [ ] Adheres to decisions documented in ADRs
@@ -76,9 +76,13 @@ Extensions: Show Recommended Extensions
 - [ ] Proper separation of concerns (View/ViewModel/Model)
 - [ ] CloudKit integration follows established patterns
 
+### Code
+
+- [ ] If there are visual components, make sure they render nicely in the Xcode preview with appropriate demo data.
+
 ## Testing Requirements
 
-### ✅ Unit Testing
+### Unit Testing
 
 - [ ] Unit tests written for all new business logic
 - [ ] Test coverage minimum 80% for new code
@@ -86,14 +90,14 @@ Extensions: Show Recommended Extensions
 - [ ] Edge cases and error conditions are tested
 - [ ] Mock objects used appropriately for external dependencies
 
-### ✅ Integration Testing
+### Integration Testing
 
 - [ ] Critical user paths have integration tests
 - [ ] CloudKit synchronization scenarios tested
 - [ ] API integration points tested with mock data
 - [ ] Navigation flows tested end-to-end
 
-### ✅ UI Testing
+### UI Testing
 
 - [ ] Key user interactions have UI tests
 - [ ] Accessibility features tested and working
@@ -102,7 +106,7 @@ Extensions: Show Recommended Extensions
 
 ## User Experience
 
-### ✅ Functionality
+### Functionality
 
 - [ ] Feature works as described in acceptance criteria
 - [ ] All user stories are fully implemented
@@ -110,7 +114,7 @@ Extensions: Show Recommended Extensions
 - [ ] Loading states provide appropriate feedback
 - [ ] Offline functionality works where applicable
 
-### ✅ Accessibility
+### Accessibility
 
 - [ ] VoiceOver labels are meaningful and complete
 - [ ] Semantic content types properly assigned
@@ -118,7 +122,7 @@ Extensions: Show Recommended Extensions
 - [ ] Minimum contrast ratios met
 - [ ] Touch targets meet minimum size requirements (44pt)
 
-### ✅ Performance
+### Performance
 
 - [ ] No memory leaks detected
 - [ ] Smooth animations (60fps target)
@@ -128,19 +132,19 @@ Extensions: Show Recommended Extensions
 
 ## Documentation
 
-### ✅ Code Documentation
+### Code Documentation
 
 - [ ] Public APIs have proper documentation comments
 - [ ] Complex algorithms explained
 - [ ] Data models document their purpose and relationships
 - [ ] View components document their responsibilities
 
-### ✅ Architecture Documentation
+### Architecture Documentation
 
 - [ ] Code, objects, structs and services are properly reflected in ARCHITECTURE.md
 - [ ] In case that there are graphs in ARCHITECTURE.md, they are updated as well.
 
-### ✅ Feature Documentation
+### Feature Documentation
 
 - [ ] User-facing features documented in `/docs/features/`
 - [ ] API changes documented if applicable
@@ -149,21 +153,21 @@ Extensions: Show Recommended Extensions
 
 ## Quality Assurance
 
-### ✅ Device Testing
+### Device Testing
 
 - [ ] Tested on primary target devices (iPhone, iPad)
 - [ ] Multiple iOS versions tested (current and previous)
 - [ ] Different screen sizes tested and layouts adapt properly
 - [ ] Dark mode compatibility verified
 
-### ✅ Data Integrity
+### Data Integrity
 
 - [ ] CloudKit sync works correctly across devices
 - [ ] Data validation prevents invalid states
 - [ ] Migration scripts tested if data model changed
 - [ ] Backup and restore functionality unaffected
 
-### ✅ Security
+### Security
 
 - [ ] No sensitive data logged or exposed
 - [ ] API keys and secrets properly protected
@@ -172,21 +176,21 @@ Extensions: Show Recommended Extensions
 
 ## Release Readiness
 
-### ✅ Version Control
+### Version Control
 
 - [ ] All code committed to appropriate branch
 - [ ] Commit messages are clear and descriptive
 - [ ] No debug code or commented-out sections
 - [ ] Branch merged cleanly without conflicts
 
-### ✅ Configuration
+### Configuration
 
 - [ ] No hardcoded values that should be configurable
 - [ ] Development/testing flags removed
 - [ ] App Store compliance verified
 - [ ] Version numbers updated appropriately
 
-### ✅ Deployment
+### Deployment
 
 - [ ] Feature flags configured correctly
 - [ ] Beta testing completed successfully
