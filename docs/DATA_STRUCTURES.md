@@ -28,10 +28,12 @@ The data from the OMDb API about a film. This struct handles the complete respon
 ### Core Properties
 
 **Required fields** (always present):
+
 - `title: String` - Film title
 - `imdbID: String` - Unique IMDB identifier, also serves as the `id` for Identifiable conformance
 
 **Optional fields** (may be missing or "N/A" from API):
+
 - `year: String?` - Release year
 - `rated: String?` - Rating classification (PG, R, etc.)
 - `released: String?` - Release date
@@ -54,6 +56,7 @@ The data from the OMDb API about a film. This struct handles the complete respon
 ### Nested Types
 
 #### Rating
+
 ```swift
 struct Rating: Codable {
     let source: String  // e.g., "Internet Movie Database"
@@ -64,18 +67,22 @@ struct Rating: Codable {
 ### Computed Properties
 
 **URL Conversion**:
+
 - `posterURL: URL?` - Converts poster string to URL, returns nil if invalid
 
 **Array Conversions**:
+
 - `genreList: [String]` - Splits genre string into array, filters empty values
 - `actorList: [String]` - Splits actors string into array, filters empty values
 
 **Formatted Ratings**:
+
 - `formattedIMDBRating: String?` - Returns "X.X/10" format or nil
 - `rottenTomatoesRating: String?` - Extracts RT rating from ratings array
 - `metacriticRating: String?` - Returns "XX/100" format from metascore
 
 **Display Helpers**:
+
 - `yearAndRuntime: String` - Combines year and runtime with fallbacks
 - `hasRatings: Bool` - True if any rating data is available
 - `ratingClassification: String?` - Returns the rated field value
@@ -83,6 +90,7 @@ struct Rating: Codable {
 ### Custom Decoding
 
 The model implements custom JSON decoding that:
+
 - Treats "N/A" values as nil
 - Handles missing optional fields gracefully
 - Uses proper CodingKeys for API field mapping
@@ -91,6 +99,7 @@ The model implements custom JSON decoding that:
 ### Sample Data
 
 Includes comprehensive sample data for testing and previews:
+
 - `darkKnight` - Complete film with all fields
 - `missionImpossible` - Film with some missing fields
 - `inception` - Another complete example
@@ -118,11 +127,13 @@ This structure standardizes rating information for consistent UI display across 
 Business logic layer for film detail presentation:
 
 **Published Properties**:
+
 - `film: IMDBFilm` - The source film data
 - `isImageLoading: Bool` - Poster loading state
 - `imageLoadError: Error?` - Poster loading errors
 
 **Computed Properties** (all handle optional fields gracefully):
+
 - `titleWithYear: String` - Formatted title with year
 - `genreChips: [String]` - Genre list for pill display
 - `formattedActors: String?` - Comma-separated actors or nil
@@ -135,6 +146,7 @@ Business logic layer for film detail presentation:
 - `availableRatings: [RatingDisplayInfo]` - All available ratings formatted for display
 
 **Utility Methods**:
+
 - `formattedVotes() -> String?` - Formats vote count
 - `shouldTruncatePlot(maxLength:) -> Bool` - Determines if plot needs truncation
 - `truncatedPlot(maxLength:) -> String` - Returns truncated plot with ellipsis

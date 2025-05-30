@@ -68,6 +68,7 @@ The description of the search parameters is available at [OMDb API search parame
 A comprehensive detail view for displaying film information from the OMDb API. Follows MVVM architecture with proper separation of concerns.
 
 **Components:**
+
 - Poster display with AsyncImage and fallback
 - Title and metadata sections
 - Ratings display using RatingPills component
@@ -76,6 +77,7 @@ A comprehensive detail view for displaying film information from the OMDb API. F
 - Cast and crew information
 
 **Architecture:**
+
 - Uses IMDBFilmDetailViewModel for business logic
 - Reactive UI updates with @StateObject and @Published
 - Reusable pill components for consistent styling
@@ -91,10 +93,12 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 **Purpose:** Display film genres in a visually appealing, pill-shaped format.
 
 **Components:**
+
 - `GenrePill`: Single genre pill with customizable styling
 - `GenrePills`: Collection of genre pills with flexible layout and "show more" functionality
 
 **Features:**
+
 - Multiple style presets (default, outlined, compact, neutral)
 - Automatic wrapping to multiple lines
 - Show more/less functionality for large lists
@@ -102,6 +106,7 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 - Reactive updates when genre data changes
 
 **Styles Available:**
+
 - Default: Blue background with blue text
 - Outlined: Clear background with blue border
 - Compact: Smaller padding and font size
@@ -112,10 +117,12 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 **Purpose:** Display film ratings from various sources (IMDB, Rotten Tomatoes, Metacritic).
 
 **Components:**
+
 - `RatingPill`: Single rating with icon and value
 - `RatingPills`: Collection of ratings with layout options
 
 **Features:**
+
 - Icon + text layout with source-specific colors
 - Multiple layout options (horizontal, vertical, flexible)
 - Multiple style presets (default, compact, outlined, prominent)
@@ -123,11 +130,13 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 - Empty state handling
 
 **Layout Options:**
+
 - Horizontal: Pills in a single row
 - Vertical: Pills stacked vertically
 - Flexible: Pills wrap to multiple lines as needed
 
 **Styles Available:**
+
 - Default: Standard size with background
 - Compact: Smaller for condensed layouts
 - Outlined: Border instead of background
@@ -136,18 +145,21 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 #### Component Architecture
 
 **Extensibility:** The component system is designed for easy expansion:
+
 - Consistent naming patterns (`ComponentName` + `ComponentNames`)
 - Style-based configuration systems
 - Reusable layout patterns
 - Preview support for development
 
 **Future Components:** The structure accommodates:
+
 - Button components
 - Card components
 - Input components
 - Any other reusable UI elements
 
 **Component Library:** A centralized showcase (`ComponentLibrary.swift`) provides:
+
 - Living style guide
 - Component documentation
 - Interactive examples
