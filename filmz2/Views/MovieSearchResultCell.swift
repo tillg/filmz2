@@ -50,10 +50,9 @@ struct MovieSearchResultCell: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    Text(result.type)
+                    Text(result.type.capitalized)
                         .font(.caption)
                         .foregroundColor(.secondary)
-                        .textCase(.uppercase)
                 }
                 
                 Spacer()
