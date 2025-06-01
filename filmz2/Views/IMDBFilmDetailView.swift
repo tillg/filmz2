@@ -78,27 +78,20 @@ struct IMDBFilmDetailView: View {
     }
     
     private var titleSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(viewModel.film.title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .multilineTextAlignment(.leading)
+        HStack {
+            Text(viewModel.film.yearAndRuntime)
+                .font(.title2)
+                .foregroundColor(.secondary)
             
-            HStack {
-                Text(viewModel.film.yearAndRuntime)
-                    .font(.title2)
-                    .foregroundColor(.secondary)
-                
-                if let rating = viewModel.ratingBadge {
-                    Spacer()
-                    Text(rating)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.gray.opacity(0.2))
-                        .clipShape(Capsule())
-                }
+            if let rating = viewModel.ratingBadge {
+                Spacer()
+                Text(rating)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.gray.opacity(0.2))
+                    .clipShape(Capsule())
             }
         }
     }
@@ -123,13 +116,7 @@ struct IMDBFilmDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             // Genres
             if !viewModel.genreChips.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Genres")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    
-                    GenrePills(viewModel.genreChips)
-                }
+                GenrePills(viewModel.genreChips)
             }
             
             // Director

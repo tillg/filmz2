@@ -7,18 +7,18 @@
 ```mermaid
 C4Context
     title Filmz2 System Context Diagram
-    
+
     Person(user, "Movie Enthusiast", "A person who wants to search and track movies")
-    
+
     System_Boundary(filmz2, "Filmz2 App") {
         Container(app, "iOS App", "SwiftUI", "Movie search and collection management")
     }
-    
+
     System_Ext(omdb, "OMDb API", "External movie database API")
-    
+
     Rel(user, app, "Uses", "Search movies, view details, manage collection")
     Rel(app, omdb, "Queries", "HTTPS/JSON")
-    
+
     UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
 
@@ -50,17 +50,17 @@ graph TB
         MFV[My Filmz View]
         MFDV[My Film Detail View]
     end
-    
+
     subgraph "Service Layer"
         OMDB[OMDBSearchService]
         MFS[MyFilmsStore]
     end
-    
+
     subgraph "External"
         API[OMDb API]
         LS[Local Storage]
     end
-    
+
     CV --> MSV
     CV --> MFV
     MSV --> MSVM
@@ -70,11 +70,11 @@ graph TB
     IFDV --> IFDVM
     OMDB --> API
     MFS --> LS
-    
+
     classDef ui fill:#e1f5fe,stroke:#01579b,stroke-width:2px
     classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    
+
     class CV,MSV,MSVM,MSRC,IFDV,IFDVM,MFV,MFDV ui
     class OMDB,MFS service
     class API,LS external
@@ -89,37 +89,37 @@ graph LR
         IFDV[IMDBFilmDetailView]
         MSRC[MovieSearchResultCell]
     end
-    
+
     subgraph "ViewModels"
         MSVM[MovieSearchViewModel]
         IFDVM[IMDBFilmDetailViewModel]
     end
-    
+
     subgraph "Models"
         IF[IMDBFilm]
         OSI[OMDBSearchItem]
         SR[SearchResult]
     end
-    
+
     subgraph "Services"
         OMDB[OMDBSearchService]
     end
-    
+
     MSV -.owns.-> MSVM
     MSV -.uses.-> MSRC
     MSV -.navigates to.-> IFDV
     IFDV -.owns.-> IFDVM
-    
+
     MSVM --> OMDB
     MSVM --> OSI
     MSVM --> IF
-    
+
     IFDVM --> IF
     MSRC --> OSI
-    
+
     OMDB --> SR
     OMDB --> IF
-    
+
     style MSV fill:#bbdefb
     style IFDV fill:#bbdefb
     style MSRC fill:#bbdefb
@@ -142,7 +142,7 @@ erDiagram
         string response
         string error
     }
-    
+
     OMDBSearchItem {
         string title
         string year
@@ -150,7 +150,7 @@ erDiagram
         string type
         string poster
     }
-    
+
     SearchResult ||--o{ IMDBFilm : contains
     SearchResult {
         array films
@@ -158,10 +158,10 @@ erDiagram
         int currentPage
         int totalPages
     }
-    
+
     OMDBDetailResponse ||--|| IMDBFilm : "transforms to"
     OMDBDetailResponse ||--o{ OMDBRating : contains
-    
+
     IMDBFilm ||--o{ Rating : contains
     IMDBFilm {
         string title
@@ -171,19 +171,19 @@ erDiagram
         string plot
         array ratings
     }
-    
+
     Rating {
         string source
         string value
     }
-    
+
     OMDBSearchService ||--|| OMDBSearchResponse : returns
     OMDBSearchService ||--|| SearchResult : returns
     OMDBSearchService ||--|| IMDBFilm : returns
-    
+
     MovieSearchViewModel ||--o{ OMDBSearchItem : manages
     MovieSearchViewModel ||--|| OMDBSearchService : uses
-    
+
     IMDBFilmDetailViewModel ||--|| IMDBFilm : displays
 ```
 
@@ -194,6 +194,7 @@ erDiagram
 Allows us to search films in the OMDb API. We use this service to get IMDB-type information about movies, including the IMDB ID.
 
 **Key Features:**
+
 - Search films by title with pagination support
 - Get detailed film information by IMDB ID or title
 - Debounced search to prevent excessive API calls
@@ -201,6 +202,7 @@ Allows us to search films in the OMDb API. We use this service to get IMDB-type 
 - Response caching to reduce API calls
 
 **Protocol Methods:**
+
 - `searchFilms(query:year:type:page:)` - Returns structured SearchResult
 - `searchFilmsRaw(query:year:type:page:)` - Returns raw OMDBSearchResponse
 - `getFilm(byID:)` - Get film details by IMDB ID
@@ -217,7 +219,7 @@ sequenceDiagram
     participant OMDB as OMDBSearchService
     participant API as OMDb API
     participant Cache as Cache
-    
+
     U->>MSV: Types "Batman"
     MSV->>MSVM: Update searchQuery
     Note over MSVM: Debounce 500ms
@@ -234,7 +236,7 @@ sequenceDiagram
     MSVM->>MSVM: Update searchResults
     MSVM-->>MSV: Published changes
     MSV-->>U: Display results
-    
+
     U->>MSV: Tap on result
     MSV->>MSVM: selectFilm(result)
     MSVM->>OMDB: getFilmDetails(imdbID)
@@ -252,27 +254,27 @@ graph TD
     Start([API Call]) --> Request{Make Request}
     Request -->|Success| Decode{Decode JSON}
     Request -->|Network Error| NetErr[NetworkError]
-    
+
     Decode -->|Success| CheckResp{Check Response}
     Decode -->|Failure| DecErr[DecodingError]
-    
+
     CheckResp -->|"True"| Success[Return Data]
     CheckResp -->|"False"| CheckErr{Check Error Message}
-    
+
     CheckErr -->|"Invalid API key"| APIErr[InvalidAPIKey]
     CheckErr -->|"Movie not found"| NotFound[MovieNotFound]
     CheckErr -->|"Request limit"| Limit[DailyLimitExceeded]
     CheckErr -->|Other| Unknown[UnknownError]
-    
+
     NetErr --> HandleErr[Handle Error]
     DecErr --> HandleErr
     APIErr --> HandleErr
     NotFound --> HandleErr
     Limit --> HandleErr
     Unknown --> HandleErr
-    
+
     HandleErr --> Display[Display Error Message]
-    
+
     style Success fill:#c8e6c9
     style HandleErr fill:#ffcdd2
     style Display fill:#ffcdd2
@@ -329,11 +331,11 @@ graph TD
     TV[TabView]
     MSV[MovieSearchView]
     CollV[CollectionView]
-    
+
     CV --> TV
     TV --> MSV
     TV --> CollV
-    
+
     subgraph "MovieSearchView Components"
         SB[Search Bar]
         RL[Results List]
@@ -342,18 +344,18 @@ graph TD
         ES[Empty State]
         ErrS[Error State]
     end
-    
+
     MSV --> SB
     MSV --> RL
     MSV --> LS
     MSV --> ES
     MSV --> ErrS
     RL --> MSRC
-    
+
     subgraph "Navigation Flow"
         MSRC -.tap.-> IFDV[IMDBFilmDetailView]
     end
-    
+
     style CV fill:#e3f2fd
     style TV fill:#e3f2fd
     style MSV fill:#bbdefb
@@ -365,6 +367,7 @@ graph TD
 The main search interface for finding movies using the OMDb API. Provides a comprehensive search experience with real-time results.
 
 **Components:**
+
 - Search bar with debounced input (500ms delay)
 - Scrollable results list with lazy loading
 - Individual result cells showing poster, title, year, and type
@@ -373,12 +376,14 @@ The main search interface for finding movies using the OMDb API. Provides a comp
 - Tab-based navigation integration
 
 **Architecture:**
+
 - Uses MovieSearchViewModel for state management
 - Implements MVVM pattern with @StateObject and @Published
 - Reactive UI updates based on search state
 - Efficient pagination for large result sets
 
 **Features:**
+
 - Real-time search with automatic debouncing
 - Clear button for search field
 - Keyboard dismissal on scroll
@@ -395,14 +400,14 @@ stateDiagram-v2
     Loading --> Results: Data Received
     Loading --> Empty: No Results
     Loading --> Error: API Error
-    
+
     Results --> Loading: Load More
     Results --> Searching: New Search
-    
+
     Empty --> Searching: New Search
     Error --> Loading: Retry
     Error --> Searching: New Search
-    
+
     Results --> DetailView: Tap Result
     DetailView --> Results: Back Navigation
 ```
@@ -412,6 +417,7 @@ stateDiagram-v2
 The business logic layer for movie search functionality.
 
 **Responsibilities:**
+
 - Manages search state and results
 - Implements search debouncing using Combine
 - Handles API communication through OMDBSearchService
@@ -419,6 +425,7 @@ The business logic layer for movie search functionality.
 - Provides error handling and recovery
 
 **Key Properties:**
+
 - `searchQuery`: The current search text
 - `searchResults`: Array of OMDBSearchItem results
 - `isLoading`: Loading state indicator
@@ -435,42 +442,42 @@ graph LR
         IL[isLoading]
         EM[errorMessage]
         HS[hasSearched]
-        
+
         DB[Debouncer<br/>500ms]
         ST[Search Task]
     end
-    
+
     subgraph "Combine Pipeline"
         P1[[$searchQuery]]
         P2[debounce]
         P3[removeDuplicates]
         P4[sink]
     end
-    
+
     subgraph "OMDBSearchService"
         API[searchFilmsRaw]
         Cache[Cache]
     end
-    
+
     UI[MovieSearchView] --> SQ
     SQ --> P1
     P1 --> P2
     P2 --> P3
     P3 --> P4
     P4 --> ST
-    
+
     ST --> IL
     ST --> API
     API --> Cache
     API --> SR
     API --> EM
     API --> HS
-    
+
     SR --> UI
     IL --> UI
     EM --> UI
     HS --> UI
-    
+
     style SQ fill:#fff59d
     style SR fill:#fff59d
     style IL fill:#fff59d
@@ -562,6 +569,7 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 A specialized cell component for displaying movie search results in a consistent format.
 
 **Features:**
+
 - Poster thumbnail with async loading
 - Placeholder and error states for images
 - Movie title with 2-line limit
@@ -570,6 +578,7 @@ A specialized cell component for displaying movie search results in a consistent
 - Optimized for list performance
 
 **Layout:**
+
 - Horizontal stack with fixed poster size (60x90pt)
 - Flexible text area with proper truncation
 - Consistent spacing and padding
@@ -585,6 +594,7 @@ A specialized cell component for displaying movie search results in a consistent
 - Preview support for development
 
 **Current Components:**
+
 - Pills: GenrePill, RatingPill
 - Cells: MovieSearchResultCell
 - Layouts: FlexibleLayout
@@ -616,32 +626,32 @@ graph TB
         CV[ContentView]
         TV[TabView]
     end
-    
+
     subgraph "Tab 1: Search"
         ST[Search Tab]
         MSV[MovieSearchView]
         IFDV1[IMDBFilmDetailView]
     end
-    
+
     subgraph "Tab 2: Collection"
         CT[Collection Tab]
         CollV[CollectionView]
         MFDV[My Film Detail View]
     end
-    
+
     App --> CV
     CV --> TV
     TV --> ST
     TV --> CT
-    
+
     ST --> MSV
     MSV -.navigate.-> IFDV1
     IFDV1 -.back.-> MSV
-    
+
     CT --> CollV
     CollV -.navigate.-> MFDV
     MFDV -.back.-> CollV
-    
+
     style App fill:#e8f5e9
     style CV fill:#e8f5e9
     style TV fill:#c8e6c9
@@ -650,7 +660,9 @@ graph TB
 ```
 
 **Tabs:**
+
 1. **Search Tab** - Movie search functionality
+
    - Icon: magnifyingglass
    - Destination: MovieSearchView
    - Allows users to search and browse movies
@@ -670,37 +682,39 @@ sequenceDiagram
     participant MovieSearchView
     participant ResultCell
     participant DetailView
-    
+
     User->>TabView: Launch App
     TabView->>SearchTab: Default Selection
     SearchTab->>MovieSearchView: Display
-    
+
     User->>MovieSearchView: Enter Search
     MovieSearchView->>MovieSearchView: Show Results
-    
+
     User->>ResultCell: Tap Movie
     ResultCell->>DetailView: Navigate
     DetailView->>DetailView: Show Details
-    
+
     User->>DetailView: Tap Back
     DetailView->>MovieSearchView: Return
     Note over MovieSearchView: Search state preserved
-    
+
     User->>TabView: Switch to Collection
     Note over MovieSearchView: State persists in background
-    
+
     User->>TabView: Return to Search
     TabView->>MovieSearchView: Restore
     Note over MovieSearchView: Previous search visible
 ```
 
 **Search Flow:**
+
 1. User taps Search tab → MovieSearchView
 2. User searches for movies → Results appear
 3. User taps result → NavigationDestination to IMDBFilmDetailView
 4. User can navigate back to search (search state persists)
 
 **Key Navigation Features:**
+
 - Tab selection persistence
 - Search state preservation when switching tabs
 - Modal navigation for detail views

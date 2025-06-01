@@ -248,6 +248,7 @@ Each case provides a localized error description for user-friendly error message
 Complete response structure for detailed film information (used internally by OMDBSearchService):
 
 Contains all fields from the OMDb API including:
+
 - Basic info: title, year, rated, released, runtime
 - Creative: genre, director, writer, actors, plot
 - Metadata: language, country, awards, poster
