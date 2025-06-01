@@ -49,7 +49,7 @@ For enhanced Xcode development with AI assistance, install XcodeBuildMCP:
 3. **Open in Xcode**
 
    ```bash
-   open filmz2/filmz2.xcodeproj
+   open filmz2.xcodeproj
    ```
 
 4. **Select your target device/simulator and run**
@@ -62,8 +62,10 @@ For enhanced Xcode development with AI assistance, install XcodeBuildMCP:
 
 ```
 filmz2/
-├── filmz2/                    # Main app target
-│   ├── Models/               # Data models (IMDBFilm, etc.)
+├── filmz2.xcodeproj/         # Xcode project file
+├── filmz2/                   # Main app target
+│   ├── Models/               # Data models (IMDBFilm, OMDBModels)
+│   ├── Services/             # API services (OMDBSearchService)
 │   ├── Views/                # SwiftUI views
 │   ├── ViewModels/           # MVVM view models
 │   ├── Components/           # Reusable UI components
@@ -84,7 +86,7 @@ filmz2/
 
 ```bash
 # Open Xcode and press Cmd+R, or use xcodebuild:
-xcodebuild -project filmz2/filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 15' build
+xcodebuild -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' build
 ```
 
 **Component Library (UI Development):**
@@ -99,17 +101,17 @@ The app includes a component library for developing and testing UI components. T
 
 ```bash
 # In Xcode: Cmd+U, or via command line:
-xcodebuild test -project filmz2/filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 **Run Specific Test Suites:**
 
 ```bash
 # Unit tests only
-xcodebuild test -project filmz2/filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2Tests
+xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2Tests
 
 # UI tests only
-xcodebuild test -project filmz2/filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
+xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
 ```
 
 **Test Coverage:**
