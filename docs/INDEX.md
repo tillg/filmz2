@@ -28,6 +28,7 @@ Best read in the following order:
 
 ## Templates
 
+- [Feature Template](FEATURE_TEMPLATE.md) - template for documenting new features
 - [ADR Template](decisions/ADR_TEMPLATE.md) - template for documenting architectural decisions
 - [ADR Template (Bare)](decisions/ADR_TEMPLATE_BARE.md) - minimal ADR template
 - [ADR Template (Bare Minimal)](decisions/ADR_TEMPLATE_BARE_MINIMAL.md) - ultra-minimal ADR template
