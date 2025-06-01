@@ -1,6 +1,6 @@
 # Feature: [Feature Name]
 
-<!-- 
+<!--
 This template helps document new features for the Filmz2 app.
 Replace all placeholders in square brackets with actual content.
 Remove this comment block when using the template.
@@ -33,6 +33,7 @@ Remove this comment block when using the template.
 ### UI Components
 
 1. **[Component Name]**
+
    - [Description of component]
    - [Visual properties]
    - [Behavior/interactions]
@@ -63,7 +64,7 @@ struct [ModelName] {
 
 - **Endpoint**: `[API endpoint if applicable]`
 - **Method**: `[GET/POST/etc.]`
-- **Parameters**: 
+- **Parameters**:
   - `param1`: [description]
   - `param2`: [description]
 - **Response Format**: [JSON structure or description]
@@ -96,6 +97,7 @@ graph TD
 ## Edge Cases
 
 1. **[Edge Case Name]**
+
    - Scenario: [When this happens]
    - Expected behavior: [What should happen]
 
@@ -149,6 +151,7 @@ static let testData = [ModelName](
 ## Analytics
 
 Track the following events:
+
 - [ ] `[event_name]`: When [trigger description]
 - [ ] `[event_name]`: When [trigger description]
 
