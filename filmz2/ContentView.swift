@@ -10,8 +10,26 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
 
+    var body: some View {
+        TabView {
+            MovieSearchView()
+                .tabItem {
+                    Label("Search", systemImage: "magnifyingglass")
+                }
+            
+            CollectionView()
+                .tabItem {
+                    Label("Collection", systemImage: "film.stack")
+                }
+        }
+    }
+}
+
+struct CollectionView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query private var items: [Item]
+    
     var body: some View {
         NavigationSplitView {
             List {
@@ -24,6 +42,7 @@ struct ContentView: View {
                 }
                 .onDelete(perform: deleteItems)
             }
+            .navigationTitle("My Collection")
 #if os(macOS)
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
 #endif
@@ -43,7 +62,7 @@ struct ContentView: View {
             Text("Select an item")
         }
     }
-
+    
     private func addItem() {
         withAnimation {
             let newItem = Item(timestamp: Date())

@@ -8,6 +8,12 @@ This directory and its subdirectories contain the project documentation. It shou
 
 Filmz2 is an App to maintain films, movies and shows: The ones I saw, whether I liked them or not. The ones I was recommended, including for which audience.
 
+### Current Features
+
+- **Movie Search**: Search for movies by title using the OMDb API
+- **Film Details**: View comprehensive information about any movie
+- **Tab Navigation**: Easy switching between Search and Collection views
+
 ## Core Documentation
 
 Best read in the following order:
@@ -20,6 +26,8 @@ Best read in the following order:
 ## Feature Documentation
 
 - [IMDB Film Detail View](features/2025-05-30-imdb-film-detail-view.md) - comprehensive feature specification with UI, testing, and requirements
+- [OMDB Search Service](features/2025-05-30-omdb-search-service.md) - API service documentation for movie search functionality
+- [Movie Search](features/2025-06-01-movie-search.md) - complete search interface with debouncing, pagination, and error handling
 
 ## Architecture Decision Records (ADRs)
 
@@ -36,3 +44,18 @@ Best read in the following order:
 ## API Documentation
 
 - [OMDb API Example](OMDb_API_example.json) - sample response from the OMDb API for reference
+- [API Setup Guide](API_SETUP.md) - instructions for obtaining and configuring OMDb API access
+
+## Testing
+
+The project includes comprehensive test coverage:
+
+- **Unit Tests**: MovieSearchViewModelTests, IMDBFilmDetailViewModelTests, OMDBSearchServiceTests
+- **UI Tests**: MovieSearchUITests covering search interaction, navigation, and edge cases
+
+## Getting Started
+
+1. Clone the repository
+2. Open `filmz2.xcodeproj` in Xcode
+3. Build and run on iPhone 16 simulator
+4. The API key is already configured in `filmz2/Config/APIKeys.swift`

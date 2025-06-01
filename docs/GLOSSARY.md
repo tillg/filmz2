@@ -10,6 +10,8 @@ Key entities and terms used throughout the application.
 - **OMDB**: The Open Media Database. An open source inspired collection of media, mainly films. Like IMDB but not commercial. Contains similar data like IMDB.
 - **OMDb API**: The OMDb API is a RESTful web service to obtain movie information, all content and images on the site are contributed and maintained by our users. It offers a free to low cost API to find movies and shows. Its result includes similar data as the IMDB, including the IMDB Id of the film.
 - **Genre**: The type of story told by the film. Examples: Adventure, Crime, Action, Thriller, Drama...
+- **MediaType**: Classification of content: movie, series, or episode.
+- **Search Result**: A movie entry returned from a search query, containing basic info like title, year, and poster.
 
 ## Architecture Terms
 
@@ -26,8 +28,10 @@ Key entities and terms used throughout the application.
   - **GenrePills**: Collection of genre pills with flexible layout
   - **RatingPill**: Single pill displaying one rating source
   - **RatingPills**: Collection of rating pills from multiple sources
+- **MovieSearchResultCell**: Custom cell component for displaying movie search results with poster, title, year, and type.
 - **AsyncImage**: SwiftUI component for loading and displaying images from URLs with placeholder handling.
 - **FlexibleLayout**: Custom SwiftUI layout that automatically wraps content to multiple lines when needed.
+- **TabView**: SwiftUI container that organizes the app into tabs (Search and Collection).
 
 ## SwiftUI Terms
 
@@ -42,6 +46,9 @@ Key entities and terms used throughout the application.
 - **Custom Decoding**: Specialized JSON decoding logic that handles API-specific cases like "N/A" values.
 - **Computed Properties**: Properties that calculate their value rather than storing it.
 - **Sample Data**: Predefined data structures used for testing and previews.
+- **Debouncing**: Technique to delay search execution until user stops typing (500ms in our implementation).
+- **Pagination**: Loading search results in pages to improve performance (10 results per page).
+- **Response Caching**: Storing API responses to reduce redundant network calls.
 
 ## Testing Terms
 
@@ -50,9 +57,27 @@ Key entities and terms used throughout the application.
 - **Test Coverage**: Percentage of code that is tested by automated tests.
 - **Mock Data**: Fake data used in tests to simulate real API responses.
 
+## Search Features
+
+- **Movie Search**: The primary search functionality allowing users to find movies by title.
+- **Search Debouncing**: 500ms delay after typing stops before executing search to reduce API calls.
+- **Search Results**: List of movies returned from a search query, displayed with posters and metadata.
+- **Empty State**: UI shown when no search results are found.
+- **Error State**: UI shown when search encounters an error (network, API limit, etc.).
+- **Loading State**: UI shown while search is in progress.
+- **Pagination**: Automatic loading of additional results when scrolling near the bottom.
+
+## API Terms
+
+- **API Key**: Authentication credential required for OMDb API access.
+- **Rate Limiting**: Daily request limit (1000 requests) imposed by OMDb API.
+- **Search Endpoint**: API endpoint for searching movies by title (`?s=query`).
+- **Detail Endpoint**: API endpoint for getting full movie details (`?i=imdbID`).
+
 ## Development Tools
 
 - **Xcode**: Apple's integrated development environment for iOS app development.
 - **SwiftLint**: Tool for enforcing Swift style and conventions.
 - **Markdown Linting**: Tools for checking and formatting documentation files.
 - **Component Showcase**: Interactive display of UI components for development reference.
+- **XcodeBuildMCP**: Tool for building and running iOS apps in simulator.

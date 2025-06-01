@@ -2,6 +2,8 @@
 
 The key data entities used throughout the application.
 
+[TOC]
+
 ## MyFilm
 
 The data about a film that I maintain. Some fields of it:
@@ -160,3 +162,134 @@ Business logic layer for film detail presentation:
 **"N/A" Handling**: Custom decoding treats OMDb API "N/A" responses as nil rather than string values, enabling proper optional chaining in the UI.
 
 **Preview Support**: Comprehensive sample data enables rich SwiftUI previews during development.
+
+## Search-Related Data Structures
+
+### OMDBSearchResponse
+
+The raw response from the OMDb API when performing a search:
+
+```swift
+struct OMDBSearchResponse: Codable {
+    let search: [OMDBSearchItem]?  // Array of search results
+    let totalResults: String?       // Total number of results
+    let response: String           // "True" or "False"
+    let error: String?             // Error message if response is "False"
+}
+```
+
+**CodingKeys**: Maps `search` to "Search" and `response` to "Response" for API compatibility.
+
+### OMDBSearchItem
+
+Individual search result item from the OMDb API:
+
+```swift
+struct OMDBSearchItem: Codable {
+    let title: String      // Movie title
+    let year: String       // Release year
+    let imdbID: String     // IMDB identifier
+    let type: String       // "movie", "series", or "episode"
+    let poster: String?    // Poster URL (optional)
+}
+```
+
+**CodingKeys**: Maps to capitalized API field names (Title, Year, Type, Poster).
+
+### SearchResult
+
+Internal structure for processed search results:
+
+```swift
+struct SearchResult {
+    let films: [IMDBFilm]     // Array of film objects
+    let totalResults: Int     // Total count
+    let currentPage: Int      // Current page number
+    let totalPages: Int       // Total pages available
+}
+```
+
+### MediaType
+
+Enum representing the type of media content:
+
+```swift
+enum MediaType: String {
+    case movie
+    case series
+    case episode
+}
+```
+
+Used for filtering search results by content type.
+
+### OMDBError
+
+Comprehensive error handling for API operations:
+
+```swift
+enum OMDBError: Error, LocalizedError {
+    case invalidAPIKey           // API key is invalid
+    case movieNotFound          // No results found
+    case invalidResponse        // Malformed response
+    case networkError(Error)    // Network-related errors
+    case dailyLimitExceeded     // API rate limit hit
+    case decodingError(Error)   // JSON decoding failed
+    case unknownError(String)   // Other errors with message
+}
+```
+
+Each case provides a localized error description for user-friendly error messages.
+
+## API Integration Models
+
+### OMDBDetailResponse
+
+Complete response structure for detailed film information (used internally by OMDBSearchService):
+
+Contains all fields from the OMDb API including:
+- Basic info: title, year, rated, released, runtime
+- Creative: genre, director, writer, actors, plot
+- Metadata: language, country, awards, poster
+- Ratings: ratings array, metascore, imdbRating, imdbVotes
+- Technical: imdbID, type, dvd, boxOffice, production, website
+- Response status: response, error
+
+### OMDBRating
+
+Rating information from various sources:
+
+```swift
+struct OMDBRating: Codable {
+    let source: String  // "Internet Movie Database", "Rotten Tomatoes", etc.
+    let value: String   // "8.5/10", "94%", etc.
+}
+```
+
+## Service Protocols
+
+### OMDBSearchServiceProtocol
+
+Defines the contract for search service implementations:
+
+```swift
+protocol OMDBSearchServiceProtocol {
+    func searchFilms(query: String, year: String?, type: MediaType?, page: Int) async throws -> SearchResult
+    func searchFilmsRaw(query: String, year: String?, type: MediaType?, page: Int) async throws -> OMDBSearchResponse
+    func getFilm(byID: String) async throws -> IMDBFilm
+    func getFilm(byTitle: String, year: String?) async throws -> IMDBFilm
+    func getFilmDetails(imdbID: String) async throws -> IMDBFilm
+}
+```
+
+### URLSessionProtocol
+
+Enables testing by abstracting URLSession:
+
+```swift
+protocol URLSessionProtocol {
+    func data(from url: URL) async throws -> (Data, URLResponse)
+}
+```
+
+URLSession conforms to this protocol by default, allowing easy mocking in tests.

@@ -2,18 +2,19 @@
 
 ## Overview
 
-A search interface that allows users to find movies by entering a title or partial title. The feature queries the OMDb API and displays results in a scrollable list with movie posters, titles, years, and basic metadata. Users can tap on any result to view detailed information about that movie.
+A search interface that allows users to find movies by entering a title or partial title. The feature implements **wide search** functionality, meaning partial matches are included in results - searching for "bat" will return movies like "Batman", "Batman Begins", "Batwoman", etc. The feature queries the OMDb API and displays results in a scrollable list with movie posters, titles, years, and basic metadata. Users can tap on any result to view detailed information about that movie.
 
 ## User Story
 
 **As a** Filmz2 user  
 **I want to** search for movies by title  
-**So that** I can find specific movies to learn more about them and potentially add them to my collection
+**So that** I can find specific movies to learn more about them and potentially add them to my collection.
 
 ## Acceptance Criteria
 
-- [ ] User can enter text in a search field
-- [ ] Search executes after user stops typing (debounced)
+- [x] User can enter text in a search field
+- [x] Search executes after user stops typing (debounced)
+- [ ] **Wide search**: Partial matches are included (e.g., "bat" returns "Batman", "Combat", "Acrobat")
 - [ ] Results display in a scrollable list
 - [ ] Each result shows poster, title, year, and type
 - [ ] Loading state displays while searching
@@ -88,6 +89,71 @@ A search interface that allows users to find movies by entering a title or parti
 - **Animations**:
   - Fade in/out for results
   - Smooth scroll performance
+
+## Search Behavior
+
+### Wide Search Implementation
+
+The movie search feature implements **wide search** (also known as partial matching), which means:
+
+1. **Partial Title Matching**: Searching for "bat" will return all movies containing "bat" anywhere in the title:
+   - "Batman" (starts with search term)
+   - "Batman Begins" (starts with search term)
+   - "Batwoman" (starts with search term)
+   - "Combat" (contains search term)
+   - "Acrobat" (ends with search term)
+
+2. **Case-Insensitive**: Searches are case-insensitive, so "BAT", "Bat", and "bat" all return the same results.
+
+3. **Word Boundaries**: The search does not require word boundaries, so:
+   - "man" returns "Batman", "Superman", "Iron Man", "Woman in Gold"
+   - "the" returns "The Dark Knight", "In the Mood for Love", "The Matrix"
+
+4. **Special Characters**: The search handles special characters appropriately:
+   - Searching for "mission:" returns "Mission: Impossible" films
+   - Searching for "&" returns films with "&" in the title
+
+### Search Examples
+
+| Search Query | Example Results |
+|-------------|-----------------|
+| "bat" | Batman, Batman Begins, Batman Returns, Batwoman |
+| "batm" | Batman, Batman Begins, Batman Returns |
+| "man" | Batman, Superman, Iron Man, The Man from U.N.C.L.E. |
+| "star" | Star Wars, Star Trek, A Star is Born, Stardust |
+| "star wars" | Star Wars films (Episode I-IX, Rogue One, etc.) |
+| "mission:" | Mission: Impossible series |
+
+### API Behavior
+
+The OMDb API supports wide search through its `s` parameter with wildcard support:
+
+- **Minimum query length**: 3 characters required (e.g., "ba" is too short, "bat" works)
+- The service automatically appends a `*` wildcard to all search queries
+- This enables partial matching (e.g., "batm" finds "Batman")
+- If the user manually includes a `*`, no additional wildcard is added
+- Results are ranked by relevance with best matches first
+- For queries under 3 characters, the UI shows "Keep typing..." message
+
+### Implementation Details
+
+The `OMDBSearchService` validates and modifies search queries before sending to the API:
+
+```swift
+// OMDb API requires at least 3 characters for search
+guard query.count >= 3 || query.hasSuffix("*") else {
+    // Return empty result for queries that are too short
+    return SearchResult(films: [], totalResults: 0, currentPage: page, totalPages: 0)
+}
+
+// Add wildcard for wide search if query doesn't already end with *
+let searchQuery = query.hasSuffix("*") ? query : query + "*"
+```
+
+This ensures:
+1. Queries must be at least 3 characters long
+2. Partial searches like "batm" will find "Batman", "Batman Begins", etc.
+3. Short queries (1-2 characters) return empty results immediately
 
 ## Technical Implementation
 
@@ -175,6 +241,12 @@ graph TD
 - [ ] Test result mapping
 - [ ] Test pagination logic
 - [ ] Test search state management
+- [ ] **Test wide search behavior**:
+  - [ ] Test partial match at start ("bat" finds "Batman")
+  - [ ] Test partial match in middle ("bat" finds "Combat")
+  - [ ] Test partial match at end ("bat" finds "Acrobat")
+  - [ ] Test case-insensitive search ("BAT" finds "Batman")
+  - [ ] Test special character search (":" finds "Mission: Impossible")
 
 ### UI Tests
 
@@ -183,6 +255,10 @@ graph TD
 - [ ] Test navigation to detail
 - [ ] Test pull to refresh
 - [ ] Test empty/error states
+- [ ] **Test wide search UI behavior**:
+  - [ ] Verify partial search returns multiple matching results
+  - [ ] Verify results are displayed correctly for wide matches
+  - [ ] Test that tapping any wide search result navigates correctly
 
 ### Test Data
 
