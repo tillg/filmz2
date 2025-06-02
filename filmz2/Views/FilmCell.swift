@@ -54,13 +54,13 @@ struct FilmCell: View {
             } else if let searchResult = searchResult {
                 // Not in collection - show search result view
                 NavigationLink(destination: IMDBFilmDetailView(searchItem: searchResult)) {
-                    MovieSearchResultCell(result: searchResult)
+                    MovieSearchResultCellWithCache(result: searchResult)
                 }
                 .buttonStyle(PlainButtonStyle())
             } else if let cachedDetails = cachedDetails {
                 // We have cached details but it's not in collection
                 NavigationLink(destination: IMDBFilmDetailView(film: cachedDetails)) {
-                    MovieSearchResultCell(result: OMDBSearchItem(
+                    MovieSearchResultCellWithCache(result: OMDBSearchItem(
                         title: cachedDetails.title,
                         year: cachedDetails.year ?? "",
                         imdbID: cachedDetails.imdbID,

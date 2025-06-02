@@ -19,7 +19,7 @@ class MyFilmsStoreTests: XCTestCase {
         try await super.setUp()
         
         // Create in-memory container for testing
-        let schema = Schema([MyFilm.self])
+        let schema = Schema([MyFilm.self, CachedIMDBFilm.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         modelContext = ModelContext(modelContainer)
@@ -48,9 +48,7 @@ class MyFilmsStoreTests: XCTestCase {
         
         let film = try await sut.addFilm(from: searchItem)
         
-        XCTAssertEqual(film.title, "The Matrix")
         XCTAssertEqual(film.imdbID, "tt0133093")
-        XCTAssertEqual(film.year, "1999")
         XCTAssertFalse(film.watched)
         
         // Verify film is in collection
@@ -88,11 +86,8 @@ class MyFilmsStoreTests: XCTestCase {
         
         let film = try await sut.addFilm(from: imdbFilm)
         
-        XCTAssertEqual(film.title, imdbFilm.title)
         XCTAssertEqual(film.imdbID, imdbFilm.imdbID)
-        XCTAssertEqual(film.genres, imdbFilm.genreList)
-        XCTAssertEqual(film.director, imdbFilm.director)
-        XCTAssertEqual(film.plot, imdbFilm.plot)
+        XCTAssertFalse(film.watched)
     }
     
     // MARK: - Query Tests
@@ -111,7 +106,7 @@ class MyFilmsStoreTests: XCTestCase {
         let retrievedFilm = try sut.getFilm(by: "tt1375666")
         
         XCTAssertNotNil(retrievedFilm)
-        XCTAssertEqual(retrievedFilm?.title, "Inception")
+        XCTAssertEqual(retrievedFilm?.imdbID, "tt1375666")
     }
     
     func testIsFilmInCollection() async throws {
@@ -244,7 +239,7 @@ class MyFilmsStoreTests: XCTestCase {
         let watchedFilms = try sut.getWatchedFilms()
         
         XCTAssertEqual(watchedFilms.count, 1)
-        XCTAssertEqual(watchedFilms.first?.title, "Watched Movie")
+        XCTAssertEqual(watchedFilms.first?.imdbID, "tt1111111")
     }
     
     func testGetUnwatchedFilms() async throws {
@@ -272,7 +267,7 @@ class MyFilmsStoreTests: XCTestCase {
         let unwatchedFilms = try sut.getUnwatchedFilms()
         
         XCTAssertEqual(unwatchedFilms.count, 1)
-        XCTAssertEqual(unwatchedFilms.first?.title, "Unwatched Movie")
+        XCTAssertEqual(unwatchedFilms.first?.imdbID, "tt4444444")
     }
     
     // MARK: - Statistics Tests

@@ -14,9 +14,14 @@ struct filmz2App: App {
         let schema = Schema([
             Item.self,
             MyFilm.self,
-            CachedIMDBFilm.self,
         ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelConfiguration = ModelConfiguration(
+            schema: schema, 
+            isStoredInMemoryOnly: false,
+            allowsSave: true,
+            groupContainer: .none,
+            cloudKitDatabase: .none
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

@@ -1,13 +1,30 @@
 import SwiftUI
 import SwiftData
 
-struct MovieSearchResultCell: View {
+/// A wrapper view that fetches cached data for MovieSearchResultCell
+struct MovieSearchResultCellWithCache: View {
     let result: OMDBSearchItem
-    @Query private var cachedFilms: [CachedIMDBFilm]
+    @State private var cachedFilm: CachedIMDBFilm?
     
-    private var cachedFilm: CachedIMDBFilm? {
-        cachedFilms.first { $0.imdbID == result.imdbID }
+    var body: some View {
+        MovieSearchResultCellContent(result: result, cachedFilm: cachedFilm)
+            .onAppear {
+                fetchCachedFilm()
+            }
+            .onChange(of: result.imdbID) { _, _ in
+                fetchCachedFilm()
+            }
     }
+    
+    private func fetchCachedFilm() {
+        cachedFilm = CacheManager.shared.fetchFilm(imdbID: result.imdbID)
+    }
+}
+
+/// The actual cell content view
+struct MovieSearchResultCellContent: View {
+    let result: OMDBSearchItem
+    let cachedFilm: CachedIMDBFilm?
     
     var body: some View {
         HStack(spacing: 12) {
@@ -90,7 +107,7 @@ struct MovieSearchResultCell: View {
 
 #Preview("Search Results") {
     VStack(spacing: 0) {
-        MovieSearchResultCell(
+        MovieSearchResultCellWithCache(
             result: OMDBSearchItem(
                 title: "The Dark Knight",
                 year: "2008",
@@ -102,7 +119,7 @@ struct MovieSearchResultCell: View {
         
         Divider().padding(.leading, 88)
         
-        MovieSearchResultCell(
+        MovieSearchResultCellWithCache(
             result: OMDBSearchItem(
                 title: "Inception with a Very Long Title That Should Be Truncated",
                 year: "2010",
@@ -114,7 +131,7 @@ struct MovieSearchResultCell: View {
         
         Divider().padding(.leading, 88)
         
-        MovieSearchResultCell(
+        MovieSearchResultCellWithCache(
             result: OMDBSearchItem(
                 title: "See",
                 year: "2019–2022",
@@ -125,22 +142,4 @@ struct MovieSearchResultCell: View {
         )
     }
     .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
-}
-
-#Preview("With Cached Rating") {
-    VStack(spacing: 0) {
-        MovieSearchResultCell(
-            result: OMDBSearchItem(
-                title: "The Matrix",
-                year: "1999",
-                imdbID: "tt0133093",
-                type: "movie",
-                poster: "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"
-            )
-        )
-    }
-    .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
-    .onAppear {
-        // In real app, this would be populated from cache
-    }
 }

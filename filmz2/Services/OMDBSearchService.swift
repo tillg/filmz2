@@ -51,16 +51,15 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     private let baseURL = "https://www.omdbapi.com/"
     private let session: URLSessionProtocol
     private var cache: [String: Any] = [:]
-    private var modelContext: ModelContext?
     
-    init(apiKey: String, session: URLSessionProtocol = URLSession.shared, modelContext: ModelContext? = nil) {
+    init(apiKey: String, session: URLSessionProtocol = URLSession.shared) {
         self.apiKey = apiKey
         self.session = session
-        self.modelContext = modelContext
     }
     
     func setModelContext(_ context: ModelContext) {
-        self.modelContext = context
+        // No longer needed - using CacheManager
+        print("OMDBSearchService: Model context set (deprecated)")
     }
     
     func searchFilms(query: String, year: String? = nil, type: MediaType? = nil, page: Int = 1) async throws -> SearchResult {
@@ -133,20 +132,12 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     }
     
     func getFilm(byID: String) async throws -> IMDBFilm {
-        // First check persistent cache if available
-        if let context = modelContext {
-            let descriptor = FetchDescriptor<CachedIMDBFilm>(
-                predicate: #Predicate { film in
-                    film.imdbID == byID
-                }
-            )
-            
-            if let cachedFilms = try? context.fetch(descriptor),
-               let cachedFilm = cachedFilms.first {
-                // Return cached film if fresh
-                if !cachedFilm.isStale {
-                    return cachedFilm.toIMDBFilm()
-                }
+        // First check persistent cache
+        if let cachedFilm = CacheManager.shared.fetchFilm(imdbID: byID) {
+            // Return cached film if fresh
+            if !cachedFilm.isStale {
+                print("OMDBSearchService: Returning cached film '\(cachedFilm.title)' with rating \(cachedFilm.imdbRating ?? "nil")")
+                return cachedFilm.toIMDBFilm()
             }
         }
         
@@ -181,25 +172,8 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
             let film = IMDBFilm(from: response)
             cache[cacheKey] = film
             
-            // Save to persistent cache
-            if let context = modelContext {
-                // Remove old cached version if exists
-                let descriptor = FetchDescriptor<CachedIMDBFilm>(
-                    predicate: #Predicate { cachedFilm in
-                        cachedFilm.imdbID == byID
-                    }
-                )
-                if let oldCachedFilms = try? context.fetch(descriptor) {
-                    for oldFilm in oldCachedFilms {
-                        context.delete(oldFilm)
-                    }
-                }
-                
-                // Save new cached version
-                let cachedFilm = CachedIMDBFilm(from: film)
-                context.insert(cachedFilm)
-                try? context.save()
-            }
+            // Save to persistent cache using CacheManager
+            CacheManager.shared.saveFilm(film)
             
             return film
             

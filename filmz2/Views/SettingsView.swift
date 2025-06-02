@@ -16,6 +16,12 @@ struct SettingsView: View {
                         Label("About", systemImage: "info.circle")
                     }
                 }
+                
+                Section("Developer") {
+                    NavigationLink(destination: CacheView()) {
+                        Label("Cache", systemImage: "internaldrive")
+                    }
+                }
             }
             .navigationTitle("Settings")
             #if os(iOS)
