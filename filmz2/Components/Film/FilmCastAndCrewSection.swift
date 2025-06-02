@@ -12,19 +12,17 @@ struct FilmCastAndCrewSection: View {
     let writers: String?
     
     var body: some View {
-        if actors != nil || writers != nil {
+        let hasContent = (actors != nil && !actors!.isEmpty && actors != "N/A") || 
+                        (writers != nil && !writers!.isEmpty && writers != "N/A")
+        
+        if hasContent {
             VStack(alignment: .leading, spacing: 16) {
                 Text("Cast & Crew")
                     .font(.headline)
                     .fontWeight(.semibold)
                 
-                if let actors = actors, !actors.isEmpty {
-                    FilmInfoRow(title: "Starring", content: actors)
-                }
-                
-                if let writers = writers, !writers.isEmpty {
-                    FilmInfoRow(title: "Writers", content: writers)
-                }
+                FilmInfoRow(title: "Starring", content: actors)
+                FilmInfoRow(title: "Writers", content: writers)
             }
         }
     }

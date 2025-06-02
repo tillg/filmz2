@@ -85,9 +85,6 @@ struct MyFilmDetailView: View {
                             writers: details.writers
                         )
                         
-                        // My Notes Section
-                        notesSection
-                        
                         // Delete Button
                         deleteButton
                     }
@@ -150,12 +147,18 @@ struct MyFilmDetailView: View {
             // Watch Status
             watchStatusSection
             
-            // Rating
-            VStack(alignment: .leading, spacing: 8) {
-                Text("My Rating")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                StarRatingView(rating: $film.myRating)
+            // Rating - only show when watched
+            if film.watched {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("My Rating")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    StarRatingView(rating: $film.myRating)
+                }
+                .transition(.asymmetric(
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .opacity
+                ))
             }
             
             // Audience Type
@@ -163,10 +166,30 @@ struct MyFilmDetailView: View {
             
             // Recommended By
             recommendedBySection
+            
+            // My Notes - moved here from separate section
+            VStack(alignment: .leading, spacing: 8) {
+                Text("My Notes")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                TextEditor(text: Binding(
+                    get: { film.notes ?? "" },
+                    set: { 
+                        film.notes = $0.isEmpty ? nil : $0
+                        saveChanges()
+                    }
+                ))
+                .frame(minHeight: 80)
+                .padding(8)
+                .background(Color.gray.opacity(0.05))
+                .cornerRadius(8)
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.1))
         .cornerRadius(12)
+        .animation(.easeInOut(duration: 0.3), value: film.watched)
     }
     
     private var watchStatusSection: some View {
@@ -233,26 +256,6 @@ struct MyFilmDetailView: View {
                 }
             ))
             .textFieldStyle(.roundedBorder)
-        }
-    }
-    
-    private var notesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("My Notes")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            TextEditor(text: Binding(
-                get: { film.notes ?? "" },
-                set: { 
-                    film.notes = $0.isEmpty ? nil : $0
-                    saveChanges()
-                }
-            ))
-            .frame(minHeight: 100)
-            .padding(8)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(8)
         }
     }
     

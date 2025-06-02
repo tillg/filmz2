@@ -26,28 +26,30 @@ struct FilmMetadataSection: View {
             }
             
             // Director
-            if let director = director, !director.isEmpty {
-                FilmInfoRow(title: "Director", content: director)
-            }
+            FilmInfoRow(title: "Director", content: director)
+            
+            // Actors
+            FilmInfoRow(title: "Starring", content: actors)
+            
+            // Writers
+            FilmInfoRow(title: "Written by", content: writers)
             
             // Release Info
-            if let released = released, !released.isEmpty {
-                FilmInfoRow(title: "Released", content: released)
-            }
+            FilmInfoRow(title: "Released", content: released)
+            
+            // Runtime
+            FilmInfoRow(title: "Runtime", content: runtime)
             
             // Origin
-            if let language = language, let country = country {
+            if let language = language, let country = country, !language.isEmpty, !country.isEmpty {
                 FilmInfoRow(title: "Origin", content: "\(language) • \(country)")
-            } else if let country = country {
-                FilmInfoRow(title: "Origin", content: country)
-            } else if let language = language {
+            } else {
+                FilmInfoRow(title: "Country", content: country)
                 FilmInfoRow(title: "Language", content: language)
             }
             
             // Awards
-            if let awards = awards, !awards.isEmpty {
-                FilmInfoRow(title: "Awards", content: awards)
-            }
+            FilmInfoRow(title: "Awards", content: awards)
         }
     }
 }
