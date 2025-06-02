@@ -15,16 +15,11 @@ class CacheManager {
     private func setupContainer() {
         do {
             let schema = Schema([CachedIMDBFilm.self])
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true,
-                groupContainer: .none,
-                cloudKitDatabase: .none
-            )
             
             // Use a different store name to avoid conflicts
             let storeURL = URL.applicationSupportDirectory.appending(path: "filmz2_cache.store")
+            
+            let modelConfiguration = ModelConfiguration(url: storeURL)
             
             modelContainer = try ModelContainer(
                 for: schema,
@@ -39,10 +34,7 @@ class CacheManager {
             // Fall back to in-memory store
             do {
                 let schema = Schema([CachedIMDBFilm.self])
-                let modelConfiguration = ModelConfiguration(
-                    schema: schema,
-                    isStoredInMemoryOnly: true
-                )
+                let modelConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
                 modelContainer = try ModelContainer(
                     for: schema,
                     configurations: [modelConfiguration]

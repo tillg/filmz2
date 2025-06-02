@@ -16,16 +16,11 @@ class MyFilmsManager {
     private func setupContainer() {
         do {
             let schema = Schema([MyFilm.self])
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true,
-                groupContainer: .none,
-                cloudKitDatabase: .none
-            )
             
             // Use a different store name to avoid conflicts
             let storeURL = URL.applicationSupportDirectory.appending(path: "filmz2_myfilms.store")
+            
+            let modelConfiguration = ModelConfiguration(url: storeURL)
             
             modelContainer = try ModelContainer(
                 for: schema,
@@ -40,10 +35,7 @@ class MyFilmsManager {
             // Fall back to in-memory store
             do {
                 let schema = Schema([MyFilm.self])
-                let modelConfiguration = ModelConfiguration(
-                    schema: schema,
-                    isStoredInMemoryOnly: true
-                )
+                let modelConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
                 modelContainer = try ModelContainer(
                     for: schema,
                     configurations: [modelConfiguration]
