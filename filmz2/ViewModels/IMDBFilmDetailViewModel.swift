@@ -10,11 +10,26 @@ class IMDBFilmDetailViewModel: ObservableObject {
     @Published private(set) var film: IMDBFilm
     @Published private(set) var isImageLoading = false
     @Published private(set) var imageLoadError: Error?
+    @Published private(set) var isLoadingDetails = false
+    @Published private(set) var loadError: String?
     
     // MARK: - Initialization
     
     init(film: IMDBFilm) {
         self.film = film
+        // If we only have basic info (no plot, director, etc.), fetch full details
+        if needsFullDetails {
+            Task {
+                await fetchFullDetails()
+            }
+        }
+    }
+    
+    // MARK: - Private Properties
+    
+    private var needsFullDetails: Bool {
+        // Check if we have full details by looking for fields that only come from detail API
+        return film.plot == nil && film.director == nil && film.actors == nil
     }
     
     // MARK: - Computed Properties
@@ -144,6 +159,23 @@ class IMDBFilmDetailViewModel: ObservableObject {
         guard plot.count > maxLength else { return plot }
         let truncated = String(plot.prefix(maxLength))
         return truncated + "..."
+    }
+    
+    // MARK: - Private Methods
+    
+    /// Fetches full film details from API
+    private func fetchFullDetails() async {
+        isLoadingDetails = true
+        loadError = nil
+        
+        do {
+            let fullDetails = try await OMDBSearchService.shared.getFilm(byID: film.imdbID)
+            self.film = fullDetails
+            isLoadingDetails = false
+        } catch {
+            loadError = error.localizedDescription
+            isLoadingDetails = false
+        }
     }
 }
 

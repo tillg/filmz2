@@ -29,37 +29,61 @@ struct IMDBFilmDetailView: View {
                 AddToCollectionButtonLarge(imdbFilm: viewModel.film)
                     .padding(.horizontal)
                 
-                // Ratings Section
-                if viewModel.film.hasRatings {
-                    ratingsSection
+                // Show loading indicator if fetching details
+                if viewModel.isLoadingDetails {
+                    ProgressView("Loading film details...")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 40)
+                } else if let error = viewModel.loadError {
+                    // Show error if loading failed
+                    VStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.largeTitle)
+                            .foregroundColor(.orange)
+                        Text("Failed to load film details")
+                            .font(.headline)
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                } else {
+                    // Show full details only when loaded
+                    
+                    // Ratings Section
+                    if viewModel.film.hasRatings {
+                        ratingsSection
+                    }
+                    
+                    // Metadata Section
+                    FilmMetadataSection(
+                        genres: viewModel.genreChips,
+                        director: viewModel.film.director,
+                        actors: viewModel.film.actors,
+                        writers: viewModel.film.writer,
+                        released: viewModel.film.released,
+                        runtime: viewModel.film.runtime,
+                        language: viewModel.film.language,
+                        country: viewModel.film.country,
+                        awards: viewModel.film.awards
+                    )
+                    
+                    // Plot Section
+                    if let plot = viewModel.film.plot {
+                        ExpandablePlot(plot: plot)
+                    }
+                    
+                    // Cast and Crew Section
+                    FilmCastAndCrewSection(
+                        actors: viewModel.film.actors,
+                        writers: viewModel.film.writer
+                    )
+                    
+                    // Additional Information
+                    additionalInfoSection
                 }
-                
-                // Metadata Section
-                FilmMetadataSection(
-                    genres: viewModel.genreChips,
-                    director: viewModel.film.director,
-                    actors: viewModel.film.actors,
-                    writers: viewModel.film.writer,
-                    released: viewModel.film.released,
-                    runtime: viewModel.film.runtime,
-                    language: viewModel.film.language,
-                    country: viewModel.film.country,
-                    awards: viewModel.film.awards
-                )
-                
-                // Plot Section
-                if let plot = viewModel.film.plot {
-                    ExpandablePlot(plot: plot)
-                }
-                
-                // Cast and Crew Section
-                FilmCastAndCrewSection(
-                    actors: viewModel.film.actors,
-                    writers: viewModel.film.writer
-                )
-                
-                // Additional Information
-                additionalInfoSection
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 20)
