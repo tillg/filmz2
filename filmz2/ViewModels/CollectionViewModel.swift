@@ -33,7 +33,7 @@ enum SortOption: String, CaseIterable {
     }
 }
 
-struct CollectionFilter {
+struct CollectionFilter: Equatable {
     var watchedStatus: WatchedFilter = .all
     var genres: Set<String> = []
     var sortOption: SortOption = .recentlyAdded
