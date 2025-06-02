@@ -167,7 +167,7 @@ struct CollectionView: View {
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.filteredAndSortedFilms) { film in
                     NavigationLink(destination: MyFilmDetailView(film: film)) {
-                        CollectionFilmCell(film: film, filmDetails: viewModel.filmDetailsCache[film.imdbID])
+                        MyFilmCell(film: film, filmDetails: viewModel.filmDetailsCache[film.imdbID])
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -178,123 +178,6 @@ struct CollectionView: View {
         }
     }
 }
-
-struct CollectionFilmCell: View {
-    let film: MyFilm
-    let filmDetails: IMDBFilm?
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Poster
-            if let details = filmDetails {
-                AsyncImage(url: details.posterURL) { phase in
-                    switch phase {
-                    case .empty:
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.3))
-                            .overlay(
-                                ProgressView()
-                                    .tint(.gray)
-                            )
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 90)
-                            .clipped()
-                            .cornerRadius(8)
-                    case .failure(_):
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.3))
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .foregroundColor(.gray)
-                                    .font(.title2)
-                            )
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                .frame(width: 60, height: 90)
-            } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.3))
-                    .frame(width: 60, height: 90)
-                    .overlay(
-                        ProgressView()
-                            .scaleEffect(0.5)
-                    )
-            }
-            
-            // Film Info
-            VStack(alignment: .leading, spacing: 4) {
-                if let details = filmDetails {
-                    Text(details.title)
-                        .font(.headline)
-                        .lineLimit(1)
-                        .foregroundColor(.primary)
-                    
-                    Text(details.displayYear ?? "Unknown Year")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    // Genre Pills
-                    let genres = details.genreList
-                    if !genres.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 4) {
-                                ForEach(Array(genres.prefix(3)), id: \.self) { genre in
-                                    GenrePill(genre, style: .compact)
-                                }
-                                if genres.count > 3 {
-                                    Text("...")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .padding(.horizontal, 4)
-                                }
-                            }
-                        }
-                        .frame(height: 20)
-                    }
-                } else {
-                    Text("Loading...")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                }
-                
-                // Rating or Watch Status
-                if film.watched {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                        
-                        if let rating = film.ratingText {
-                            Text("• \(rating)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                } else {
-                    Text("Not watched")
-                        .font(.caption)
-                        .foregroundColor(.orange)
-                }
-            }
-            
-            Spacer()
-            
-            // Chevron
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .contentShape(Rectangle())
-    }
-}
-
 
 #Preview {
     CollectionView()

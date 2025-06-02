@@ -2,8 +2,6 @@ import SwiftUI
 
 struct MovieSearchView: View {
     @StateObject private var viewModel = MovieSearchViewModel()
-    @State private var selectedFilm: IMDBFilm?
-    @State private var isShowingDetail = false
     @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
@@ -29,11 +27,6 @@ struct MovieSearchView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
             #endif
-            .navigationDestination(isPresented: $isShowingDetail) {
-                if let film = selectedFilm {
-                    IMDBFilmDetailView(film: film)
-                }
-            }
         }
         .onAppear {
             isSearchFieldFocused = true
@@ -76,13 +69,7 @@ struct MovieSearchView: View {
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.searchResults, id: \.imdbID) { result in
                     VStack(spacing: 0) {
-                        Button(action: {
-                            selectFilm(result)
-                        }) {
-                            MovieSearchResultCell(result: result)
-                                .padding(.horizontal)
-                        }
-                        .buttonStyle(PlainButtonStyle())
+                        FilmCell(searchResult: result)
                         
                         Divider()
                             .padding(.leading, 88)
@@ -172,15 +159,6 @@ struct MovieSearchView: View {
             Spacer()
         }
         .padding()
-    }
-    
-    private func selectFilm(_ result: OMDBSearchItem) {
-        Task {
-            if let film = await viewModel.selectFilm(result) {
-                selectedFilm = film
-                isShowingDetail = true
-            }
-        }
     }
 }
 

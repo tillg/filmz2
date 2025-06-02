@@ -54,10 +54,12 @@ The main elements of our application:
 - UI:
   - MovieSearchView: The main search interface where users search for films. Contains a search field with debouncing, results list with movie posters and metadata.
     - MovieSearchViewModel: Manages search state, API calls, and pagination
-    - MovieSearchResultCell: Displays individual search results with poster, title, year, type, and add to collection button
+    - FilmCell: Smart wrapper component that displays films based on collection status
+      - MovieSearchResultCell: Displays search results not in collection
+      - MyFilmCell: Displays films from user's collection with rich metadata
   - IMDBFilmDetailView: Shows detailed information about a selected film from search results, includes add to collection functionality
   - CollectionView: Displays the user's film collection with tabs for All/Watched/Unwatched films
-    - CollectionFilmCell: Shows films in the collection with poster, title, year, and watch status (fetches details asynchronously)
+    - MyFilmCell: Shows films in the collection with poster, title, year, and watch status
   - MyFilmDetailView: Viewing and editing the details of a user's film: watch status, rating, notes, and audience type (fetches film metadata asynchronously)
 
 ### High-Level Architecture
@@ -68,11 +70,13 @@ graph TB
         CV[ContentView]
         MSV[MovieSearchView]
         MSVM[MovieSearchViewModel]
+        FC[FilmCell]
         MSRC[MovieSearchResultCell]
+        MFC[MyFilmCell]
         IFDV[IMDBFilmDetailView]
         IFDVM[IMDBFilmDetailViewModel]
-        MFV[My Filmz View]
-        MFDV[My Film Detail View]
+        CollV[CollectionView]
+        MFDV[MyFilmDetailView]
     end
 
     subgraph "Service Layer"
@@ -86,11 +90,15 @@ graph TB
     end
 
     CV --> MSV
-    CV --> MFV
+    CV --> CollV
     MSV --> MSVM
-    MSV --> MSRC
+    MSV --> FC
+    FC --> MSRC
+    FC --> MFC
+    CollV --> MFC
     MSVM --> OMDB
-    MSV --> IFDV
+    FC --> IFDV
+    FC --> MFDV
     IFDV --> IFDVM
     OMDB --> API
     MFS --> LS
@@ -99,7 +107,7 @@ graph TB
     classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
     classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
 
-    class CV,MSV,MSVM,MSRC,IFDV,IFDVM,MFV,MFDV ui
+    class CV,MSV,MSVM,FC,MSRC,MFC,IFDV,IFDVM,CollV,MFDV ui
     class OMDB,MFS service
     class API,LS external
 ```
@@ -111,7 +119,11 @@ graph LR
     subgraph "Views"
         MSV[MovieSearchView]
         IFDV[IMDBFilmDetailView]
+        FC[FilmCell]
         MSRC[MovieSearchResultCell]
+        MFC[MyFilmCell]
+        CollV[CollectionView]
+        MFDV[MyFilmDetailView]
     end
 
     subgraph "ViewModels"
@@ -132,8 +144,12 @@ graph LR
     end
 
     MSV -.owns.-> MSVM
-    MSV -.uses.-> MSRC
-    MSV -.navigates to.-> IFDV
+    MSV -.uses.-> FC
+    FC -.uses.-> MSRC
+    FC -.uses.-> MFC
+    FC -.navigates to.-> IFDV
+    FC -.navigates to.-> MFDV
+    CollV -.uses.-> MFC
     IFDV -.owns.-> IFDVM
 
     MSVM --> OMDB
@@ -141,14 +157,22 @@ graph LR
     MSVM --> IF
 
     IFDVM --> IF
+    FC --> OSI
+    FC --> MF
     MSRC --> OSI
+    MFC --> MF
+    MFC --> IF
 
     OMDB --> SR
     OMDB --> IF
 
     style MSV fill:#bbdefb
     style IFDV fill:#bbdefb
+    style FC fill:#bbdefb
     style MSRC fill:#bbdefb
+    style MFC fill:#bbdefb
+    style CollV fill:#bbdefb
+    style MFDV fill:#bbdefb
     style MSVM fill:#c5e1a5
     style IFDVM fill:#c5e1a5
     style IF fill:#ffccbc
@@ -654,25 +678,142 @@ A comprehensive system of reusable pill-shaped UI components for consistent data
 - Outlined: Border instead of background
 - Prominent: Larger for emphasis
 
-### MovieSearchResultCell
+### Cell Components Architecture
 
-A specialized cell component for displaying movie search results in a consistent format.
+#### FilmCell - The Smart Wrapper Pattern
+
+**Purpose:** A unified wrapper component that intelligently displays films based on their collection status, providing consistent UI across the entire app.
+
+**Architecture Pattern:**
+
+```text
+FilmCell (Wrapper Component)
+  ├── Checks: Is film in user's collection?
+  ├── If YES → Renders: MyFilmCell
+  │   └── Shows: Personal data (rating, watched status, notes)
+  │   └── Navigates to: MyFilmDetailView
+  ├── If NO → Renders: MovieSearchResultCell
+  │   └── Shows: Basic info + "Add to Collection" button
+  │   └── Navigates to: IMDBFilmDetailView
+  └── Provides: Consistent layout and alignment across both states
+```
+
+**Implementation Flow:**
+
+```mermaid
+flowchart TD
+    A[FilmCell receives data] --> B{Check collection status}
+    B -->|Film in collection| C[Render MyFilmCell]
+    B -->|Not in collection| D[Render MovieSearchResultCell]
+    C --> E[Show personal metadata]
+    C --> F[Green checkmark indicator]
+    D --> G[Show basic info]
+    D --> H[Blue + button]
+    E --> I[Navigate to MyFilmDetailView]
+    G --> J[Navigate to IMDBFilmDetailView]
+```
+
+**Key Benefits:**
+
+- **Single Source of Truth**: Collection status logic centralized in one place
+- **Consistent UI**: Users see the same film representation everywhere
+- **Better UX**: Immediate visual feedback about collection status
+- **Reduced Duplication**: Reuses existing cell components
+- **Maintainable**: Changes to collection display logic only need updates in one place
+- **Aligned Layout**: Both cell types share consistent spacing and element positioning
+
+**Usage:**
+
+```swift
+// In search results
+FilmCell(searchResult: omdbSearchItem)
+
+// With cached details
+FilmCell(cachedDetails: imdbFilm)
+
+// The component automatically determines the correct display
+```
+
+#### MyFilmCell
+
+A rich cell component for displaying films from the user's collection with personal metadata.
+
+**Features:**
+
+- Poster display with async loading
+- Personal status indicators (watched/unwatched)
+- User rating display with star icon
+- Watch date if applicable
+- Genre pills (up to 3, with "..." for more)
+- Collection checkmark indicator
+- Navigation to MyFilmDetailView
+
+**Visual Hierarchy:**
+
+```text
+[Poster] [Title]              [✓]
+         [Year]               [↓]
+         [👁 Watched • ⭐ 8/10] [>]
+         [Genre Pills]
+```
+
+#### MovieSearchResultCell
+
+A specialized cell component for displaying movie search results that are NOT in the user's collection.
 
 **Features:**
 
 - Poster thumbnail with async loading
 - Placeholder and error states for images
-- Movie title with 2-line limit
+- Movie title with single-line limit
 - Year and type metadata display
+- AddToCollectionButton for one-tap adding
 - Chevron indicator for navigation
 - Optimized for list performance
+
+**Visual Hierarchy:**
+
+```text
+[Poster] [Title]         [+]
+         [Year]          [↓]
+         [Type]          [>]
+```
 
 **Layout:**
 
 - Horizontal stack with fixed poster size (60x90pt)
 - Flexible text area with proper truncation
-- Consistent spacing and padding
+- Consistent spacing and padding with horizontal padding
+- Vertical stack for button and chevron (matching MyFilmCell)
 - Full-width tap target for better UX
+
+#### Visual Alignment Strategy
+
+Both MyFilmCell and MovieSearchResultCell share identical layout structure to ensure perfect alignment:
+
+```text
+Component Layout Comparison:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MyFilmCell:
+[60x90]  [Title................]  [✓]
+[Poster] [Year]                   [↓]
+         [Status • Rating]        [>]
+         [Genre Pills]
+
+MovieSearchResultCell:
+[60x90]  [Title................]  [+]
+[Poster] [Year]                   [↓]
+         [Type]                   [>]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Key Alignment Points:
+- Same poster size (60x90pt)
+- Same horizontal spacing (12pt)
+- Same padding (.horizontal + .vertical(8))
+- Vertically stacked action buttons
+- Single-line title truncation
+- Consistent text hierarchy
+```
 
 #### Component Architecture
 
@@ -686,8 +827,10 @@ A specialized cell component for displaying movie search results in a consistent
 **Current Components:**
 
 - Pills: GenrePill, RatingPill
-- Cells: MovieSearchResultCell
+- Cells: FilmCell (wrapper), MovieSearchResultCell, MyFilmCell
+- Buttons: AddToCollectionButton
 - Layouts: FlexibleLayout
+- Other: StarRatingView
 
 **Future Components:** The structure accommodates:
 
@@ -768,44 +911,91 @@ graph TB
 sequenceDiagram
     participant User
     participant TabView
-    participant SearchTab
     participant MovieSearchView
-    participant ResultCell
+    participant FilmCell
     participant DetailView
+    participant CollectionView
 
     User->>TabView: Launch App
-    TabView->>SearchTab: Default Selection
-    SearchTab->>MovieSearchView: Display
+    TabView->>MovieSearchView: Default to Search Tab
 
-    User->>MovieSearchView: Enter Search
-    MovieSearchView->>MovieSearchView: Show Results
+    User->>MovieSearchView: Search "Batman"
+    MovieSearchView->>MovieSearchView: Display Results with FilmCell
 
-    User->>ResultCell: Tap Movie
-    ResultCell->>DetailView: Navigate
-    DetailView->>DetailView: Show Details
+    Note over FilmCell: Checks collection status
+    alt Film NOT in collection
+        FilmCell->>FilmCell: Render MovieSearchResultCell
+        User->>FilmCell: Tap cell
+        FilmCell->>DetailView: Navigate to IMDBFilmDetailView
+    else Film IN collection
+        FilmCell->>FilmCell: Render MyFilmCell
+        User->>FilmCell: Tap cell
+        FilmCell->>DetailView: Navigate to MyFilmDetailView
+    end
 
-    User->>DetailView: Tap Back
-    DetailView->>MovieSearchView: Return
-    Note over MovieSearchView: Search state preserved
+    User->>DetailView: Add to Collection
+    DetailView->>DetailView: Update UI
 
     User->>TabView: Switch to Collection
-    Note over MovieSearchView: State persists in background
+    TabView->>CollectionView: Show user's films
+    Note over CollectionView: Uses MyFilmCell directly
 
     User->>TabView: Return to Search
-    TabView->>MovieSearchView: Restore
-    Note over MovieSearchView: Previous search visible
+    Note over MovieSearchView: Search state preserved
+    Note over FilmCell: Cells now show ✓ for added films
 ```
 
 **Search Flow:**
 
 1. User taps Search tab → MovieSearchView
-2. User searches for movies → Results appear
-3. User taps result → NavigationDestination to IMDBFilmDetailView
-4. User can navigate back to search (search state persists)
+2. User searches for movies → Results appear with FilmCell
+3. FilmCell determines display based on collection status
+4. User taps result → NavigationDestination based on cell type:
+   - MovieSearchResultCell → IMDBFilmDetailView
+   - MyFilmCell → MyFilmDetailView
+5. User can navigate back to search (search state persists)
 
 **Key Navigation Features:**
 
 - Tab selection persistence
 - Search state preservation when switching tabs
-- Modal navigation for detail views
+- Smart navigation based on collection status
 - Back navigation maintains previous state
+- Real-time UI updates when collection changes
+
+## State Management & Reactive Updates
+
+### FilmCell State Synchronization
+
+The FilmCell component implements reactive state management to ensure UI consistency:
+
+```mermaid
+stateDiagram-v2
+    [*] --> CheckingStatus: onAppear
+    CheckingStatus --> NotInCollection: Film not found
+    CheckingStatus --> InCollection: Film exists
+
+    NotInCollection --> ShowingSearchCell: Render
+    InCollection --> ShowingMyFilmCell: Render
+
+    ShowingSearchCell --> InCollection: User adds film
+    ShowingMyFilmCell --> NotInCollection: User removes film
+
+    note right of CheckingStatus: Checks MyFilmsStore
+    note right of ShowingSearchCell: Shows + button
+    note right of ShowingMyFilmCell: Shows ✓ indicator
+```
+
+**Implementation Details:**
+
+1. **Environment Integration**: FilmCell uses `@Environment(\.myFilmsStore)` for collection access
+2. **State Tracking**: `@State private var myFilm: MyFilm?` tracks collection status
+3. **Reactive Updates**: `onChange(of: myFilmsStore?.films)` triggers status rechecks
+4. **Async Loading**: Fetches film details when needed for MyFilmCell display
+
+**Benefits:**
+
+- Immediate visual feedback when adding/removing films
+- No manual refresh required
+- Consistent state across all views
+- Efficient updates only when collection changes

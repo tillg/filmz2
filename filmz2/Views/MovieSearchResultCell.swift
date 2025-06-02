@@ -5,6 +5,7 @@ struct MovieSearchResultCell: View {
     
     var body: some View {
         HStack(spacing: 12) {
+            // Poster
             AsyncImage(url: URL(string: result.poster ?? "")) { phase in
                 switch phase {
                 case .empty:
@@ -35,45 +36,48 @@ struct MovieSearchResultCell: View {
             }
             .frame(width: 60, height: 90)
             
+            // Film Info
             VStack(alignment: .leading, spacing: 4) {
+                // Title
                 Text(result.title)
                     .font(.headline)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .foregroundColor(.primary)
                 
-                HStack(spacing: 4) {
-                    Text(result.year)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
+                // Year
+                Text(result.year)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                // Type (as a simple label, similar to genre pills)
+                HStack {
                     Text(result.type.capitalized)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                
-                Spacer()
             }
             
             Spacer()
             
-            AddToCollectionButton(searchItem: result)
-                .padding(.trailing, 8)
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            // Add Button & Chevron (stacked vertically like MyFilmCell)
+            VStack(spacing: 8) {
+                AddToCollectionButton(searchItem: result)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
+        .padding(.horizontal)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
     }
 }
 
 #Preview {
-    VStack {
+    VStack(spacing: 0) {
         MovieSearchResultCell(
             result: OMDBSearchItem(
                 title: "The Dark Knight",
@@ -83,9 +87,8 @@ struct MovieSearchResultCell: View {
                 poster: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_SX300.jpg"
             )
         )
-        .padding(.horizontal)
         
-        Divider()
+        Divider().padding(.leading, 88)
         
         MovieSearchResultCell(
             result: OMDBSearchItem(
@@ -96,6 +99,17 @@ struct MovieSearchResultCell: View {
                 poster: "N/A"
             )
         )
-        .padding(.horizontal)
+        
+        Divider().padding(.leading, 88)
+        
+        MovieSearchResultCell(
+            result: OMDBSearchItem(
+                title: "See",
+                year: "2019–2022",
+                imdbID: "tt7949218",
+                type: "series",
+                poster: "https://m.media-amazon.com/images/M/MV5BYmJkYjAyY2ItYmNhZi00OTVmLWIyODctNTNhNWRiZTlmZWUzXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg"
+            )
+        )
     }
 }
