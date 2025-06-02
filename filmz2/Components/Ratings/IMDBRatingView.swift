@@ -19,7 +19,7 @@ struct IMDBRatingView: View {
                     .foregroundColor(.yellow)
                 
                 Text(rating.contains("/") ? rating : "\(rating)/10")
-                    .font(.body)
+                    .font(.caption)
                     .foregroundColor(.primary)
             }
             .accessibilityElement(children: .combine)

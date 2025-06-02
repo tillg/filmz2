@@ -1,7 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct MovieSearchResultCell: View {
     let result: OMDBSearchItem
+    @Query private var cachedFilms: [CachedIMDBFilm]
+    
+    private var cachedFilm: CachedIMDBFilm? {
+        cachedFilms.first { $0.imdbID == result.imdbID }
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -55,6 +61,12 @@ struct MovieSearchResultCell: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+                
+                // IMDB Rating if available from cache
+                if let rating = cachedFilm?.imdbRating {
+                    IMDBRatingView(rating: rating)
+                        .font(.caption)
+                }
             }
             
             Spacer()
@@ -76,7 +88,7 @@ struct MovieSearchResultCell: View {
     }
 }
 
-#Preview {
+#Preview("Search Results") {
     VStack(spacing: 0) {
         MovieSearchResultCell(
             result: OMDBSearchItem(
@@ -111,5 +123,24 @@ struct MovieSearchResultCell: View {
                 poster: "https://m.media-amazon.com/images/M/MV5BYmJkYjAyY2ItYmNhZi00OTVmLWIyODctNTNhNWRiZTlmZWUzXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_SX300.jpg"
             )
         )
+    }
+    .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
+}
+
+#Preview("With Cached Rating") {
+    VStack(spacing: 0) {
+        MovieSearchResultCell(
+            result: OMDBSearchItem(
+                title: "The Matrix",
+                year: "1999",
+                imdbID: "tt0133093",
+                type: "movie",
+                poster: "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg"
+            )
+        )
+    }
+    .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
+    .onAppear {
+        // In real app, this would be populated from cache
     }
 }

@@ -18,7 +18,7 @@ struct MyRatingView: View {
                     .font(.system(size: 14))
                 
                 Text("\(rating)/10")
-                    .font(.body)
+                    .font(.caption)
                     .foregroundColor(.primary)
             }
             .accessibilityElement(children: .combine)

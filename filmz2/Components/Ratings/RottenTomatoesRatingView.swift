@@ -18,7 +18,7 @@ struct RottenTomatoesRatingView: View {
                     .font(.system(size: 14))
                 
                 Text(rating)
-                    .font(.body)
+                    .font(.caption)
                     .foregroundColor(ratingColor(for: rating))
             }
             .accessibilityElement(children: .combine)

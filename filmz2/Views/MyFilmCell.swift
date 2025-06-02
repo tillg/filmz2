@@ -28,6 +28,12 @@ struct MyFilmCell: View {
                 // Personal Status
                 statusSection
                 
+                // IMDB Rating if available
+                if let details = filmDetails, let rating = details.imdbRating {
+                    IMDBRatingView(rating: rating)
+                        .font(.caption)
+                }
+                
                 // Genre Pills
                 if let details = filmDetails {
                     genreSection(details: details)

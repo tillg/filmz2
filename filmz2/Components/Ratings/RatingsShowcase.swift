@@ -148,18 +148,22 @@ struct RatingsShowcase: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Inception")
                             .font(.headline)
+                            .lineLimit(1)
                         Text("2010")
                             .font(.caption)
                             .foregroundColor(.secondary)
                         
-                        MyRatingView(rating: 9)
-                            .font(.caption)
+                        HStack(spacing: 12) {
+                            IMDBRatingView(rating: "8.8")
+                            MyRatingView(rating: 9)
+                        }
                     }
                     
                     Spacer()
                     
-                    IMDBRatingView(rating: "8.8")
+                    Image(systemName: "chevron.right")
                         .font(.caption)
+                        .foregroundColor(.secondary)
                 }
                 .padding()
                 .background(Color.gray.opacity(0.05))
