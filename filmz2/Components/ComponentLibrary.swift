@@ -31,6 +31,7 @@ struct ComponentLibrary: View {
 /// Categories of UI components
 enum ComponentCategory: CaseIterable {
     case pills
+    case ratings
     case buttons
     case cards
     case inputs
@@ -38,6 +39,7 @@ enum ComponentCategory: CaseIterable {
     var displayName: String {
         switch self {
         case .pills: return "Pills"
+        case .ratings: return "Ratings"
         case .buttons: return "Buttons"
         case .cards: return "Cards"
         case .inputs: return "Inputs"
@@ -49,6 +51,8 @@ enum ComponentCategory: CaseIterable {
         switch self {
         case .pills:
             PillsShowcase()
+        case .ratings:
+            RatingsShowcase()
         case .buttons:
             Text("Buttons - Coming Soon")
                 .foregroundColor(.secondary)

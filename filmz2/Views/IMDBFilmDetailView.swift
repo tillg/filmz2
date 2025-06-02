@@ -94,7 +94,7 @@ struct IMDBFilmDetailView: View {
                 .font(.headline)
                 .fontWeight(.semibold)
             
-            RatingPills(viewModel.availableRatings, layout: .horizontal)
+            RatingsRow(film: viewModel.film)
             
             if let votes = viewModel.formattedVotes() {
                 Text(votes)

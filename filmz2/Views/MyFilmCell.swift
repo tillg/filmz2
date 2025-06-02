@@ -140,16 +140,8 @@ struct MyFilmCell: View {
             }
             
             // Rating
-            if let rating = film.myRating {
-                HStack(spacing: 2) {
-                    Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundColor(.yellow)
-                    Text("\(rating)/10")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+            MyRatingView(rating: film.myRating)
+                .font(.caption)
         }
     }
     

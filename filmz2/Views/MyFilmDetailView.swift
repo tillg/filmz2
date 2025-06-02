@@ -59,6 +59,9 @@ struct MyFilmDetailView: View {
                         // User Data Section
                         userDataSection
                         
+                        // Ratings Section
+                        ratingsSection(for: details)
+                        
                         // Film Info Section
                         FilmMetadataSection(
                             genres: details.genreList,
@@ -300,6 +303,28 @@ struct MyFilmDetailView: View {
                 dismiss()
             } catch {
                 print("Failed to delete film: \(error)")
+            }
+        }
+    }
+    
+    // MARK: - Rating Helpers
+    
+    @ViewBuilder
+    private func ratingsSection(for details: IMDBFilm) -> some View {
+        let hasRatings = (details.imdbRating != nil && details.imdbRating != "N/A") ||
+                        details.rottenTomatoesRating != nil ||
+                        film.myRating != nil
+        
+        if hasRatings {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Ratings")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                RatingsRow(
+                    film: details,
+                    myRating: film.myRating
+                )
             }
         }
     }
