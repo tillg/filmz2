@@ -13,6 +13,7 @@ struct filmz2App: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
+            MyFilm.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

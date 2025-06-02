@@ -10,6 +10,14 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var myFilmsStore: MyFilmsStore
+    
+    init() {
+        // Create a temporary store - will be replaced with proper context
+        let tempContainer = try! ModelContainer(for: MyFilm.self)
+        let tempContext = ModelContext(tempContainer)
+        self._myFilmsStore = StateObject(wrappedValue: MyFilmsStore(modelContext: tempContext))
+    }
 
     var body: some View {
         TabView {
@@ -23,58 +31,11 @@ struct ContentView: View {
                     Label("Collection", systemImage: "film.stack")
                 }
         }
-    }
-}
-
-struct CollectionView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-    
-    var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .navigationTitle("My Collection")
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-    
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+        .environment(\.myFilmsStore, myFilmsStore)
+        .onAppear {
+            // Update the store with the actual model context
+            myFilmsStore.modelContext = modelContext
+            myFilmsStore.fetchFilms()
         }
     }
 }

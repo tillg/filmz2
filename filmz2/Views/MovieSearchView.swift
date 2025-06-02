@@ -26,7 +26,9 @@ struct MovieSearchView: View {
                 }
             }
             .navigationTitle("Search Movies")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+            #endif
             .navigationDestination(isPresented: $isShowingDetail) {
                 if let film = selectedFilm {
                     IMDBFilmDetailView(film: film)
@@ -46,7 +48,9 @@ struct MovieSearchView: View {
                 
                 TextField("Search movies...", text: $viewModel.searchQuery)
                     .textFieldStyle(.plain)
+                    #if os(iOS)
                     .autocapitalization(.none)
+                    #endif
                     .disableAutocorrection(true)
                     .submitLabel(.search)
                     .focused($isSearchFieldFocused)
@@ -61,7 +65,7 @@ struct MovieSearchView: View {
                 }
             }
             .padding(8)
-            .background(Color(.secondarySystemBackground))
+            .background(Color.gray.opacity(0.1))
             .cornerRadius(10)
         }
         .padding()

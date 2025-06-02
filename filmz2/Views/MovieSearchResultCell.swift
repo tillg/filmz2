@@ -60,6 +60,9 @@ struct MovieSearchResultCell: View {
             
             Spacer()
             
+            AddToCollectionButton(searchItem: result)
+                .padding(.trailing, 8)
+            
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundColor(.secondary)

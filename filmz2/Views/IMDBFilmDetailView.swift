@@ -23,6 +23,10 @@ struct IMDBFilmDetailView: View {
                 // Title and Basic Info Section
                 titleSection
                 
+                // Add to Collection Button
+                AddToCollectionButtonLarge(imdbFilm: viewModel.film)
+                    .padding(.horizontal)
+                
                 // Ratings Section
                 if viewModel.film.hasRatings {
                     ratingsSection
