@@ -232,10 +232,10 @@ Track the following events:
 
 ## Definition of Done
 
-- [ ] All filter and sort options implemented
-- [ ] Genre pills displayed in collection list
-- [ ] Smooth animations for all transitions
-- [ ] Empty states handled gracefully
+- [x] All filter and sort options implemented
+- [x] Genre pills displayed in collection list
+- [x] Smooth animations for all transitions
+- [x] Empty states handled gracefully
 - [ ] Unit and UI tests passing
 - [ ] Performance acceptable for 1000+ films
 - [ ] Accessibility verified
@@ -248,7 +248,7 @@ Track the following events:
 
 ---
 
-**Status**: Draft  
+**Status**: Implemented  
 **Created**: 2025-06-02  
 **Updated**: 2025-06-02  
 **Author**: Claude
