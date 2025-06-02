@@ -2,6 +2,26 @@
 
 [TOC]
 
+## Architecture Pattern: ID-Only with Cached Metadata
+
+Filmz2 uses an ID-only architecture pattern where user data (MyFilm) only stores the IMDB ID reference, while film metadata is cached separately (CachedIMDBFilm). This provides several key benefits:
+
+**Benefits:**
+
+- **No Data Duplication**: Each film's metadata is stored exactly once
+- **Offline Access**: Cached data enables full functionality without internet
+- **Smart API Usage**: Cache-first approach minimizes API calls
+- **Clean Separation**: User data is clearly separated from movie metadata
+- **Future-Ready**: Enables features like shared collections or social features
+- **Efficient Storage**: Smaller footprint for user collections
+
+**How It Works:**
+
+1. User adds a film to collection → MyFilm created with just imdbID
+2. Film details needed → Check CachedIMDBFilm first
+3. Cache miss or stale → Fetch from OMDB API and cache
+4. Display film → Combine MyFilm (user data) + CachedIMDBFilm (metadata)
+
 ## System Overview
 
 ```mermaid
@@ -26,7 +46,10 @@ C4Context
 
 The main elements of our application:
 
-- OMDBSearchService: Service that searches films using the OMDb API
+- OMDBSearchService: Service that searches films using the OMDb API with persistent caching
+  - Checks CachedIMDBFilm store before making API calls
+  - Automatically caches responses for offline access
+  - 30-day cache freshness policy
 - MyFilmsStore: Service that manages the user's film collection using SwiftData for local persistence. Provides CRUD operations, filtering, and statistics.
 - UI:
   - MovieSearchView: The main search interface where users search for films. Contains a search field with debouncing, results list with movie posters and metadata.
@@ -34,8 +57,8 @@ The main elements of our application:
     - MovieSearchResultCell: Displays individual search results with poster, title, year, type, and add to collection button
   - IMDBFilmDetailView: Shows detailed information about a selected film from search results, includes add to collection functionality
   - CollectionView: Displays the user's film collection with tabs for All/Watched/Unwatched films
-    - CollectionFilmCell: Shows films in the collection with poster, title, year, and watch status
-  - MyFilmDetailView: Viewing and editing the details of a user's film: watch status, rating, notes, and audience type
+    - CollectionFilmCell: Shows films in the collection with poster, title, year, and watch status (fetches details asynchronously)
+  - MyFilmDetailView: Viewing and editing the details of a user's film: watch status, rating, notes, and audience type (fetches film metadata asynchronously)
 
 ### High-Level Architecture
 
@@ -100,6 +123,8 @@ graph LR
         IF[IMDBFilm]
         OSI[OMDBSearchItem]
         SR[SearchResult]
+        CIF[CachedIMDBFilm]
+        MF[MyFilm]
     end
 
     subgraph "Services"
@@ -178,29 +203,56 @@ erDiagram
         string value
     }
 
+    CachedIMDBFilm ||--|| IMDBFilm : "converts to/from"
+    CachedIMDBFilm {
+        string imdbID
+        string title
+        string actors
+        string plot
+        date lastFetched
+        int dataVersion
+    }
+
+    MyFilm ||..|| CachedIMDBFilm : "references via imdbID"
+    MyFilm {
+        uuid id
+        string imdbID
+        int myRating
+        bool watched
+        date dateWatched
+        string notes
+        enum audience
+    }
+
     OMDBSearchService ||--|| OMDBSearchResponse : returns
     OMDBSearchService ||--|| SearchResult : returns
     OMDBSearchService ||--|| IMDBFilm : returns
+    OMDBSearchService ||--|| CachedIMDBFilm : "checks/stores"
 
     MovieSearchViewModel ||--o{ OMDBSearchItem : manages
     MovieSearchViewModel ||--|| OMDBSearchService : uses
 
     IMDBFilmDetailViewModel ||--|| IMDBFilm : displays
+    MyFilmsStore ||--o{ MyFilm : manages
 ```
 
 ## Services
 
 ### OMDBSearchService
 
-Allows us to search films in the OMDb API. We use this service to get IMDB-type information about movies, including the IMDB ID.
+Allows us to search films in the OMDb API with intelligent caching. We use this service to get IMDB-type information about movies, including the IMDB ID.
 
 **Key Features:**
 
 - Search films by title with pagination support
 - Get detailed film information by IMDB ID or title
+- Persistent caching using CachedIMDBFilm model
+- Cache-first approach: checks local storage before API
+- 30-day cache freshness policy
+- Automatic cache population when films are added to collection
 - Debounced search to prevent excessive API calls
 - Error handling for network issues, API limits, and invalid responses
-- Response caching to reduce API calls
+- In-memory response caching for immediate re-use
 
 **Protocol Methods:**
 
@@ -218,14 +270,15 @@ sequenceDiagram
     participant MSV as MovieSearchView
     participant MSVM as MovieSearchViewModel
     participant OMDB as OMDBSearchService
+    participant DB as CachedIMDBFilm Store
     participant API as OMDb API
-    participant Cache as Cache
+    participant Cache as In-Memory Cache
 
     U->>MSV: Types "Batman"
     MSV->>MSVM: Update searchQuery
     Note over MSVM: Debounce 500ms
     MSVM->>OMDB: searchFilmsRaw("Batman")
-    OMDB->>Cache: Check cache
+    OMDB->>Cache: Check in-memory cache
     alt Cache Hit
         Cache-->>OMDB: Return cached data
     else Cache Miss
@@ -241,9 +294,17 @@ sequenceDiagram
     U->>MSV: Tap on result
     MSV->>MSVM: selectFilm(result)
     MSVM->>OMDB: getFilmDetails(imdbID)
-    OMDB->>API: HTTP GET ?i=tt0096895
-    API-->>OMDB: Detailed JSON
-    OMDB-->>MSVM: IMDBFilm
+    OMDB->>DB: Check CachedIMDBFilm
+    alt DB Hit & Fresh
+        DB-->>OMDB: Return cached film
+        OMDB-->>MSVM: IMDBFilm
+    else DB Miss or Stale
+        OMDB->>API: HTTP GET ?i=tt0096895
+        API-->>OMDB: Detailed JSON
+        OMDB->>DB: Store in CachedIMDBFilm
+        OMDB->>Cache: Store in memory
+        OMDB-->>MSVM: IMDBFilm
+    end
     MSVM-->>MSV: Return film
     MSV->>MSV: Navigate to detail
 ```
@@ -321,6 +382,34 @@ See the [OMDb API example JSON file](OMDb_API_example.json).
 Note: Not all the fields are relevant to us.
 
 The description of the search parameters is available at [OMDb API search parameters](https://www.omdbapi.com/#parameters).
+
+### MyFilmsStore
+
+Manages the user's personal film collection using SwiftData for persistence. This service provides a reactive interface for collection management with automatic UI updates.
+
+**Key Features:**
+
+- CRUD operations for user's film collection
+- Real-time collection statistics (total, watched, unwatched counts)
+- Automatic film detail caching when adding to collection
+- Duplicate detection to prevent adding same film twice
+- @Published properties for SwiftUI integration
+- Error handling with descriptive error types
+
+**Architecture Role:**
+
+- Single source of truth for user's collection
+- Manages MyFilm entities (ID-only pattern)
+- Coordinates with OMDBSearchService for caching
+- Provides environment value for app-wide access
+
+**Key Methods:**
+
+- `addFilm(from:)` - Add film from search result or detailed view
+- `updateFilm(_:)` - Update user data (rating, notes, etc.)
+- `deleteFilm(_:)` - Remove from collection
+- `getFilm(by:)` - Find film by IMDB ID
+- `isFilmInCollection(_:)` - Check if film exists
 
 ## UI Views
 

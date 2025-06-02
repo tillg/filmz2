@@ -1,3 +1,40 @@
+/**
+ * OMDBModels - Raw API Response Models
+ *
+ * This file contains the raw data structures used for parsing OMDB API responses.
+ * These models map directly to the JSON structure returned by the API and handle
+ * the specific field naming conventions used by OMDB.
+ *
+ * Architecture Role:
+ * - Low-level API response parsing
+ * - Converted to higher-level models (IMDBFilm) for use in the app
+ * - Handles API-specific quirks (capitalized field names, string booleans)
+ * - Provides clean separation between API format and app's internal format
+ *
+ * Model Types:
+ * 1. OMDBSearchResponse - Response from search queries
+ *    - Contains array of search results
+ *    - Includes pagination info (totalResults)
+ *    - Error handling for failed searches
+ *
+ * 2. OMDBSearchItem - Individual search result
+ *    - Limited data (title, year, type, poster)
+ *    - Used in search results list
+ *    - Requires additional API call for full details
+ *
+ * 3. OMDBDetailResponse - Full movie details
+ *    - Complete film information
+ *    - All fields are optional (API may return "N/A")
+ *    - Includes ratings from multiple sources
+ *
+ * 4. OMDBRating - Rating from a specific source
+ *    - Source name and rating value
+ *    - Used within OMDBDetailResponse
+ *
+ * Note: These models use CodingKeys to map between API field names
+ * (which use PascalCase) and Swift property names (which use camelCase).
+ */
+
 import Foundation
 
 struct OMDBSearchResponse: Codable {

@@ -4,16 +4,31 @@ The key data entities used throughout the application.
 
 [TOC]
 
+## Architecture Pattern
+
+Filmz2 uses an ID-only architecture with cached metadata:
+
+```text
+User Collection (MyFilm)          Cached Metadata (CachedIMDBFilm)
+┌─────────────────────┐          ┌──────────────────────────────┐
+│ imdbID: "tt0133093" │ -------> │ imdbID: "tt0133093"         │
+│ myRating: 9         │          │ title: "The Matrix"          │
+│ watched: true       │          │ actors: "Keanu Reeves..."    │
+│ notes: "Amazing!"   │          │ plot: "A computer hacker..." │
+└─────────────────────┘          │ lastFetched: 2024-01-15      │
+                                 └──────────────────────────────┘
+```
+
 ## MyFilm
 
-The SwiftData model for user's personal film collection. This model stores both user-specific data and cached film information from the OMDb API.
+The SwiftData model for user's personal film collection. Following the ID-only pattern, this model stores only the IMDB ID reference and user-specific data. Film metadata is fetched from CachedIMDBFilm when needed.
 
 ### Core Properties
 
 **Identity fields**:
 
 - `id: UUID` - Unique identifier for the local record
-- `imdbID: String` - IMDB identifier (unique, links to OMDb data)
+- `imdbID: String` - IMDB identifier (unique, references CachedIMDBFilm)
 
 **User data fields**:
 
@@ -25,24 +40,14 @@ The SwiftData model for user's personal film collection. This model stores both 
 - `recommendedBy: String?` - Who recommended the film
 - `notes: String?` - User's personal notes
 
-**Cached film data**:
-
-- `title: String` - Film title
-- `year: String?` - Release year
-- `posterURL: String?` - URL to poster image
-- `genres: [String]` - List of genres
-- `director: String?` - Director name(s)
-- `runtime: String?` - Film duration
-- `plot: String?` - Film synopsis
-
 ### Convenience Initializers
 
-- `init(from: IMDBFilm)` - Creates MyFilm from detailed OMDb data
-- `init(from: OMDBSearchItem)` - Creates MyFilm from search result
+- `init(imdbID: String)` - Creates MyFilm with just the IMDB ID
+- `init(from: IMDBFilm)` - Creates MyFilm from detailed OMDb data (extracts imdbID)
+- `init(from: OMDBSearchItem)` - Creates MyFilm from search result (extracts imdbID)
 
 ### Computed Properties
 
-- `displayYear: String` - Year with fallback to "Unknown Year"
 - `isRated: Bool` - Whether user has rated the film
 - `watchStatusText: String` - Formatted watch status
 - `ratingText: String?` - Formatted rating (e.g., "8/10")
@@ -52,6 +57,50 @@ The SwiftData model for user's personal film collection. This model stores both 
 ### TODO
 
 - Shows & Series: At a later stage I will have to properly deal with shows, seasons, episodes... Currently a show is just one film.
+
+## CachedIMDBFilm
+
+The SwiftData model for cached film metadata from the OMDb API. This model stores complete film information to reduce API calls and enable offline access.
+
+### Core Properties
+
+**Identity**:
+
+- `imdbID: String` - IMDB identifier (unique constraint)
+
+**Film metadata** (all from OMDb API):
+
+- `title: String` - Film title
+- `year: String?` - Release year
+- `rated: String?` - Rating classification
+- `released: String?` - Release date
+- `runtime: String?` - Film duration
+- `genre: String?` - Comma-separated genres
+- `director: String?` - Director name(s)
+- `writer: String?` - Writer name(s)
+- `actors: String?` - Actor names
+- `plot: String?` - Film synopsis
+- `language: String?` - Languages
+- `country: String?` - Countries
+- `awards: String?` - Awards text
+- `poster: String?` - Poster URL
+- `metascore: String?` - Metacritic score
+- `imdbRating: String?` - IMDB rating
+- `imdbVotes: String?` - Vote count
+- `type: String?` - Content type
+
+**Cache metadata**:
+
+- `lastFetched: Date` - When data was last fetched from API
+- `dataVersion: Int` - Schema version for migrations
+
+### Key Methods
+
+- `init(from: IMDBFilm)` - Creates cached version from API response
+- `toIMDBFilm() -> IMDBFilm` - Converts back to IMDBFilm for display
+- `isStale: Bool` - Checks if cache is older than 30 days
+
+**Status**: ✅ Fully implemented in `Models/CachedIMDBFilm.swift` with SwiftData persistence.
 
 ## IMDBFilm
 

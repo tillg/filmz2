@@ -5,6 +5,35 @@
 //  Created by Till Gartner on 02.06.25.
 //
 
+/**
+ * CachedIMDBFilm Model - Persistent Cache for OMDB API Film Data
+ *
+ * This model stores complete film metadata fetched from the OMDB API. It serves
+ * as a persistent cache to reduce API calls and enable offline functionality.
+ * Each film's data is stored exactly once, regardless of how many users have it
+ * in their collections.
+ *
+ * Architecture Role:
+ * - Acts as a local mirror of OMDB API data
+ * - Reduces API usage by caching responses
+ * - Enables offline access to film information
+ * - Provides single source of truth for film metadata
+ *
+ * Cache Strategy:
+ * - Data is considered fresh for 30 days (configurable)
+ * - Stale data can still be used but triggers background refresh
+ * - OMDBSearchService checks cache before making API calls
+ * - Cache is automatically populated when films are added to collections
+ *
+ * Data Stored:
+ * - All film metadata from OMDB API (title, actors, plot, etc.)
+ * - Cache metadata (last fetched date, data version)
+ * - Unique constraint on imdbID ensures no duplicates
+ *
+ * Note: We don't cache the ratings array for simplicity, but this could be
+ * added in future versions if needed.
+ */
+
 import Foundation
 import SwiftData
 

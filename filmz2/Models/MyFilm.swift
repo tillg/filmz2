@@ -5,6 +5,33 @@
 //  Created by Till Gartner on 06.01.25.
 //
 
+/**
+ * MyFilm Model - User's Personal Film Collection Entry
+ *
+ * This model represents a film in the user's personal collection. It follows the
+ * ID-only architecture pattern where we only store the IMDB ID reference and 
+ * user-specific data. The actual film metadata (title, actors, plot, etc.) is
+ * stored separately in CachedIMDBFilm to avoid data duplication.
+ *
+ * Architecture Benefits:
+ * - Clean separation between user data and movie metadata
+ * - No data duplication - each movie's metadata is stored only once
+ * - Enables features like shared collections or social features in the future
+ * - Smaller storage footprint for user collections
+ *
+ * User Data Stored:
+ * - Personal rating (0-10 stars)
+ * - Watch status and date
+ * - Audience type (who watched with)
+ * - Personal notes
+ * - Who recommended the film
+ *
+ * Usage:
+ * - When displaying a MyFilm, fetch the film details using OMDBSearchService
+ * - The service will return cached data if available, or fetch from API
+ * - Views should handle loading states while fetching film details
+ */
+
 import Foundation
 import SwiftData
 

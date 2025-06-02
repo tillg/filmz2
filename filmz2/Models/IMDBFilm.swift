@@ -1,3 +1,30 @@
+/**
+ * IMDBFilm Model - OMDB API Film Data Structure
+ *
+ * This model represents the film data structure returned by the OMDB API.
+ * It's designed to handle the API's response format with proper optional 
+ * handling for fields that may be missing or contain "N/A" values.
+ *
+ * Architecture Role:
+ * - Data transfer object for OMDB API responses
+ * - Used throughout the app for displaying film information
+ * - Converted to/from CachedIMDBFilm for persistence
+ * - Provides computed properties for UI convenience
+ *
+ * Key Features:
+ * - Custom decoding to handle "N/A" values as nil
+ * - Computed properties for common UI needs (posterURL, genreList, etc.)
+ * - Support for both search results and detailed film data
+ * - Ratings from multiple sources (IMDB, Rotten Tomatoes, Metacritic)
+ *
+ * Required Fields:
+ * - imdbID: Unique identifier (used as primary key)
+ * - title: Film title (always present in API responses)
+ *
+ * All other fields are optional as they may be missing from API responses,
+ * especially for older or less popular films.
+ */
+
 import Foundation
 
 /// Represents a film from the IMDB/OMDb API
