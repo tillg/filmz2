@@ -89,6 +89,12 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+# Test Results
+TestResults/
+*.xcresult
+*.xcresultbundle
+test_output/
+
 # Node.js
 node_modules/
 npm-debug.log*
