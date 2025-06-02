@@ -151,6 +151,7 @@ let searchQuery = query.hasSuffix("*") ? query : query + "*"
 ```
 
 This ensures:
+
 1. Queries must be at least 3 characters long
 2. Partial searches like "batm" will find "Batman", "Batman Begins", etc.
 3. Short queries (1-2 characters) return empty results immediately
@@ -322,10 +323,3 @@ Track the following events:
 - [OMDb API Search Documentation](https://www.omdbapi.com/#parameters)
 - [Apple HIG - Search](https://developer.apple.com/design/human-interface-guidelines/search)
 - [SwiftUI Search Tutorial](https://developer.apple.com/documentation/swiftui/adding-search-to-your-app)
-
----
-
-**Status**: Draft  
-**Created**: 2025-06-01  
-**Updated**: 2025-06-01  
-**Author**: Claude
