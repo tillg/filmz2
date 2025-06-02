@@ -11,7 +11,6 @@ import SwiftData
 struct MyFilmDetailView: View {
     @Bindable var film: MyFilm
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.myFilmsStore) private var myFilmsStore
     @Environment(\.dismiss) private var dismiss
     
     @State private var showDeleteAlert = false
@@ -297,13 +296,12 @@ struct MyFilmDetailView: View {
     }
     
     private func deleteFilm() {
-        if let store = myFilmsStore {
-            do {
-                try store.deleteFilm(film)
-                dismiss()
-            } catch {
-                print("Failed to delete film: \(error)")
-            }
+        modelContext.delete(film)
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            print("Failed to delete film: \(error)")
         }
     }
     

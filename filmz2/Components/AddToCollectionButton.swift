@@ -10,8 +10,6 @@ import SwiftData
 
 struct AddToCollectionButton: View {
     let searchItem: OMDBSearchItem
-    @Environment(\.myFilmsStore) private var myFilmsStore
-    @Environment(\.modelContext) private var modelContext
     
     @State private var isInCollection = false
     @State private var isLoading = false
@@ -50,8 +48,7 @@ struct AddToCollectionButton: View {
     }
     
     private func checkCollectionStatus() {
-        guard let store = myFilmsStore else { return }
-        isInCollection = store.isFilmInCollection(searchItem.imdbID)
+        isInCollection = MyFilmsManager.shared.isFilmInCollection(searchItem.imdbID)
     }
     
     private func handleTap() {
@@ -67,10 +64,7 @@ struct AddToCollectionButton: View {
         isLoading = true
         
         do {
-            // If we don't have a store in the environment, create one
-            let store = myFilmsStore ?? MyFilmsStore(modelContext: modelContext)
-            
-            _ = try await store.addFilm(from: searchItem)
+            _ = try await MyFilmsManager.shared.addFilm(from: searchItem)
             
             withAnimation(.easeInOut(duration: 0.3)) {
                 showSuccess = true
@@ -99,8 +93,6 @@ struct AddToCollectionButton: View {
 
 struct AddToCollectionButtonLarge: View {
     let imdbFilm: IMDBFilm
-    @Environment(\.myFilmsStore) private var myFilmsStore
-    @Environment(\.modelContext) private var modelContext
     
     @State private var isInCollection = false
     @State private var isLoading = false
@@ -141,8 +133,7 @@ struct AddToCollectionButtonLarge: View {
     }
     
     private func checkCollectionStatus() {
-        guard let store = myFilmsStore else { return }
-        isInCollection = store.isFilmInCollection(imdbFilm.imdbID)
+        isInCollection = MyFilmsManager.shared.isFilmInCollection(imdbFilm.imdbID)
     }
     
     private func handleTap() {
@@ -158,8 +149,7 @@ struct AddToCollectionButtonLarge: View {
         isLoading = true
         
         do {
-            let store = myFilmsStore ?? MyFilmsStore(modelContext: modelContext)
-            _ = try await store.addFilm(from: imdbFilm)
+            _ = try await MyFilmsManager.shared.addFilm(from: imdbFilm)
             
             withAnimation(.easeInOut(duration: 0.3)) {
                 isInCollection = true

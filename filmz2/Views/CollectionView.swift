@@ -9,30 +9,19 @@ import SwiftUI
 import SwiftData
 
 struct CollectionView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.myFilmsStore) private var myFilmsStore
-    @StateObject private var viewModel: CollectionViewModel
+    @StateObject private var viewModel: CollectionViewModel = CollectionViewModel()
     
     @State private var showingGenreFilter = false
-    
-    init() {
-        // Create a temporary view model - will be replaced with proper context
-        let tempContainer = try! ModelContainer(for: MyFilm.self)
-        let tempContext = ModelContext(tempContainer)
-        let tempStore = MyFilmsStore(modelContext: tempContext)
-        self._viewModel = StateObject(wrappedValue: CollectionViewModel(myFilmsStore: tempStore, modelContext: tempContext))
-    }
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if let store = myFilmsStore {
-                    // Segmented Control
-                    Picker("View", selection: $viewModel.filter.watchedStatus) {
-                        Text("All (\(store.totalFilmsCount))").tag(WatchedFilter.all)
-                        Text("Watched (\(store.watchedFilmsCount))").tag(WatchedFilter.watched)
-                        Text("Unwatched (\(store.unwatchedFilmsCount))").tag(WatchedFilter.unwatched)
-                    }
+                // Segmented Control
+                Picker("View", selection: $viewModel.filter.watchedStatus) {
+                    Text("All (\(viewModel.totalFilmsCount))").tag(WatchedFilter.all)
+                    Text("Watched (\(viewModel.watchedFilmsCount))").tag(WatchedFilter.watched)
+                    Text("Unwatched (\(viewModel.unwatchedFilmsCount))").tag(WatchedFilter.unwatched)
+                }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.horizontal)
                     .padding(.top)
@@ -83,15 +72,12 @@ struct CollectionView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 8)
                     
-                    if store.films.isEmpty {
-                        emptyStateView
-                    } else if viewModel.filteredAndSortedFilms.isEmpty {
-                        filteredEmptyStateView
-                    } else {
-                        filmsList
-                    }
-                } else {
+                if viewModel.films.isEmpty {
                     emptyStateView
+                } else if viewModel.filteredAndSortedFilms.isEmpty {
+                    filteredEmptyStateView
+                } else {
+                    filmsList
                 }
             }
             .navigationTitle("My Collection")
@@ -100,13 +86,10 @@ struct CollectionView: View {
                 GenreFilterSheet(viewModel: viewModel)
             }
             .onAppear {
-                if let store = myFilmsStore {
-                    viewModel.myFilmsStore = store
-                    viewModel.modelContext = modelContext
-                    Task {
-                        await viewModel.loadAllFilmDetails()
-                    }
-                }
+                viewModel.loadFilms()
+            }
+            .onChange(of: viewModel.filter) { _, _ in
+                viewModel.objectWillChange.send()
             }
         }
     }

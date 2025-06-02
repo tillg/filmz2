@@ -69,7 +69,10 @@ struct MovieSearchView: View {
             LazyVStack(spacing: 0) {
                 ForEach(viewModel.searchResults, id: \.imdbID) { result in
                     VStack(spacing: 0) {
-                        FilmCell(searchResult: result)
+                        NavigationLink(destination: IMDBFilmDetailView(searchItem: result)) {
+                            MovieSearchResultCellWithCache(result: result)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                         
                         Divider()
                             .padding(.leading, 88)

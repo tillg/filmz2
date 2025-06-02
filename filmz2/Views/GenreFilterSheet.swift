@@ -77,8 +77,5 @@ struct GenreFilterSheet: View {
 }
 
 #Preview {
-    GenreFilterSheet(viewModel: CollectionViewModel(
-        myFilmsStore: MyFilmsStore(modelContext: try! ModelContext(ModelContainer(for: MyFilm.self))),
-        modelContext: try! ModelContext(ModelContainer(for: MyFilm.self))
-    ))
+    GenreFilterSheet(viewModel: CollectionViewModel())
 }

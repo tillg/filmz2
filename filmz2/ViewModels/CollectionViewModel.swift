@@ -45,34 +45,35 @@ class CollectionViewModel: ObservableObject {
     @Published var searchText = ""
     @Published var availableGenres: [String] = []
     @Published var filmDetailsCache: [String: IMDBFilm] = [:]
+    @Published var films: [MyFilm] = []
     
-    var myFilmsStore: MyFilmsStore
-    var modelContext: ModelContext
+    init() {
+        loadFilms()
+    }
     
-    init(myFilmsStore: MyFilmsStore, modelContext: ModelContext) {
-        self.myFilmsStore = myFilmsStore
-        self.modelContext = modelContext
+    func loadFilms() {
+        films = MyFilmsManager.shared.fetchFilms()
         Task {
-            await loadAvailableGenres()
+            await loadAllFilmDetails()
         }
     }
     
     var filteredAndSortedFilms: [MyFilm] {
-        var films = myFilmsStore.films
+        var filteredFilms = films
         
         // Apply watched filter
         switch filter.watchedStatus {
         case .all:
             break
         case .watched:
-            films = films.filter { $0.watched }
+            filteredFilms = filteredFilms.filter { $0.watched }
         case .unwatched:
-            films = films.filter { !$0.watched }
+            filteredFilms = filteredFilms.filter { !$0.watched }
         }
         
         // Apply search filter
         if !searchText.isEmpty {
-            films = films.filter { film in
+            filteredFilms = filteredFilms.filter { film in
                 // Check if we have cached details for searching
                 if let details = filmDetailsCache[film.imdbID] {
                     let searchLower = searchText.lowercased()
@@ -87,7 +88,7 @@ class CollectionViewModel: ObservableObject {
         
         // Apply genre filter
         if !filter.genres.isEmpty {
-            films = films.filter { film in
+            filteredFilms = filteredFilms.filter { film in
                 guard let details = filmDetailsCache[film.imdbID],
                       let genreString = details.genre else { return false }
                 
@@ -97,7 +98,7 @@ class CollectionViewModel: ObservableObject {
         }
         
         // Apply sort
-        films.sort { film1, film2 in
+        filteredFilms.sort { film1, film2 in
             switch filter.sortOption {
             case .nameAscending:
                 let title1 = filmDetailsCache[film1.imdbID]?.title ?? ""
@@ -127,7 +128,19 @@ class CollectionViewModel: ObservableObject {
             }
         }
         
-        return films
+        return filteredFilms
+    }
+    
+    var totalFilmsCount: Int {
+        films.count
+    }
+    
+    var watchedFilmsCount: Int {
+        films.filter { $0.watched }.count
+    }
+    
+    var unwatchedFilmsCount: Int {
+        films.filter { !$0.watched }.count
     }
     
     func loadFilmDetails(for film: MyFilm) async {
@@ -145,7 +158,7 @@ class CollectionViewModel: ObservableObject {
     
     func loadAllFilmDetails() async {
         await withTaskGroup(of: Void.self) { group in
-            for film in myFilmsStore.films {
+            for film in films {
                 group.addTask {
                     await self.loadFilmDetails(for: film)
                 }
