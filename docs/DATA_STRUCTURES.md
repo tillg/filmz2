@@ -6,20 +6,47 @@ The key data entities used throughout the application.
 
 ## MyFilm
 
-The data about a film that I maintain. Some fields of it:
+The SwiftData model for user's personal film collection. This model stores both user-specific data and cached film information from the OMDb API.
 
-- id: UUID
-- imdbFilmId: The film id from IMDB
-- myRating: Int 0..10
-- dateAdded: Date
-- watched: Bool
-- dateWatched: Date
-- audience: Enum AudienceType("Me alone", "Me and partner", "Family")
-- recommendedBy: String
+### Core Properties
 
-**Status**: Not yet implemented - placeholder `Item.swift` exists with basic SwiftData structure.
+**Identity fields**:
+- `id: UUID` - Unique identifier for the local record
+- `imdbID: String` - IMDB identifier (unique, links to OMDb data)
 
-TODO:
+**User data fields**:
+- `myRating: Int?` - User's personal rating (0-10)
+- `dateAdded: Date` - When the film was added to collection
+- `watched: Bool` - Whether the user has watched the film
+- `dateWatched: Date?` - When the film was watched
+- `audience: AudienceType?` - Viewing audience enum ("Me alone", "Me and partner", "Family")
+- `recommendedBy: String?` - Who recommended the film
+- `notes: String?` - User's personal notes
+
+**Cached film data**:
+- `title: String` - Film title
+- `year: String?` - Release year
+- `posterURL: String?` - URL to poster image
+- `genres: [String]` - List of genres
+- `director: String?` - Director name(s)
+- `runtime: String?` - Film duration
+- `plot: String?` - Film synopsis
+
+### Convenience Initializers
+
+- `init(from: IMDBFilm)` - Creates MyFilm from detailed OMDb data
+- `init(from: OMDBSearchItem)` - Creates MyFilm from search result
+
+### Computed Properties
+
+- `displayYear: String` - Year with fallback to "Unknown Year"
+- `isRated: Bool` - Whether user has rated the film
+- `watchStatusText: String` - Formatted watch status
+- `ratingText: String?` - Formatted rating (e.g., "8/10")
+
+**Status**: ✅ Fully implemented in `Models/MyFilm.swift` with SwiftData persistence.
+
+### TODO
 
 - Shows & Series: At a later stage I will have to properly deal with shows, seasons, episodes... Currently a show is just one film.
 
@@ -266,6 +293,37 @@ struct OMDBRating: Codable {
     let value: String   // "8.5/10", "94%", etc.
 }
 ```
+
+## Services
+
+### MyFilmsStore
+
+The main service for managing the user's film collection using SwiftData.
+
+**Key Features**:
+- CRUD operations for MyFilm entities
+- SwiftData persistence with automatic fetching
+- Collection state management
+- Film existence checking
+- Filtering by watch status
+- Statistics (total, watched, unwatched counts)
+
+**Main Methods**:
+- `addFilm(from: OMDBSearchItem)` - Add film from search result
+- `addFilm(from: IMDBFilm)` - Add film from detailed view
+- `updateFilm(_ film: MyFilm)` - Update film data
+- `deleteFilm(_ film: MyFilm)` - Remove from collection
+- `getFilm(by: String)` - Find film by IMDB ID
+- `isFilmInCollection(_ imdbID: String)` - Check if film exists
+- `markAsWatched(_ film: MyFilm, date: Date)` - Update watch status
+- `rateFilm(_ film: MyFilm, rating: Int)` - Set user rating
+
+**Error Handling**:
+Uses `MyFilmsStoreError` enum for:
+- `filmAlreadyExists(String)` - Film title already in collection
+- `saveFailed(Error)` - SwiftData save operation failed
+- `deleteFailed(Error)` - SwiftData delete operation failed
+- `invalidRating` - Rating outside 0-10 range
 
 ## Service Protocols
 

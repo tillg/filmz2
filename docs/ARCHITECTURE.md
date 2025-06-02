@@ -27,14 +27,15 @@ C4Context
 The main elements of our application:
 
 - OMDBSearchService: Service that searches films using the OMDb API
-- MyFilmsStore: The service that stores my films locally (or wherever).
+- MyFilmsStore: Service that manages the user's film collection using SwiftData for local persistence. Provides CRUD operations, filtering, and statistics.
 - UI:
   - MovieSearchView: The main search interface where users search for films. Contains a search field with debouncing, results list with movie posters and metadata.
     - MovieSearchViewModel: Manages search state, API calls, and pagination
-    - MovieSearchResultCell: Displays individual search results with poster, title, year, and type
-  - IMDBFilmDetailView: Shows detailed information about a selected film from search results
-  - My Filmz: The list of films I have stored (both, the ones I plan to see and the ones I saw).
-  - My Film Detail: Viewing and editing the details of a Film: Whether I saw and liked it, for which audience I would recommend it...
+    - MovieSearchResultCell: Displays individual search results with poster, title, year, type, and add to collection button
+  - IMDBFilmDetailView: Shows detailed information about a selected film from search results, includes add to collection functionality
+  - CollectionView: Displays the user's film collection with tabs for All/Watched/Unwatched films
+    - CollectionFilmCell: Shows films in the collection with poster, title, year, and watch status
+  - MyFilmDetailView: Viewing and editing the details of a user's film: watch status, rating, notes, and audience type
 
 ### High-Level Architecture
 
