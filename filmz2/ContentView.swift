@@ -36,6 +36,9 @@ struct ContentView: View {
             // Update the store with the actual model context
             myFilmsStore.modelContext = modelContext
             myFilmsStore.fetchFilms()
+            
+            // Set model context for OMDBSearchService
+            OMDBSearchService.shared.setModelContext(modelContext)
         }
     }
 }

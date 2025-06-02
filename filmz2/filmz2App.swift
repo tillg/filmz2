@@ -14,6 +14,7 @@ struct filmz2App: App {
         let schema = Schema([
             Item.self,
             MyFilm.self,
+            CachedIMDBFilm.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

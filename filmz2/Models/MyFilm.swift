@@ -29,34 +29,9 @@ final class MyFilm {
     var recommendedBy: String?
     var notes: String?
     
-    // Cached Film Data
-    var title: String
-    var year: String?
-    var posterURL: String?
-    var genres: [String]
-    var director: String?
-    var runtime: String?
-    var plot: String?
-    
-    init(
-        imdbID: String,
-        title: String,
-        year: String? = nil,
-        posterURL: String? = nil,
-        genres: [String] = [],
-        director: String? = nil,
-        runtime: String? = nil,
-        plot: String? = nil
-    ) {
+    init(imdbID: String) {
         self.id = UUID()
         self.imdbID = imdbID
-        self.title = title
-        self.year = year
-        self.posterURL = posterURL
-        self.genres = genres
-        self.director = director
-        self.runtime = runtime
-        self.plot = plot
         
         // Default values
         self.dateAdded = Date()
@@ -70,36 +45,17 @@ final class MyFilm {
     
     // Convenience initializer from IMDBFilm
     convenience init(from imdbFilm: IMDBFilm) {
-        self.init(
-            imdbID: imdbFilm.imdbID,
-            title: imdbFilm.title,
-            year: imdbFilm.year,
-            posterURL: imdbFilm.poster,
-            genres: imdbFilm.genreList,
-            director: imdbFilm.director,
-            runtime: imdbFilm.runtime,
-            plot: imdbFilm.plot
-        )
+        self.init(imdbID: imdbFilm.imdbID)
     }
     
     // Convenience initializer from OMDBSearchItem
     convenience init(from searchItem: OMDBSearchItem) {
-        self.init(
-            imdbID: searchItem.imdbID,
-            title: searchItem.title,
-            year: searchItem.year,
-            posterURL: searchItem.poster,
-            genres: []
-        )
+        self.init(imdbID: searchItem.imdbID)
     }
 }
 
 // MARK: - Computed Properties
 extension MyFilm {
-    var displayYear: String {
-        year ?? "Unknown Year"
-    }
-    
     var isRated: Bool {
         myRating != nil
     }

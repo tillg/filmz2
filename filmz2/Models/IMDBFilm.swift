@@ -234,6 +234,11 @@ extension IMDBFilm {
     var ratingClassification: String? {
         rated
     }
+    
+    /// Returns the writer field (alias for consistency with MyFilm)
+    var writers: String? {
+        writer
+    }
 }
 
 // MARK: - Sample Data

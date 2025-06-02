@@ -11,10 +11,12 @@ The SwiftData model for user's personal film collection. This model stores both 
 ### Core Properties
 
 **Identity fields**:
+
 - `id: UUID` - Unique identifier for the local record
 - `imdbID: String` - IMDB identifier (unique, links to OMDb data)
 
 **User data fields**:
+
 - `myRating: Int?` - User's personal rating (0-10)
 - `dateAdded: Date` - When the film was added to collection
 - `watched: Bool` - Whether the user has watched the film
@@ -24,6 +26,7 @@ The SwiftData model for user's personal film collection. This model stores both 
 - `notes: String?` - User's personal notes
 
 **Cached film data**:
+
 - `title: String` - Film title
 - `year: String?` - Release year
 - `posterURL: String?` - URL to poster image
@@ -301,6 +304,7 @@ struct OMDBRating: Codable {
 The main service for managing the user's film collection using SwiftData.
 
 **Key Features**:
+
 - CRUD operations for MyFilm entities
 - SwiftData persistence with automatic fetching
 - Collection state management
@@ -309,6 +313,7 @@ The main service for managing the user's film collection using SwiftData.
 - Statistics (total, watched, unwatched counts)
 
 **Main Methods**:
+
 - `addFilm(from: OMDBSearchItem)` - Add film from search result
 - `addFilm(from: IMDBFilm)` - Add film from detailed view
 - `updateFilm(_ film: MyFilm)` - Update film data
@@ -320,6 +325,7 @@ The main service for managing the user's film collection using SwiftData.
 
 **Error Handling**:
 Uses `MyFilmsStoreError` enum for:
+
 - `filmAlreadyExists(String)` - Film title already in collection
 - `saveFailed(Error)` - SwiftData save operation failed
 - `deleteFailed(Error)` - SwiftData delete operation failed

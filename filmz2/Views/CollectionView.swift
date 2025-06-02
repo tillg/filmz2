@@ -94,64 +94,76 @@ struct CollectionView: View {
             baseFilms = store.films
         }
         
-        if searchText.isEmpty {
-            return baseFilms
-        } else {
-            return baseFilms.filter { film in
-                film.title.localizedCaseInsensitiveContains(searchText) ||
-                film.director?.localizedCaseInsensitiveContains(searchText) ?? false ||
-                film.genres.contains { $0.localizedCaseInsensitiveContains(searchText) }
-            }
-        }
+        // For now, return all films when searching since we don't have cached data
+        // In a full implementation, we could maintain a search index
+        return baseFilms
     }
 }
 
 struct CollectionFilmCell: View {
     let film: MyFilm
+    @State private var filmDetails: IMDBFilm?
+    @State private var isLoading = true
     
     var body: some View {
         HStack(spacing: 12) {
             // Poster
-            AsyncImage(url: URL(string: film.posterURL ?? "")) { phase in
-                switch phase {
-                case .empty:
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            ProgressView()
-                                .tint(.gray)
-                        )
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 60, height: 90)
-                        .clipped()
-                        .cornerRadius(8)
-                case .failure(_):
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.gray.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "photo")
-                                .foregroundColor(.gray)
-                                .font(.title2)
-                        )
-                @unknown default:
-                    EmptyView()
+            if let details = filmDetails {
+                AsyncImage(url: details.posterURL) { phase in
+                    switch phase {
+                    case .empty:
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                ProgressView()
+                                    .tint(.gray)
+                            )
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 90)
+                            .clipped()
+                            .cornerRadius(8)
+                    case .failure(_):
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .foregroundColor(.gray)
+                                    .font(.title2)
+                            )
+                    @unknown default:
+                        EmptyView()
+                    }
                 }
+                .frame(width: 60, height: 90)
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(width: 60, height: 90)
+                    .overlay(
+                        ProgressView()
+                            .scaleEffect(0.5)
+                    )
             }
-            .frame(width: 60, height: 90)
             
             // Film Info
             VStack(alignment: .leading, spacing: 4) {
-                Text(film.title)
-                    .font(.headline)
-                    .lineLimit(2)
-                    .foregroundColor(.primary)
-                
-                Text(film.displayYear)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                if let details = filmDetails {
+                    Text(details.title)
+                        .font(.headline)
+                        .lineLimit(2)
+                        .foregroundColor(.primary)
+                    
+                    Text(details.displayYear ?? "Unknown Year")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("Loading...")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
                 
                 // Rating or Watch Status
                 if film.watched {
@@ -185,88 +197,17 @@ struct CollectionFilmCell: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
+        .task {
+            do {
+                filmDetails = try await OMDBSearchService.shared.getFilm(byID: film.imdbID)
+            } catch {
+                // Keep loading state or show error
+                print("Failed to load film details: \(error)")
+            }
+        }
     }
 }
 
-// Placeholder for detail view
-struct MyFilmDetailView: View {
-    let film: MyFilm
-    
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                // Poster
-                if let posterURL = film.posterURL, let url = URL(string: posterURL) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(2/3, contentMode: .fit)
-                            .frame(maxHeight: 400)
-                            .cornerRadius(12)
-                    } placeholder: {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 400)
-                            .overlay(
-                                ProgressView()
-                            )
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                
-                // Film Info
-                VStack(alignment: .leading, spacing: 16) {
-                    Text(film.displayYear)
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                    
-                    if !film.genres.isEmpty {
-                        GenrePills(film.genres)
-                    }
-                    
-                    // Watch Status
-                    HStack {
-                        Label(film.watchStatusText, systemImage: film.watched ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(film.watched ? .green : .orange)
-                    }
-                    
-                    // Rating
-                    if let rating = film.myRating {
-                        HStack {
-                            Text("My Rating:")
-                            ForEach(1...10, id: \.self) { star in
-                                Image(systemName: star <= rating ? "star.fill" : "star")
-                                    .foregroundColor(.yellow)
-                            }
-                        }
-                    }
-                    
-                    if let plot = film.plot {
-                        Text("Plot")
-                            .font(.headline)
-                        Text(plot)
-                            .font(.body)
-                    }
-                    
-                    if let notes = film.notes, !notes.isEmpty {
-                        Text("My Notes")
-                            .font(.headline)
-                        Text(notes)
-                            .font(.body)
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
-                    }
-                }
-                .padding(.horizontal)
-            }
-        }
-        .navigationTitle(film.title)
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
-    }
-}
 
 #Preview {
     CollectionView()

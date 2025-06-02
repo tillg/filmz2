@@ -38,9 +38,12 @@ class MyFilmsStore: ObservableObject {
     
     func addFilm(from searchItem: OMDBSearchItem) async throws -> MyFilm {
         // Check if film already exists
-        if let existingFilm = try? getFilm(by: searchItem.imdbID) {
-            throw MyFilmsStoreError.filmAlreadyExists(existingFilm.title)
+        if (try? getFilm(by: searchItem.imdbID)) != nil {
+            throw MyFilmsStoreError.filmAlreadyExists(searchItem.title)
         }
+        
+        // Fetch full film details to ensure it's cached
+        _ = try await OMDBSearchService.shared.getFilm(byID: searchItem.imdbID)
         
         let myFilm = MyFilm(from: searchItem)
         modelContext.insert(myFilm)
@@ -56,8 +59,8 @@ class MyFilmsStore: ObservableObject {
     
     func addFilm(from imdbFilm: IMDBFilm) async throws -> MyFilm {
         // Check if film already exists
-        if let existingFilm = try? getFilm(by: imdbFilm.imdbID) {
-            throw MyFilmsStoreError.filmAlreadyExists(existingFilm.title)
+        if (try? getFilm(by: imdbFilm.imdbID)) != nil {
+            throw MyFilmsStoreError.filmAlreadyExists(imdbFilm.title)
         }
         
         let myFilm = MyFilm(from: imdbFilm)

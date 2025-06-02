@@ -4,7 +4,6 @@ import SwiftUI
 /// Follows the layout specification with poster at top and metadata below
 struct IMDBFilmDetailView: View {
     @StateObject private var viewModel: IMDBFilmDetailViewModel
-    @State private var showFullPlot = false
     
     // MARK: - Initialization
     
@@ -18,7 +17,10 @@ struct IMDBFilmDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 // Film Poster Section
-                posterSection
+                FilmPosterSection(
+                    posterURL: viewModel.film.posterURL,
+                    title: viewModel.film.title
+                )
                 
                 // Title and Basic Info Section
                 titleSection
@@ -33,13 +35,28 @@ struct IMDBFilmDetailView: View {
                 }
                 
                 // Metadata Section
-                metadataSection
+                FilmMetadataSection(
+                    genres: viewModel.genreChips,
+                    director: viewModel.film.director,
+                    actors: viewModel.film.actors,
+                    writers: viewModel.film.writer,
+                    released: viewModel.film.released,
+                    runtime: viewModel.film.runtime,
+                    language: viewModel.film.language,
+                    country: viewModel.film.country,
+                    awards: viewModel.film.awards
+                )
                 
                 // Plot Section
-                plotSection
+                if let plot = viewModel.film.plot {
+                    ExpandablePlot(plot: plot)
+                }
                 
                 // Cast and Crew Section
-                castAndCrewSection
+                FilmCastAndCrewSection(
+                    actors: viewModel.film.actors,
+                    writers: viewModel.film.writer
+                )
                 
                 // Additional Information
                 additionalInfoSection
@@ -51,35 +68,6 @@ struct IMDBFilmDetailView: View {
     }
     
     // MARK: - View Components
-    
-    private var posterSection: some View {
-        HStack {
-            Spacer()
-            AsyncImage(url: viewModel.film.posterURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(2/3, contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(radius: 8)
-            } placeholder: {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.gray.opacity(0.3))
-                    .aspectRatio(2/3, contentMode: .fit)
-                    .overlay(
-                        VStack {
-                            Image(systemName: "photo")
-                                .font(.system(size: 40))
-                                .foregroundColor(.gray)
-                            Text("Poster")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                    )
-            }
-            .frame(maxHeight: 400)
-            Spacer()
-        }
-    }
     
     private var titleSection: some View {
         HStack {
@@ -116,86 +104,6 @@ struct IMDBFilmDetailView: View {
         }
     }
     
-    private var metadataSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Genres
-            if !viewModel.genreChips.isEmpty {
-                GenrePills(viewModel.genreChips)
-            }
-            
-            // Director
-            if let directorInfo = viewModel.directorInfo {
-                InfoRow(title: "Director", content: directorInfo)
-            }
-            
-            // Release Info
-            if let releaseInfo = viewModel.releaseInfo {
-                InfoRow(title: "Released", content: releaseInfo)
-            }
-            
-            // Origin
-            if let originInfo = viewModel.originInfo {
-                InfoRow(title: "Origin", content: originInfo)
-            }
-            
-            // Awards
-            if let awards = viewModel.awardsInfo {
-                InfoRow(title: "Awards", content: awards)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var plotSection: some View {
-        if let plot = viewModel.film.plot {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Plot")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(showFullPlot ? plot : viewModel.truncatedPlot())
-                        .font(.body)
-                        .lineSpacing(4)
-                    
-                    if viewModel.shouldTruncatePlot() {
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showFullPlot.toggle()
-                            }
-                        }) {
-                            Text(showFullPlot ? "Show Less" : "Read More")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.blue)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private var castAndCrewSection: some View {
-        let hasActors = viewModel.formattedActors != nil
-        let hasWriters = viewModel.formattedWriters != nil
-        
-        if hasActors || hasWriters {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Cast & Crew")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
-                if let actors = viewModel.formattedActors {
-                    InfoRow(title: "Starring", content: actors)
-                }
-                
-                if let writers = viewModel.formattedWriters {
-                    InfoRow(title: "Writers", content: writers)
-                }
-            }
-        }
-    }
     
     @ViewBuilder
     private var additionalInfoSection: some View {
@@ -206,27 +114,9 @@ struct IMDBFilmDetailView: View {
                     .fontWeight(.semibold)
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    InfoRow(title: "Type", content: type.capitalized)
+                    FilmInfoRow(title: "Type", content: type.capitalized)
                 }
             }
-        }
-    }
-}
-
-// MARK: - Supporting Views
-
-private struct InfoRow: View {
-    let title: String
-    let content: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.secondary)
-            Text(content)
-                .font(.body)
         }
     }
 }
