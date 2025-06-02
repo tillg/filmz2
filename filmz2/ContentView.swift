@@ -11,6 +11,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var myFilmsStore: MyFilmsStore
+    @State private var selectedTab: MainTab = .collection
     
     init() {
         // Create a temporary store - will be replaced with proper context
@@ -20,16 +21,27 @@ struct ContentView: View {
     }
 
     var body: some View {
-        TabView {
-            MovieSearchView()
-                .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
-                }
-            
+        TabView(selection: $selectedTab) {
             CollectionView()
                 .tabItem {
-                    Label("Collection", systemImage: "film.stack")
+                    Label(MainTab.collection.title, 
+                          systemImage: MainTab.collection.icon)
                 }
+                .tag(MainTab.collection)
+            
+            MovieSearchView()
+                .tabItem {
+                    Label(MainTab.search.title, 
+                          systemImage: MainTab.search.icon)
+                }
+                .tag(MainTab.search)
+            
+            SettingsView()
+                .tabItem {
+                    Label(MainTab.settings.title, 
+                          systemImage: MainTab.settings.icon)
+                }
+                .tag(MainTab.settings)
         }
         .environment(\.myFilmsStore, myFilmsStore)
         .onAppear {
