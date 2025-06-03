@@ -7,6 +7,7 @@ A comprehensive guide to all data models, types, and structures used in the Film
 ## Overview
 
 Filmz2's data layer is organized into distinct categories:
+
 - **Persistence Models**: SwiftData models for local storage
 - **API Models**: Structures for OMDb API communication
 - **UI Models**: ViewModels and UI-specific data structures
@@ -28,6 +29,7 @@ User Collection (MyFilm)          Cached Metadata (CachedIMDBFilm)
 ```
 
 This pattern ensures:
+
 - No data duplication
 - Efficient storage
 - Clear separation of concerns
@@ -45,7 +47,7 @@ final class MyFilm {
     // Identity
     @Attribute(.unique) var id: UUID
     @Attribute(.unique) var imdbID: String
-    
+
     // User Data
     var myRating: Int?
     var dateAdded: Date
@@ -58,6 +60,7 @@ final class MyFilm {
 ```
 
 **Key Features:**
+
 - ID-only pattern - stores just `imdbID` reference
 - All user-specific data (ratings, notes, watch status)
 - Convenience initializers from `IMDBFilm` and `OMDBSearchItem`
@@ -73,7 +76,7 @@ Persistent cache of film metadata from the OMDb API.
 @Model
 final class CachedIMDBFilm {
     @Attribute(.unique) var imdbID: String
-    
+
     // Film metadata
     var title: String
     var year: String?
@@ -93,7 +96,7 @@ final class CachedIMDBFilm {
     var imdbRating: String?
     var imdbVotes: String?
     var type: String?
-    
+
     // Cache metadata
     var lastFetched: Date
     var dataVersion: Int
@@ -101,6 +104,7 @@ final class CachedIMDBFilm {
 ```
 
 **Key Features:**
+
 - Complete film information storage
 - 30-day freshness check via `isStale` computed property
 - Conversion methods to/from `IMDBFilm`
@@ -138,7 +142,7 @@ struct OMDBSearchResponse: Codable {
     let totalResults: String?       // Total number of results
     let response: String           // "True" or "False"
     let error: String?             // Error message if response is "False"
-    
+
     enum CodingKeys: String, CodingKey {
         case search = "Search"
         case totalResults
@@ -159,9 +163,9 @@ struct OMDBSearchItem: Codable, Identifiable, Hashable {
     let imdbID: String     // IMDB identifier
     let type: String       // "movie", "series", or "episode"
     let poster: String?    // Poster URL (optional)
-    
+
     var id: String { imdbID }
-    
+
     enum CodingKeys: String, CodingKey {
         case title = "Title"
         case year = "Year"
@@ -196,7 +200,7 @@ struct IMDBFilm: Identifiable, Codable {
     // Required fields
     let title: String
     let imdbID: String
-    
+
     // Optional fields
     let year: String?
     let rated: String?
@@ -217,12 +221,13 @@ struct IMDBFilm: Identifiable, Codable {
     let imdbVotes: String?
     let type: String?
     let response: String?
-    
+
     var id: String { imdbID }
 }
 ```
 
 **Computed Properties:**
+
 - `posterURL: URL?` - Converts poster string to URL
 - `genreList: [String]` - Splits genres into array
 - `formattedIMDBRating: String?` - Formats as "X.X/10"
@@ -230,6 +235,7 @@ struct IMDBFilm: Identifiable, Codable {
 - `yearAndRuntime: String` - Combined display string
 
 **Custom Decoding:**
+
 - Treats "N/A" values as nil
 - Handles missing optional fields gracefully
 
@@ -243,7 +249,7 @@ Rating information from various sources.
 struct Rating: Codable {
     let source: String  // e.g., "Internet Movie Database"
     let value: String   // e.g., "9.0/10"
-    
+
     enum CodingKeys: String, CodingKey {
         case source = "Source"
         case value = "Value"
@@ -276,14 +282,14 @@ class IMDBFilmDetailViewModel: ObservableObject {
     @Published var film: IMDBFilm
     @Published var isImageLoading: Bool = false
     @Published var imageLoadError: Error?
-    
+
     // Computed display properties
     var titleWithYear: String
     var genreChips: [String]
     var formattedActors: String?
     var directorInfo: String?
     var availableRatings: [RatingDisplayInfo]
-    
+
     // Utility methods
     func formattedVotes() -> String?
     func shouldTruncatePlot(maxLength: Int) -> Bool
@@ -302,12 +308,12 @@ class MovieSearchViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var hasSearched = false
-    
+
     // Pagination
     private var currentPage = 1
     private var totalResults = 0
     var hasMoreResults: Bool
-    
+
     // Methods
     func searchFilms()
     func loadMoreResults()
@@ -327,7 +333,7 @@ class CollectionViewModel: ObservableObject {
     @Published var availableGenres: [String] = []
     @Published var filmDetailsCache: [String: IMDBFilm] = [:]
     @Published var films: [MyFilm] = []
-    
+
     // Computed properties
     var filteredAndSortedFilms: [MyFilm]
     var totalFilmsCount: Int
@@ -374,7 +380,7 @@ enum MainTab: Int, CaseIterable {
     case collection = 0
     case search = 1
     case settings = 2
-    
+
     var title: String {
         switch self {
         case .collection: return "Collection"
@@ -382,7 +388,7 @@ enum MainTab: Int, CaseIterable {
         case .settings: return "Settings"
         }
     }
-    
+
     var icon: String {
         switch self {
         case .collection: return "books.vertical"
@@ -437,7 +443,7 @@ enum SortOption: String, CaseIterable {
     case yearOldest = "Year (Oldest)"
     case recentlyAdded = "Recently Added"
     case firstAdded = "First Added"
-    
+
     var systemImage: String {
         switch self {
         case .nameAscending, .yearOldest, .firstAdded:
@@ -466,7 +472,7 @@ enum OMDBError: Error, LocalizedError {
     case dailyLimitExceeded     // API rate limit hit
     case decodingError(Error)   // JSON decoding failed
     case unknownError(String)   // Other errors with message
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidAPIKey:
@@ -498,7 +504,7 @@ enum MyFilmsStoreError: Error, LocalizedError {
     case saveFailed(Error)          // SwiftData save failed
     case deleteFailed(Error)        // SwiftData delete failed
     case invalidRating              // Rating outside 0-10 range
-    
+
     var errorDescription: String? {
         switch self {
         case .filmAlreadyExists(let title):
@@ -578,7 +584,7 @@ sequenceDiagram
     View->>ViewModel: Load film details
     ViewModel->>Service: getFilm(imdbID)
     Service->>Cache: Check CachedIMDBFilm
-    
+
     alt Cache hit & fresh
         Cache-->>Service: Return cached data
     else Cache miss or stale
@@ -586,7 +592,7 @@ sequenceDiagram
         API-->>Service: Film data
         Service->>Cache: Update cache
     end
-    
+
     Service-->>ViewModel: IMDBFilm
     ViewModel-->>View: Update UI
 ```
@@ -596,6 +602,7 @@ sequenceDiagram
 ### Future Considerations
 
 1. **Shows & Series**: Current implementation treats shows as single films. Future versions will need:
+
    - Season/Episode models
    - Hierarchical relationships
    - Different UI patterns
@@ -610,6 +617,7 @@ sequenceDiagram
 ## Summary
 
 The data architecture prioritizes:
+
 - **Separation of Concerns**: User data vs. movie metadata
 - **Efficiency**: No duplicate storage, smart caching
 - **Flexibility**: Easy to extend without breaking changes
