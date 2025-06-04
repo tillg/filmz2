@@ -1,50 +1,20 @@
 import Foundation
 import SwiftData
 
-/// Manages the cache database separately from the main app database
+/// Manages the cache database using the shared app container
+@MainActor
 class CacheManager {
     static let shared = CacheManager()
     
-    private var modelContainer: ModelContainer?
     private var modelContext: ModelContext?
     
     private init() {
-        setupContainer()
+        // Will be initialized when accessed
     }
     
-    private func setupContainer() {
-        do {
-            let schema = Schema([CachedIMDBFilm.self])
-            
-            // Use a different store name to avoid conflicts
-            let storeURL = URL.applicationSupportDirectory.appending(path: "filmz2_cache.store")
-            
-            let modelConfiguration = ModelConfiguration(url: storeURL)
-            
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
-            
-            modelContext = ModelContext(modelContainer!)
-            
-            print("CacheManager: Cache database initialized successfully")
-        } catch {
-            print("CacheManager: Failed to initialize cache database: \(error)")
-            // Fall back to in-memory store
-            do {
-                let schema = Schema([CachedIMDBFilm.self])
-                let modelConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
-                modelContainer = try ModelContainer(
-                    for: schema,
-                    configurations: [modelConfiguration]
-                )
-                modelContext = ModelContext(modelContainer!)
-                print("CacheManager: Using in-memory cache as fallback")
-            } catch {
-                print("CacheManager: Failed to create even in-memory cache: \(error)")
-            }
-        }
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+        print("CacheManager: Using shared model context")
     }
     
     func saveFilm(_ film: IMDBFilm) {

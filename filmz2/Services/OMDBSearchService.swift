@@ -133,7 +133,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     
     func getFilm(byID: String) async throws -> IMDBFilm {
         // First check persistent cache
-        if let cachedFilm = CacheManager.shared.fetchFilm(imdbID: byID) {
+        if let cachedFilm = await CacheManager.shared.fetchFilm(imdbID: byID) {
             // Return cached film if fresh
             if !cachedFilm.isStale {
                 print("OMDBSearchService: Returning cached film '\(cachedFilm.title)' with rating \(cachedFilm.imdbRating ?? "nil")")
@@ -173,7 +173,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
             cache[cacheKey] = film
             
             // Save to persistent cache using CacheManager
-            CacheManager.shared.saveFilm(film)
+            await CacheManager.shared.saveFilm(film)
             
             return film
             

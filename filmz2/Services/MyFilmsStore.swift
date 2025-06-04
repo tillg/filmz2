@@ -30,6 +30,10 @@ class MyFilmsStore: ObservableObject {
                 sortBy: [SortDescriptor(\.dateAdded, order: .reverse)]
             )
             films = try modelContext.fetch(descriptor)
+            print("MyFilmsStore: Fetched \(films.count) films")
+            for film in films {
+                print("  - \(film.imdbID): \(film.dateAdded)")
+            }
         } catch {
             self.error = error
             print("Failed to fetch films: \(error)")
@@ -50,9 +54,11 @@ class MyFilmsStore: ObservableObject {
         
         do {
             try modelContext.save()
+            print("MyFilmsStore: Successfully saved film \(myFilm.imdbID)")
             fetchFilms()
             return myFilm
         } catch {
+            print("MyFilmsStore: Failed to save film: \(error)")
             throw MyFilmsStoreError.saveFailed(error)
         }
     }

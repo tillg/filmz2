@@ -10,10 +10,11 @@ Filmz2 is a movie collection management app built with SwiftUI and SwiftData. It
 
 - Movie search with real-time results from OMDb API
 - Detailed film information display
-- Personal collection management
+- Personal collection management with automatic iCloud sync
 - Offline capability with intelligent caching
 - Watch status and personal ratings tracking
 - Clean, native iOS/macOS interface
+- Seamless multi-device synchronization via CloudKit
 
 ## System Overview
 
@@ -28,81 +29,18 @@ C4Context
     }
 
     System_Ext(omdb, "OMDb API", "External movie database API")
+    System_Ext(icloud, "iCloud/CloudKit", "Apple's cloud sync service")
 
     Rel(user, app, "Uses", "Search movies, view details, manage collection")
     Rel(app, omdb, "Queries", "HTTPS/JSON")
+    Rel(app, icloud, "Syncs", "CloudKit private database")
+    Rel_Back(icloud, app, "Syncs", "Automatic sync across devices")
 
+    UpdateRelStyle(user, app, $offsetX="-40", $offsetY="-10")
+    UpdateRelStyle(app, icloud, $offsetX="20", $offsetY="-10")
+    
     UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
-
-## High-Level Architecture
-
-The app follows a layered architecture with clear separation of concerns:
-
-```mermaid
-graph TB
-    subgraph "UI Layer"
-        CV[ContentView]
-        MSV[MovieSearchView]
-        MSVM[MovieSearchViewModel]
-        FC[FilmCell]
-        MSRC[MovieSearchResultCell]
-        MFC[MyFilmCell]
-        IFDV[IMDBFilmDetailView]
-        IFDVM[IMDBFilmDetailViewModel]
-        CollV[CollectionView]
-        MFDV[MyFilmDetailView]
-    end
-
-    subgraph "Service Layer"
-        OMDB[OMDBSearchService]
-        MFS[MyFilmsStore]
-    end
-
-    subgraph "Data Layer"
-        MF[MyFilm - User Data]
-        CIF[CachedIMDBFilm - Metadata Cache]
-    end
-
-    subgraph "External"
-        API[OMDb API]
-        LS[SwiftData Storage]
-    end
-
-    CV --> MSV
-    CV --> CollV
-    MSV --> MSVM
-    MSV --> FC
-    FC --> MSRC
-    FC --> MFC
-    CollV --> MFC
-    MSVM --> OMDB
-    FC --> IFDV
-    FC --> MFDV
-    IFDV --> IFDVM
-    OMDB --> API
-    OMDB --> CIF
-    MFS --> MF
-    MF --> LS
-    CIF --> LS
-
-    classDef ui fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-
-    class CV,MSV,MSVM,FC,MSRC,MFC,IFDV,IFDVM,CollV,MFDV ui
-    class OMDB,MFS service
-    class MF,CIF data
-    class API,LS external
-```
-
-### Architecture Layers
-
-1. **UI Layer**: SwiftUI views and view models implementing MVVM pattern
-2. **Service Layer**: Business logic and API communication
-3. **Data Layer**: Models and persistence using SwiftData
-4. **External Layer**: Third-party services and system storage
 
 ## Core Architecture Pattern: ID-Only with Cached Metadata
 
@@ -149,6 +87,78 @@ sequenceDiagram
     MyFilm-->>User: Display combined data
 ```
 
+## High-Level Architecture
+
+The app follows a layered architecture with clear separation of concerns:
+
+```mermaid
+graph TB
+    subgraph "UI Layer"
+        CV[ContentView]
+        MSV[MovieSearchView]
+        MSVM[MovieSearchViewModel]
+        FC[FilmCell]
+        MSRC[MovieSearchResultCell]
+        MFC[MyFilmCell]
+        IFDV[IMDBFilmDetailView]
+        IFDVM[IMDBFilmDetailViewModel]
+        CollV[CollectionView]
+        MFDV[MyFilmDetailView]
+    end
+
+    subgraph "Service Layer"
+        OMDB[OMDBSearchService]
+        MFS[MyFilmsStore]
+    end
+
+    subgraph "Data Layer"
+        MF[MyFilm - User Data]
+        CIF[CachedIMDBFilm - Metadata Cache]
+    end
+
+    subgraph "External"
+        API[OMDb API]
+        LS[SwiftData Storage]
+        CK[CloudKit]
+    end
+
+    CV --> MSV
+    CV --> CollV
+    MSV --> MSVM
+    MSV --> FC
+    FC --> MSRC
+    FC --> MFC
+    CollV --> MFC
+    MSVM --> OMDB
+    FC --> IFDV
+    FC --> MFDV
+    IFDV --> IFDVM
+    OMDB --> API
+    OMDB --> CIF
+    MFS --> MF
+    MF --> LS
+    MF --> CK
+    CIF --> LS
+    CK --> MF
+
+    classDef ui fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+    class CV,MSV,MSVM,FC,MSRC,MFC,IFDV,IFDVM,CollV,MFDV ui
+    class OMDB,MFS service
+    class MF,CIF data
+    class API,LS,CK external
+```
+
+### Architecture Layers
+
+1. **UI Layer**: SwiftUI views and view models implementing MVVM pattern
+2. **Service Layer**: Business logic and API communication
+3. **Data Layer**: Models and persistence using SwiftData
+4. **External Layer**: Third-party services and system storage
+
 ## Data Model Architecture
 
 ### Model Relationships
@@ -157,15 +167,15 @@ sequenceDiagram
 erDiagram
     MyFilm ||--o| CachedIMDBFilm : "references via imdbID"
     MyFilm {
-        uuid id PK
-        string imdbID UK
+        uuid id PK "No unique constraint for CloudKit"
+        string imdbID "No unique constraint for CloudKit"
         int myRating
-        bool watched
+        bool watched "Default: false"
         date dateWatched
         string notes
         enum audience
         string recommendedBy
-        date dateAdded
+        date dateAdded "Default: Date()"
     }
 
     CachedIMDBFilm {
@@ -205,10 +215,18 @@ erDiagram
 
 ### Key Models
 
-1. **MyFilm**: Stores user-specific data (ratings, notes, watch status)
-2. **CachedIMDBFilm**: Persistent cache of movie metadata from API
+1. **MyFilm**: Stores user-specific data (ratings, notes, watch status) - Synced via CloudKit
+2. **CachedIMDBFilm**: Persistent cache of movie metadata from API - Local only
 3. **IMDBFilm**: Runtime model for displaying film details
 4. **OMDBSearchItem**: Search result from API
+
+### CloudKit Considerations
+
+All models must be CloudKit-compatible:
+
+- No unique constraints allowed
+- All non-optional properties must have default values
+- Single model container for simplicity
 
 ## Navigation Architecture
 
@@ -487,6 +505,269 @@ graph TD
     CheckErr -->|Other| Unknown[UnknownError]
 ```
 
+## CloudKit Integration and iCloud Requirement
+
+Filmz2 **requires** iCloud sign-in as a core architectural decision. This approach, inspired by the original filmz project, eliminates complexity and provides a seamless user experience.
+
+### Key Principles
+
+1. **Mandatory iCloud**: Users must be signed into iCloud to use the app
+2. **Automatic Sync**: No manual sync controls or status indicators
+3. **Zero Configuration**: Works automatically across all devices
+4. **Seamless Experience**: No sync UI - the app just works
+
+### Architecture Benefits
+
+- **Simplicity**: No need to handle offline/online states differently
+- **Consistency**: All devices always have the same data
+- **Reliability**: Apple handles sync conflicts automatically
+- **Privacy**: Data stored in user's private CloudKit database
+
+### Implementation Details
+
+```swift
+// SwiftData configuration with CloudKit
+let syncedConfiguration = ModelConfiguration(
+    schema: syncedSchema,
+    isStoredInMemoryOnly: false,
+    cloudKitDatabase: .private("iCloud.com.grtnr.filmz2")
+)
+```
+
+The app uses separate model configurations:
+
+- **MyFilm**: Synced via CloudKit (user's collection data)
+- **CachedIMDBFilm**: Local only (movie metadata cache)
+
+### iCloud Check Flow
+
+```mermaid
+graph TD
+    Start[App Launch] --> Check{iCloud Signed In?}
+    Check -->|Yes| Main[Show Main App]
+    Check -->|No| Required[Show iCloud Required Screen]
+    Required --> Settings[Open Settings Button]
+    Settings --> System[System Settings]
+    System --> SignIn[User Signs In]
+    SignIn --> Check
+```
+
+## CloudKit Access and Configuration
+
+### Prerequisites and Requirements
+
+#### User Requirements
+
+1. **iCloud Account**: User must be signed into iCloud on their device
+2. **iCloud Drive**: Must be enabled in device settings
+3. **Storage Quota**: Sufficient iCloud storage available (MyFilm data is minimal ~1KB per film)
+4. **Network Access**: Initial sync requires internet connection
+
+#### Developer Requirements
+
+1. **Apple Developer Account**: Required for CloudKit capabilities
+2. **Provisioning Profiles**: Must include CloudKit entitlements
+3. **Bundle Identifier**: Must match CloudKit container ID
+
+### Project Configuration
+
+#### 1. Xcode Capabilities
+
+Enable the following capabilities in your app target:
+
+1. **iCloud**
+   - ✓ CloudKit
+   - ✓ Use default container or specify custom
+
+2. **Push Notifications** (Required for CloudKit sync)
+   - Automatically enabled with CloudKit
+
+#### 2. Entitlements File
+
+The `filmz2.entitlements` file must contain:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Push notifications for CloudKit sync -->
+    <key>aps-environment</key>
+    <string>development</string>
+    
+    <!-- CloudKit container identifier -->
+    <key>com.apple.developer.icloud-container-identifiers</key>
+    <array>
+        <string>iCloud.com.grtnr.filmz2</string>
+    </array>
+    
+    <!-- Enable CloudKit services -->
+    <key>com.apple.developer.icloud-services</key>
+    <array>
+        <string>CloudKit</string>
+    </array>
+</dict>
+</plist>
+```
+
+#### 3. Info.plist Configuration
+
+Add usage descriptions for user transparency:
+
+```xml
+<key>NSUbiquitousContainers</key>
+<dict>
+    <key>iCloud.com.grtnr.filmz2</key>
+    <dict>
+        <key>NSUbiquitousContainerName</key>
+        <string>Filmz2 Collection</string>
+        <key>NSUbiquitousContainerIsDocumentScopePublic</key>
+        <false/>
+    </dict>
+</dict>
+```
+
+### CloudKit Dashboard Configuration
+
+#### 1. Container Setup
+
+1. Navigate to [CloudKit Dashboard](https://icloud.developer.apple.com/dashboard)
+2. Select or create container: `iCloud.com.grtnr.filmz2`
+3. Environment: Development → Production promotion flow
+
+#### 2. Record Types
+
+SwiftData automatically creates record types, but understanding them helps with debugging:
+
+- **CD_MyFilm**: User's film collection data
+  - Fields map to MyFilm properties
+  - Indexed on: modifiedAt, recordName
+  
+#### 3. Security Roles
+
+Default security for private database:
+
+- **Owner**: Read/Write (automatic for user's own data)
+- **No public access**: All data in private database
+
+### Access Control and Error Handling
+
+#### iCloud Status Checking
+
+```swift
+// Check iCloud availability
+func checkiCloudStatus() -> Bool {
+    if FileManager.default.ubiquityIdentityToken != nil {
+        return true // iCloud is available
+    } else {
+        return false // User not signed in
+    }
+}
+```
+
+#### Common Access Errors
+
+1. **CKError.notAuthenticated**
+   - User not signed into iCloud
+   - Solution: Show ICloudRequiredView
+
+2. **CKError.quotaExceeded**
+   - User's iCloud storage is full
+   - Solution: Alert user to manage storage
+
+3. **CKError.networkUnavailable**
+   - No internet connection
+   - Solution: Queue changes for later sync
+
+4. **CKError.serverResponseLost**
+   - Sync interrupted
+   - Solution: Automatic retry by SwiftData
+
+### Privacy and Data Access
+
+#### Data Location
+
+- **Private Database**: All user data stored in their private CloudKit database
+- **No Shared Database**: No data sharing between users
+- **No Public Database**: No publicly accessible data
+
+#### Data Encryption
+
+- **In Transit**: TLS encryption for all CloudKit communication
+- **At Rest**: Encrypted on Apple's servers
+- **End-to-End**: User's data accessible only with their iCloud credentials
+
+#### GDPR and Privacy Compliance
+
+- **Data Ownership**: User owns all their data
+- **Data Portability**: Export functionality available
+- **Right to Delete**: Deleting app removes all CloudKit data
+- **No Analytics**: No user data collected by developer
+
+### Troubleshooting Common Issues
+
+#### 1. "Sign in to iCloud" Despite Being Signed In
+
+**Cause**: App-specific iCloud permissions
+**Solution**:
+
+- Settings → Apple ID → iCloud → Apps Using iCloud → Enable Filmz2
+
+#### 2. Sync Not Working
+
+**Checklist**:
+
+- ✓ iCloud Drive enabled
+- ✓ Sufficient storage available
+- ✓ Network connection active
+- ✓ Not in Low Power Mode
+- ✓ Background App Refresh enabled
+
+#### 3. Development vs Production
+
+**Development**:
+
+- Separate CloudKit database
+- Reset development data: CloudKit Dashboard → Reset Development Environment
+
+**Production**:
+
+- Deploy schema to production before app release
+- No reset available - careful with schema changes
+
+### Testing CloudKit Access
+
+#### Unit Tests
+
+```swift
+// Mock iCloud availability
+class MockFileManager: FileManager {
+    var mockUbiquityToken: Any? = "mock-token"
+    
+    override var ubiquityIdentityToken: Any? {
+        return mockUbiquityToken
+    }
+}
+```
+
+#### UI Tests
+
+```swift
+// Test iCloud required flow
+func testICloudRequiredView() {
+    // Mock no iCloud
+    // Verify ICloudRequiredView appears
+    // Test "Open Settings" button
+}
+```
+
+### CloudKit Design Decisions
+
+1. **Mandatory iCloud**: Simplifies architecture by eliminating sync state management
+2. **Private Database Only**: Ensures user privacy and automatic authentication
+3. **No Sync UI**: Follows the philosophy that sync should be invisible to users
+4. **Single Model Container**: All models in one container for simplicity, even though only MyFilm syncs
+
 ## Performance Considerations
 
 ### Caching Strategy
@@ -541,9 +822,10 @@ The architecture supports future enhancements:
 Filmz2's architecture prioritizes:
 
 - **Separation of Concerns**: Clear layer boundaries
-- **Offline First**: Comprehensive caching strategy
+- **Offline First**: Comprehensive caching strategy  
 - **User Experience**: Reactive UI with immediate feedback
 - **Maintainability**: Consistent patterns and components
 - **Performance**: Efficient data storage and API usage
+- **Seamless Sync**: Mandatory iCloud with automatic CloudKit synchronization
 
-The ID-only pattern with cached metadata provides an elegant solution for managing user collections while maintaining data integrity and enabling offline functionality.
+The ID-only pattern with cached metadata provides an elegant solution for managing user collections while maintaining data integrity and enabling offline functionality. The mandatory iCloud requirement ensures a seamless, zero-configuration experience across all user devices.

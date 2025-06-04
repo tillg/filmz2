@@ -12,19 +12,22 @@ import SwiftData
 struct filmz2App: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
             MyFilm.self,
+            CachedIMDBFilm.self
         ])
+        
         let modelConfiguration = ModelConfiguration(
-            schema: schema, 
+            schema: schema,
             isStoredInMemoryOnly: false,
-            allowsSave: true,
-            groupContainer: .none,
-            cloudKitDatabase: .none
+            cloudKitDatabase: .private("iCloud.com.grtnr.filmz2")
         )
+        
+        print("filmz2App: Initializing with CloudKit container: iCloud.com.grtnr.filmz2")
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            print("filmz2App: ModelContainer created successfully")
+            return container
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

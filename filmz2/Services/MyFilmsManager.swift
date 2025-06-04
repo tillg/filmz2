@@ -1,51 +1,21 @@
 import Foundation
 import SwiftData
+import SwiftUI
 
-/// Manages the MyFilms database separately from the main app database
+/// Manages the MyFilms database using the shared app container
 @MainActor
 class MyFilmsManager {
     static let shared = MyFilmsManager()
     
-    private var modelContainer: ModelContainer?
     private var modelContext: ModelContext?
     
     private init() {
-        setupContainer()
+        // Will be initialized when accessed
     }
     
-    private func setupContainer() {
-        do {
-            let schema = Schema([MyFilm.self])
-            
-            // Use a different store name to avoid conflicts
-            let storeURL = URL.applicationSupportDirectory.appending(path: "filmz2_myfilms.store")
-            
-            let modelConfiguration = ModelConfiguration(url: storeURL)
-            
-            modelContainer = try ModelContainer(
-                for: schema,
-                configurations: [modelConfiguration]
-            )
-            
-            modelContext = ModelContext(modelContainer!)
-            
-            print("MyFilmsManager: MyFilms database initialized successfully")
-        } catch {
-            print("MyFilmsManager: Failed to initialize MyFilms database: \(error)")
-            // Fall back to in-memory store
-            do {
-                let schema = Schema([MyFilm.self])
-                let modelConfiguration = ModelConfiguration(isStoredInMemoryOnly: true)
-                modelContainer = try ModelContainer(
-                    for: schema,
-                    configurations: [modelConfiguration]
-                )
-                modelContext = ModelContext(modelContainer!)
-                print("MyFilmsManager: Using in-memory store as fallback")
-            } catch {
-                print("MyFilmsManager: Failed to create even in-memory store: \(error)")
-            }
-        }
+    func setModelContext(_ context: ModelContext) {
+        self.modelContext = context
+        print("MyFilmsManager: Using shared model context")
     }
     
     var context: ModelContext? {

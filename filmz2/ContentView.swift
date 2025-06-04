@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: MainTab = .collection
 
     var body: some View {
@@ -34,6 +35,12 @@ struct ContentView: View {
                 }
                 .tag(MainTab.settings)
         }
+        .onAppear {
+            // Initialize managers with the shared context
+            MyFilmsManager.shared.setModelContext(modelContext)
+            CacheManager.shared.setModelContext(modelContext)
+        }
+        // Removed iCloudSyncAlert for seamless experience like filmz v1
     }
 }
 

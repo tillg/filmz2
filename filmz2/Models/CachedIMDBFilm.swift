@@ -40,11 +40,11 @@ import SwiftData
 /// Cached film data from OMDB API to reduce API calls and enable offline access
 @Model
 final class CachedIMDBFilm {
-    // Identity
-    @Attribute(.unique) var imdbID: String
+    // Identity - CloudKit doesn't support unique constraints
+    var imdbID: String = ""
     
-    // Core film data
-    var title: String
+    // Core film data - All properties must have defaults for CloudKit
+    var title: String = ""
     var year: String?
     var rated: String?
     var released: String?
@@ -64,8 +64,12 @@ final class CachedIMDBFilm {
     var type: String?
     
     // Cache metadata
-    var lastFetched: Date
-    var dataVersion: Int
+    var lastFetched: Date = Date()
+    var dataVersion: Int = 1
+    
+    init() {
+        // Required for SwiftData
+    }
     
     init(from imdbFilm: IMDBFilm) {
         self.imdbID = imdbFilm.imdbID

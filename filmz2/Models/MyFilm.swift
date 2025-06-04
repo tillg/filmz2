@@ -43,31 +43,26 @@ enum AudienceType: String, Codable {
 
 @Model
 final class MyFilm {
-    // Identity
-    @Attribute(.unique) var id: UUID
-    @Attribute(.unique) var imdbID: String
+    // Identity - CloudKit doesn't support unique constraints
+    var id: UUID = UUID()
+    var imdbID: String = ""
     
-    // User Data
+    // User Data - All properties must have defaults for CloudKit
     var myRating: Int?
-    var dateAdded: Date
-    var watched: Bool
+    var dateAdded: Date = Date()
+    var watched: Bool = false
     var dateWatched: Date?
     var audience: AudienceType?
     var recommendedBy: String?
     var notes: String?
     
+    init() {
+        // Required for SwiftData
+    }
+    
     init(imdbID: String) {
-        self.id = UUID()
         self.imdbID = imdbID
-        
-        // Default values
-        self.dateAdded = Date()
-        self.watched = false
-        self.myRating = nil
-        self.dateWatched = nil
-        self.audience = nil
-        self.recommendedBy = nil
-        self.notes = nil
+        // Other properties use their default values
     }
     
     // Convenience initializer from IMDBFilm
