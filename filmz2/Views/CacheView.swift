@@ -24,9 +24,11 @@ struct CacheView: View {
                 }
             }
             .navigationTitle("Cache")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Clear All") {
                         clearCache()
                     }

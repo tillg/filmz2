@@ -58,19 +58,19 @@ struct StarRatingView: View {
 }
 
 #Preview("No Rating") {
-    @State var rating: Int? = nil
+    @Previewable @State var rating: Int? = nil
     return StarRatingView(rating: $rating)
         .padding()
 }
 
 #Preview("With Rating") {
-    @State var rating: Int? = 7
+    @Previewable @State var rating: Int? = 7
     return StarRatingView(rating: $rating)
         .padding()
 }
 
 #Preview("Small Stars") {
-    @State var rating: Int? = 5
+    @Previewable @State var rating: Int? = 5
     return StarRatingView(rating: $rating, starSize: 16)
         .padding()
 }

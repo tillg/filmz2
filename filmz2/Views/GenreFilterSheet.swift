@@ -64,9 +64,11 @@ struct GenreFilterSheet: View {
                 }
             }
             .navigationTitle("Filter by Genre")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") {
                         dismiss()
                     }

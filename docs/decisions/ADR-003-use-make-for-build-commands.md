@@ -44,6 +44,7 @@ Chosen option: "Make with Makefile", because it provides the best balance of sim
 ### Confirmation
 
 The implementation can be confirmed by:
+
 1. Testing each Make target successfully executes the intended `xcodebuild` command
 2. Verifying commands work across different development environments
 3. Ensuring CI/CD pipelines can use the Make targets
@@ -114,12 +115,13 @@ Rely on Xcode's built-in automation and schemes.
 ## More Information
 
 The Makefile will include the following standard targets:
-- `build` - Build for macOS
-- `build-ios` - Build for iOS simulator  
-- `test` - Run unit tests on macOS
-- `test-ios` - Run unit tests on iOS simulator
-- `testUI` - Run UI tests on iOS simulator
-- `clean` - Clean build artifacts
-- `help` - Show available commands (default target)
+
+* `build` - Build for macOS
+* `build-ios` - Build for iOS simulator  
+* `test` - Run unit tests on macOS
+* `test-ios` - Run unit tests on iOS simulator
+* `testUI` - Run UI tests on iOS simulator
+* `clean` - Clean build artifacts
+* `help` - Show available commands (default target)
 
 This decision aligns with common practices in the Swift/iOS development community and provides a foundation for future automation needs.

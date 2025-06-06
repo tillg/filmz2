@@ -240,9 +240,11 @@ struct SyncDetailView: View {
                 }
             }
             .navigationTitle("Sync Details")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button("Done") {
                         dismiss()
                     }
