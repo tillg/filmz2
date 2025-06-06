@@ -3,6 +3,7 @@
 //  filmz2
 //
 //  Created by Till Gartner on 06.01.25.
+//  Updated to follow Apple Human Interface Guidelines
 //
 
 import SwiftUI
@@ -25,16 +26,19 @@ struct AddToCollectionButton: View {
                     .frame(width: 24, height: 24)
             } else if isInCollection || showSuccess {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(.green)
+                    .font(DesignTokens.Typography.title2)
+                    .foregroundColor(DesignTokens.Colors.success)
             } else {
                 Image(systemName: "plus.circle")
-                    .font(.system(size: 24))
-                    .foregroundColor(.blue)
+                    .font(DesignTokens.Typography.title2)
+                    .foregroundColor(DesignTokens.Colors.accent)
             }
         }
         .disabled(isInCollection || isLoading)
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
+        .appleTapTarget()
+        .accessibilityLabel(isInCollection ? "Already in collection" : "Add to collection")
+        .accessibilityHint(isInCollection ? "Film is already saved" : "Add this film to your collection")
         .onAppear {
             checkCollectionStatus()
         }
@@ -113,13 +117,15 @@ struct AddToCollectionButtonLarge: View {
                     Text("Add to Collection")
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(isInCollection ? Color.green : Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(8)
+            .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+            .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
         }
         .disabled(isInCollection || isLoading)
+        .buttonStyle(BorderedProminentButtonStyle())
+        .opacity(isInCollection ? 0.6 : 1.0)
+        .appleTapTarget()
+        .accessibilityLabel(isInCollection ? "Film in collection" : "Add to collection")
+        .accessibilityHint(isInCollection ? "This film is already in your collection" : "Add this film to your collection")
         .onAppear {
             checkCollectionStatus()
         }

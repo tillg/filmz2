@@ -2,6 +2,7 @@ import SwiftUI
 
 /// A single genre pill component for displaying film genres
 /// Reusable component that adapts to content and supports theming
+/// Updated to follow Apple Human Interface Guidelines
 struct GenrePill: View {
     let genre: String
     let style: GenrePillStyle
@@ -39,47 +40,47 @@ struct GenrePillStyle {
     let verticalPadding: CGFloat
     
     static let `default` = GenrePillStyle(
-        font: .subheadline,
+        font: DesignTokens.Typography.subheadline,
         fontWeight: .medium,
-        foregroundColor: .blue,
-        backgroundColor: Color.blue.opacity(0.1),
+        foregroundColor: DesignTokens.Colors.accent,
+        backgroundColor: DesignTokens.Colors.accent.opacity(0.15),
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 12,
-        verticalPadding: 6
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue
     )
     
     static let outlined = GenrePillStyle(
-        font: .subheadline,
+        font: DesignTokens.Typography.subheadline,
         fontWeight: .medium,
-        foregroundColor: .blue,
+        foregroundColor: DesignTokens.Colors.accent,
         backgroundColor: Color.clear,
-        borderColor: .blue,
+        borderColor: DesignTokens.Colors.accent,
         borderWidth: 1,
-        horizontalPadding: 12,
-        verticalPadding: 6
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue
     )
     
     static let compact = GenrePillStyle(
-        font: .caption,
+        font: DesignTokens.Typography.caption,
         fontWeight: .medium,
-        foregroundColor: .blue,
-        backgroundColor: Color.blue.opacity(0.1),
+        foregroundColor: DesignTokens.Colors.accent,
+        backgroundColor: DesignTokens.Colors.accent.opacity(0.15),
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 8,
+        horizontalPadding: DesignTokens.Spacing.extraSmall.rawValue,
         verticalPadding: 4
     )
     
     static let neutral = GenrePillStyle(
-        font: .subheadline,
+        font: DesignTokens.Typography.subheadline,
         fontWeight: .medium,
-        foregroundColor: .primary,
-        backgroundColor: Color.gray.opacity(0.2),
+        foregroundColor: DesignTokens.Colors.primary,
+        backgroundColor: DesignTokens.Colors.secondaryFill,
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 12,
-        verticalPadding: 6
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue
     )
 }
 

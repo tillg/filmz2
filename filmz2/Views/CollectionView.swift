@@ -3,11 +3,14 @@
 //  filmz2
 //
 //  Created by Till Gartner on 06.01.25.
+//  Updated to follow Apple Human Interface Guidelines
 //
 
 import SwiftUI
 import SwiftData
 
+/// Collection view displaying user's film collection
+/// Updated to follow Apple Human Interface Guidelines with proper navigation patterns
 struct CollectionView: View {
     @StateObject private var viewModel: CollectionViewModel = CollectionViewModel()
     
@@ -22,25 +25,24 @@ struct CollectionView: View {
                     Text("Watched (\(viewModel.watchedFilmsCount))").tag(WatchedFilter.watched)
                     Text("Unwatched (\(viewModel.unwatchedFilmsCount))").tag(WatchedFilter.unwatched)
                 }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
-                    .padding(.top)
+                .pickerStyle(.segmented)
+                .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+                .padding(.top, DesignTokens.Spacing.small.rawValue)
                     
                     // Filter and Sort Bar
-                    HStack(spacing: 12) {
+                    HStack(spacing: DesignTokens.Spacing.small.rawValue) {
                         // Genre Filter
                         Button(action: { showingGenreFilter.toggle() }) {
                             HStack(spacing: 4) {
                                 Text(viewModel.filter.genres.isEmpty ? "All Genres" : "\(viewModel.filter.genres.count) Genres")
-                                    .font(.subheadline)
+                                    .font(DesignTokens.Typography.subheadline)
                                 Image(systemName: "chevron.down")
-                                    .font(.caption)
+                                    .font(DesignTokens.Typography.caption)
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(viewModel.filter.genres.isEmpty ? Color.secondary.opacity(0.1) : Color.accentColor.opacity(0.2))
-                            .cornerRadius(8)
+                            .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+                            .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
                         }
+                        .buttonStyle(BorderedButtonStyle())
                         
                         Spacer()
                         
@@ -48,8 +50,9 @@ struct CollectionView: View {
                         Menu {
                             ForEach(SortOption.allCases, id: \.self) { option in
                                 Button(action: { viewModel.filter.sortOption = option }) {
-                                    HStack {
+                                    Label {
                                         Text(option.rawValue)
+                                    } icon: {
                                         if viewModel.filter.sortOption == option {
                                             Image(systemName: "checkmark")
                                         }
@@ -57,20 +60,13 @@ struct CollectionView: View {
                                 }
                             }
                         } label: {
-                            HStack(spacing: 4) {
-                                Text("Sort")
-                                    .font(.subheadline)
-                                Image(systemName: viewModel.filter.sortOption.systemImage)
-                                    .font(.caption)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.secondary.opacity(0.1))
-                            .cornerRadius(8)
+                            Label("Sort", systemImage: viewModel.filter.sortOption.systemImage)
+                                .font(DesignTokens.Typography.subheadline)
                         }
+                        .buttonStyle(BorderedButtonStyle())
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
+                    .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+                    .padding(.bottom, DesignTokens.Spacing.extraSmall.rawValue)
                     
                 if viewModel.films.isEmpty {
                     emptyStateView
@@ -95,70 +91,36 @@ struct CollectionView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            Image(systemName: "film.stack")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            Text("No Films Yet")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
+        ContentUnavailableView {
+            Label("No Films Yet", systemImage: "film.stack")
+        } description: {
             Text("Search for films and add them to your collection")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            
-            Spacer()
         }
     }
     
     private var filteredEmptyStateView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            Text("No Results")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
+        ContentUnavailableView {
+            Label("No Results", systemImage: "magnifyingglass")
+        } description: {
             Text("No films match your current filters")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            
+        } actions: {
             if viewModel.hasActiveFilters {
-                Button("Clear Filters") {
-                    viewModel.clearFilters()
-                }
-                .buttonStyle(.borderedProminent)
+                Button("Clear Filters", action: viewModel.clearFilters)
+                    .buttonStyle(BorderedButtonStyle())
             }
-            
-            Spacer()
         }
     }
     
     private var filmsList: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.filteredAndSortedFilms) { film in
-                    NavigationLink(destination: MyFilmDetailView(film: film)) {
-                        MyFilmCell(film: film, filmDetails: viewModel.filmDetailsCache[film.imdbID])
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Divider()
-                        .padding(.leading, 88)
+        List {
+            ForEach(viewModel.filteredAndSortedFilms) { film in
+                NavigationLink(destination: MyFilmDetailView(film: film)) {
+                    MyFilmCell(film: film, filmDetails: viewModel.filmDetailsCache[film.imdbID])
+                        .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
                 }
             }
         }
+        .listStyle(.plain)
     }
 }
 

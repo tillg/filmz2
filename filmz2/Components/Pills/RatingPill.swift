@@ -2,6 +2,7 @@ import SwiftUI
 
 /// A single rating pill component for displaying film ratings
 /// Supports different rating sources with custom icons and colors
+/// Updated to follow Apple Human Interface Guidelines
 struct RatingPill: View {
     let rating: RatingDisplayInfo
     let style: RatingPillStyle
@@ -47,54 +48,54 @@ struct RatingPillStyle {
     let iconSpacing: CGFloat
     
     static let `default` = RatingPillStyle(
-        textFont: .subheadline,
-        iconFont: .subheadline,
+        textFont: DesignTokens.Typography.subheadline,
+        iconFont: DesignTokens.Typography.subheadline,
         fontWeight: .medium,
-        textColor: .primary,
-        backgroundColor: Color.gray.opacity(0.1),
+        textColor: DesignTokens.Colors.primary,
+        backgroundColor: DesignTokens.Colors.secondaryFill,
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 12,
-        verticalPadding: 6,
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue,
         iconSpacing: 4
     )
     
     static let compact = RatingPillStyle(
-        textFont: .caption,
-        iconFont: .caption,
+        textFont: DesignTokens.Typography.caption,
+        iconFont: DesignTokens.Typography.caption,
         fontWeight: .medium,
-        textColor: .primary,
-        backgroundColor: Color.gray.opacity(0.1),
+        textColor: DesignTokens.Colors.primary,
+        backgroundColor: DesignTokens.Colors.secondaryFill,
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 8,
+        horizontalPadding: DesignTokens.Spacing.extraSmall.rawValue,
         verticalPadding: 4,
         iconSpacing: 3
     )
     
     static let outlined = RatingPillStyle(
-        textFont: .subheadline,
-        iconFont: .subheadline,
+        textFont: DesignTokens.Typography.subheadline,
+        iconFont: DesignTokens.Typography.subheadline,
         fontWeight: .medium,
-        textColor: .primary,
+        textColor: DesignTokens.Colors.primary,
         backgroundColor: Color.clear,
-        borderColor: Color.gray.opacity(0.3),
+        borderColor: DesignTokens.Colors.quaternaryFill,
         borderWidth: 1,
-        horizontalPadding: 12,
-        verticalPadding: 6,
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue,
         iconSpacing: 4
     )
     
     static let prominent = RatingPillStyle(
-        textFont: .headline,
-        iconFont: .headline,
+        textFont: DesignTokens.Typography.headline,
+        iconFont: DesignTokens.Typography.headline,
         fontWeight: .semibold,
-        textColor: .primary,
-        backgroundColor: Color.gray.opacity(0.15),
+        textColor: DesignTokens.Colors.primary,
+        backgroundColor: DesignTokens.Colors.tertiaryFill,
         borderColor: Color.clear,
         borderWidth: 0,
-        horizontalPadding: 16,
-        verticalPadding: 8,
+        horizontalPadding: DesignTokens.Spacing.small.rawValue,
+        verticalPadding: DesignTokens.Spacing.extraSmall.rawValue,
         iconSpacing: 6
     )
 }

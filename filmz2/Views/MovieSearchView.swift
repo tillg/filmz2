@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// Movie search view following Apple Human Interface Guidelines
+/// Uses native search patterns and proper spacing/typography
 struct MovieSearchView: View {
     @StateObject private var viewModel = MovieSearchViewModel()
     @FocusState private var isSearchFieldFocused: Bool
@@ -7,8 +9,6 @@ struct MovieSearchView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                searchBar
-                
                 if viewModel.isLoading && viewModel.searchResults.isEmpty {
                     loadingView
                 } else if viewModel.searchResults.isEmpty && viewModel.hasSearched {
@@ -27,142 +27,80 @@ struct MovieSearchView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.large)
             #endif
-        }
-        .onAppear {
-            isSearchFieldFocused = true
+            .searchable(text: $viewModel.searchQuery, prompt: "Search movies...")
+            .searchSuggestions {
+                if viewModel.searchQuery.isEmpty {
+                    Text("Batman").searchCompletion("Batman")
+                    Text("Star Wars").searchCompletion("Star Wars")
+                    Text("Lord of the Rings").searchCompletion("Lord of the Rings")
+                }
+            }
         }
     }
     
-    private var searchBar: some View {
-        HStack {
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.secondary)
-                
-                TextField("Search movies...", text: $viewModel.searchQuery)
-                    .textFieldStyle(.plain)
-                    #if os(iOS)
-                    .autocapitalization(.none)
-                    #endif
-                    .disableAutocorrection(true)
-                    .submitLabel(.search)
-                    .focused($isSearchFieldFocused)
-                
-                if !viewModel.searchQuery.isEmpty {
-                    Button(action: {
-                        viewModel.searchQuery = ""
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Clear text")
-                }
-            }
-            .padding(8)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(10)
-        }
-        .padding()
-    }
     
     private var searchResultsList: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.searchResults, id: \.imdbID) { result in
-                    VStack(spacing: 0) {
-                        NavigationLink(destination: IMDBFilmDetailView(searchItem: result)) {
-                            MovieSearchResultCellWithCache(result: result)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        Divider()
-                            .padding(.leading, 88)
-                    }
-                    .onAppear {
-                        viewModel.loadMoreIfNeeded(currentItem: result)
-                    }
+        List {
+            ForEach(viewModel.searchResults, id: \.imdbID) { result in
+                NavigationLink(destination: IMDBFilmDetailView(searchItem: result)) {
+                    MovieSearchResultCellWithCache(result: result)
+                        .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
                 }
-                
-                if viewModel.isLoading && !viewModel.searchResults.isEmpty {
-                    ProgressView()
-                        .padding()
+                .onAppear {
+                    viewModel.loadMoreIfNeeded(currentItem: result)
                 }
             }
+            
+            if viewModel.isLoading && !viewModel.searchResults.isEmpty {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .padding(.vertical, DesignTokens.Spacing.small.rawValue)
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
+            }
         }
-        .scrollDismissesKeyboard(.immediately)
+        .listStyle(.plain)
     }
     
     private var loadingView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTokens.Spacing.small.rawValue) {
             Spacer()
             ProgressView()
                 .scaleEffect(1.5)
             Text("Searching...")
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .font(DesignTokens.Typography.headline)
+                .foregroundColor(DesignTokens.Colors.secondary)
             Spacer()
         }
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            Text("No movies found")
-                .font(.headline)
-            Text("Try searching with different keywords")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding()
+        ContentUnavailableView(
+            "No movies found",
+            systemImage: "magnifyingglass",
+            description: Text("Try searching with different keywords")
+        )
     }
     
     private var shortQueryView: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "text.cursor")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            Text("Keep typing...")
-                .font(.headline)
-            Text("Enter at least 3 characters to search")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            Spacer()
-        }
-        .padding()
+        ContentUnavailableView(
+            "Keep typing...",
+            systemImage: "text.cursor",
+            description: Text("Enter at least 3 characters to search")
+        )
     }
     
     private func errorView(message: String) -> some View {
-        VStack(spacing: 16) {
-            Spacer()
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 60))
-                .foregroundColor(.orange)
-            Text("Something went wrong")
-                .font(.headline)
+        ContentUnavailableView {
+            Label("Something went wrong", systemImage: "exclamationmark.triangle")
+        } description: {
             Text(message)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            Button(action: {
-                viewModel.retry()
-            }) {
-                Label("Retry", systemImage: "arrow.clockwise")
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-            }
-            Spacer()
+        } actions: {
+            Button("Retry", action: viewModel.retry)
+                .buttonStyle(BorderedProminentButtonStyle())
         }
-        .padding()
     }
 }
 

@@ -3,6 +3,7 @@
 //  filmz2
 //
 //  Created by Claude on 02.06.25.
+//  Updated to follow Apple Human Interface Guidelines
 //
 
 import SwiftUI
@@ -10,13 +11,14 @@ import SwiftData
 
 /// Cell component for displaying a film from the user's collection
 /// Shows rich information including personal rating, watch status, and genres
+/// Updated to follow Apple Human Interface Guidelines
 struct MyFilmCell: View {
     let film: MyFilm
     let filmDetails: IMDBFilm?
     @State private var isLoadingDetails = false
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignTokens.Spacing.small.rawValue) {
             // Poster
             posterView
             
@@ -31,7 +33,7 @@ struct MyFilmCell: View {
                 // IMDB Rating if available
                 if let details = filmDetails, let rating = details.imdbRating {
                     IMDBRatingView(rating: rating)
-                        .font(.caption)
+                        .font(DesignTokens.Typography.caption)
                 }
                 
                 // Genre Pills
@@ -43,21 +45,23 @@ struct MyFilmCell: View {
             Spacer()
             
             // Collection Indicator & Chevron
-            VStack(spacing: 8) {
+            VStack(spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(.green)
+                    .font(DesignTokens.Typography.title3)
+                    .foregroundColor(DesignTokens.Colors.success)
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.secondary)
             }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+        .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
     }
     
     // MARK: - Subviews
@@ -68,11 +72,11 @@ struct MyFilmCell: View {
                 AsyncImage(url: details.posterURL) { phase in
                     switch phase {
                     case .empty:
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.3))
+                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.small.rawValue)
+                            .fill(DesignTokens.Colors.tertiaryFill)
                             .overlay(
                                 ProgressView()
-                                    .tint(.gray)
+                                    .tint(DesignTokens.Colors.secondary)
                             )
                     case .success(let image):
                         image
@@ -80,22 +84,22 @@ struct MyFilmCell: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 60, height: 90)
                             .clipped()
-                            .cornerRadius(8)
+                            .appleCornerRadius(.small)
                     case .failure(_):
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.gray.opacity(0.3))
+                        RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.small.rawValue)
+                            .fill(DesignTokens.Colors.tertiaryFill)
                             .overlay(
                                 Image(systemName: "photo")
-                                    .foregroundColor(.gray)
-                                    .font(.title2)
+                                    .foregroundColor(DesignTokens.Colors.secondary)
+                                    .font(DesignTokens.Typography.title2)
                             )
                     @unknown default:
                         EmptyView()
                     }
                 }
             } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.gray.opacity(0.3))
+                RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.small.rawValue)
+                    .fill(DesignTokens.Colors.tertiaryFill)
                     .overlay(
                         ProgressView()
                             .scaleEffect(0.5)
@@ -109,46 +113,66 @@ struct MyFilmCell: View {
         Group {
             if let details = filmDetails {
                 Text(details.title)
-                    .font(.headline)
+                    .font(DesignTokens.Typography.headline)
                     .lineLimit(1)
-                    .foregroundColor(.primary)
+                    .foregroundColor(DesignTokens.Colors.primary)
                 
                 Text(details.displayYear ?? "Unknown Year")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.secondary)
             } else {
                 Text("Loading...")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.headline)
+                    .foregroundColor(DesignTokens.Colors.secondary)
             }
         }
     }
     
     private var statusSection: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignTokens.Spacing.extraSmall.rawValue) {
             // Watch Status
             if film.watched {
                 HStack(spacing: 4) {
                     Image(systemName: "eye.fill")
-                        .font(.caption)
-                        .foregroundColor(.green)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.success)
                     
                     if let date = film.dateWatched {
                         Text(date, style: .date)
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .font(DesignTokens.Typography.caption2)
+                            .foregroundColor(DesignTokens.Colors.secondary)
                     }
                 }
             } else {
                 Label("Not watched", systemImage: "eye.slash")
-                    .font(.caption)
-                    .foregroundColor(.orange)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.warning)
             }
             
             // Rating
             MyRatingView(rating: film.myRating)
-                .font(.caption)
+                .font(DesignTokens.Typography.caption)
         }
+    }
+    
+    private var accessibilityDescription: String {
+        var description = ""
+        if let details = filmDetails {
+            description = "\(details.title), \(details.displayYear ?? "Unknown year")"
+        } else {
+            description = "Film loading"
+        }
+        
+        if film.watched {
+            description += ", watched"
+            if let rating = film.myRating {
+                description += ", rated \(rating) out of 10"
+            }
+        } else {
+            description += ", not watched yet"
+        }
+        
+        return description
     }
     
     private func genreSection(details: IMDBFilm) -> some View {
