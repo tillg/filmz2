@@ -110,5 +110,11 @@ package-lock.json
 # Log files
 *.log
 
+# Claude Code internal files
+.claude/
+
+# Test output files
+ui_test_results.txt
+
 # Backups
 filmz2_backup_*
