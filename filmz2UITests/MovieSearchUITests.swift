@@ -4,10 +4,15 @@ final class MovieSearchUITests: XCTestCase {
     var app: XCUIApplication!
     
     override func setUpWithError() throws {
+        #if os(macOS)
+        // UI tests are designed for iOS interactions and don't work on macOS
+        throw XCTSkip("UI tests are designed for iOS and not supported on macOS")
+        #else
         continueAfterFailure = false
         
         app = XCUIApplication()
         app.launch()
+        #endif
     }
     
     override func tearDownWithError() throws {
