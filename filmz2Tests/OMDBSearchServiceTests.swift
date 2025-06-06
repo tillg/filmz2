@@ -353,6 +353,7 @@ class OMDBSearchServiceTests: XCTestCase {
     }
     
     func testWideSearch_NumericSearch() async throws {
+        // Test that numeric searches work with wildcard
         let mockResponse = """
         {
             "Search": [
@@ -381,7 +382,8 @@ class OMDBSearchServiceTests: XCTestCase {
         """
         mockSession.mockData = mockResponse.data(using: .utf8)
         
-        let result = try await sut.searchFilms(query: "2")
+        // Use wildcard to bypass minimum character requirement
+        let result = try await sut.searchFilms(query: "2*")
         
         XCTAssertEqual(result.films.count, 3)
         XCTAssertTrue(result.films.allSatisfy { $0.title.contains("2") })

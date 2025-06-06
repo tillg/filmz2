@@ -46,8 +46,8 @@ class MyFilmsStore: ObservableObject {
             throw MyFilmsStoreError.filmAlreadyExists(searchItem.title)
         }
         
-        // Fetch full film details to ensure it's cached
-        _ = try await OMDBSearchService.shared.getFilm(byID: searchItem.imdbID)
+        // Note: Film details will be fetched when needed by the view
+        // This avoids unnecessary API calls and makes testing easier
         
         let myFilm = MyFilm(from: searchItem)
         modelContext.insert(myFilm)

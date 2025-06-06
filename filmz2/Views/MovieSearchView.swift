@@ -55,6 +55,7 @@ struct MovieSearchView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityLabel("Clear text")
                 }
             }
             .padding(8)

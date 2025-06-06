@@ -149,6 +149,7 @@ class MyFilmsStoreTests: XCTestCase {
         let watchDate = Date()
         try sut.markAsWatched(film, date: watchDate)
         
+        // The film object should be updated directly since it's a reference type
         XCTAssertTrue(film.watched)
         XCTAssertNotNil(film.dateWatched)
     }
@@ -186,7 +187,13 @@ class MyFilmsStoreTests: XCTestCase {
             try sut.rateFilm(film, rating: 11)
             XCTFail("Expected error for invalid rating")
         } catch let error as MyFilmsStoreError {
-            XCTAssertEqual(error, .invalidRating)
+            if case .invalidRating = error {
+                // Test passed - expected error thrown
+            } else {
+                XCTFail("Wrong error type: \(error)")
+            }
+        } catch {
+            XCTFail("Wrong error type: \(error)")
         }
     }
     

@@ -38,7 +38,7 @@ C4Context
 
     UpdateRelStyle(user, app, $offsetX="-40", $offsetY="-10")
     UpdateRelStyle(app, icloud, $offsetX="20", $offsetY="-10")
-    
+
     UpdateLayoutConfig($c4ShapeInRow="2", $c4BoundaryInRow="1")
 ```
 
@@ -576,6 +576,7 @@ graph TD
 Enable the following capabilities in your app target:
 
 1. **iCloud**
+
    - ✓ CloudKit
    - ✓ Use default container or specify custom
 
@@ -594,13 +595,13 @@ The `filmz2.entitlements` file must contain:
     <!-- Push notifications for CloudKit sync -->
     <key>aps-environment</key>
     <string>development</string>
-    
+
     <!-- CloudKit container identifier -->
     <key>com.apple.developer.icloud-container-identifiers</key>
     <array>
         <string>iCloud.com.grtnr.filmz2</string>
     </array>
-    
+
     <!-- Enable CloudKit services -->
     <key>com.apple.developer.icloud-services</key>
     <array>
@@ -642,7 +643,7 @@ SwiftData automatically creates record types, but understanding them helps with 
 - **CD_MyFilm**: User's film collection data
   - Fields map to MyFilm properties
   - Indexed on: modifiedAt, recordName
-  
+
 #### 3. Security Roles
 
 Default security for private database:
@@ -668,14 +669,17 @@ func checkiCloudStatus() -> Bool {
 #### Common Access Errors
 
 1. **CKError.notAuthenticated**
+
    - User not signed into iCloud
    - Solution: Show ICloudRequiredView
 
 2. **CKError.quotaExceeded**
+
    - User's iCloud storage is full
    - Solution: Alert user to manage storage
 
 3. **CKError.networkUnavailable**
+
    - No internet connection
    - Solution: Queue changes for later sync
 
@@ -743,7 +747,7 @@ func checkiCloudStatus() -> Bool {
 // Mock iCloud availability
 class MockFileManager: FileManager {
     var mockUbiquityToken: Any? = "mock-token"
-    
+
     override var ubiquityIdentityToken: Any? {
         return mockUbiquityToken
     }
@@ -822,7 +826,7 @@ The architecture supports future enhancements:
 Filmz2's architecture prioritizes:
 
 - **Separation of Concerns**: Clear layer boundaries
-- **Offline First**: Comprehensive caching strategy  
+- **Offline First**: Comprehensive caching strategy
 - **User Experience**: Reactive UI with immediate feedback
 - **Maintainability**: Consistent patterns and components
 - **Performance**: Efficient data storage and API usage
