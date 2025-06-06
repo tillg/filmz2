@@ -80,9 +80,26 @@ filmz2/
     └── ARCHITECTURE.md      # Technical architecture guide
 ```
 
-### Running the App
+### Build Commands
 
-**Development Build:**
+Use Make commands for common development tasks:
+
+```bash
+# Build the app
+make build          # Build for macOS
+make build-ios      # Build for iOS simulator
+
+# Run tests
+make test           # Run unit tests on macOS
+make test-ios       # Run unit tests on iOS simulator
+make testUI         # Run UI tests on iOS simulator
+
+# Utilities
+make clean          # Clean build artifacts
+make help           # Show all available commands
+```
+
+**Manual Build (alternative):**
 
 ```bash
 # Open Xcode and press Cmd+R, or use xcodebuild:
@@ -97,20 +114,25 @@ The app includes a component library for developing and testing UI components. T
 
 ### Testing
 
-**Run All Tests:**
+**Quick Testing:**
+
+```bash
+# Use Make commands (recommended)
+make test           # Run unit tests
+make test-ios       # Run unit tests on iOS simulator  
+make testUI         # Run UI tests on iOS simulator
+```
+
+**Manual Testing:**
 
 ```bash
 # In Xcode: Cmd+U, or via command line:
 xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
-```
 
-**Run Specific Test Suites:**
-
-```bash
 # Unit tests only
 xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2Tests
 
-# UI tests only
+# UI tests only  
 xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
 ```
 
@@ -158,6 +180,7 @@ Key architectural decisions:
 
 - [ADR-001: Use UUIDs for Entity Identifiers](docs/decisions/ADR-001-use-uuids-for_ids.md)
 - [ADR-002: Use Mermaid for Diagrams](docs/decisions/ADR-002-use-mermaid-for-diagrams.md)
+- [ADR-003: Use Make for Build Commands](docs/decisions/ADR-003-use-make-for-build-commands.md)
 
 ## 📚 Documentation
 
