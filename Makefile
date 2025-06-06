@@ -1,5 +1,5 @@
 # Filmz2 Build Commands
-.PHONY: build build-ios test test-ios testUI clean help
+.PHONY: build build-ios test test-ios testUI clean lint lint-fix help
 
 # Default target
 help:
@@ -9,6 +9,8 @@ help:
 	@echo "  test      - Run unit tests on macOS"
 	@echo "  test-ios  - Run unit tests on iOS simulator"
 	@echo "  testUI    - Run UI tests on iOS simulator"
+	@echo "  lint      - Run linting checks on documentation"
+	@echo "  lint-fix  - Run linting and auto-fix issues"
 	@echo "  clean     - Clean build artifacts"
 
 # Build targets
@@ -27,6 +29,13 @@ test-ios:
 
 testUI:
 	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
+
+# Linting targets
+lint:
+	npm run check:md
+
+lint-fix:
+	npm run fix:md
 
 # Utility targets
 clean:

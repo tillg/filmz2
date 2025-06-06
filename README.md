@@ -94,6 +94,10 @@ make test           # Run unit tests on macOS
 make test-ios       # Run unit tests on iOS simulator
 make testUI         # Run UI tests on iOS simulator
 
+# Code quality
+make lint           # Run linting checks on documentation
+make lint-fix       # Run linting and auto-fix issues
+
 # Utilities
 make clean          # Clean build artifacts
 make help           # Show all available commands
@@ -144,6 +148,14 @@ xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=
 
 ### Code Quality
 
+**Quick Linting:**
+
+```bash
+# Use Make commands (recommended)
+make lint           # Check markdown formatting and linting
+make lint-fix       # Auto-fix markdown issues
+```
+
 **Swift Linting:**
 
 ```bash
@@ -154,7 +166,7 @@ brew install swiftlint
 swiftlint
 ```
 
-**Markdown Documentation:**
+**Manual Markdown Linting:**
 
 ```bash
 # Check markdown formatting
