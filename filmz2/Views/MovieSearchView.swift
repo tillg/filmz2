@@ -23,18 +23,7 @@ struct MovieSearchView: View {
                     searchResultsList
                 }
             }
-            .navigationTitle("Search Movies")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.large)
-            #endif
             .searchable(text: $viewModel.searchQuery, prompt: "Search movies...")
-            .searchSuggestions {
-                if viewModel.searchQuery.isEmpty {
-                    Text("Batman").searchCompletion("Batman")
-                    Text("Star Wars").searchCompletion("Star Wars")
-                    Text("Lord of the Rings").searchCompletion("Lord of the Rings")
-                }
-            }
         }
     }
     

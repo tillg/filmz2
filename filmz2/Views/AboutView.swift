@@ -4,6 +4,21 @@ struct AboutView: View {
     var body: some View {
         List {
             Section {
+                VStack(spacing: DesignTokens.Spacing.medium.rawValue) {
+                    Image("FilmzLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 80)
+                    
+                    Text("Filmz")
+                        .font(DesignTokens.Typography.largeTitle)
+                        .fontWeight(.bold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, DesignTokens.Spacing.medium.rawValue)
+                .listRowBackground(Color.clear)
+            }
+            Section {
                 HStack {
                     Text("Version")
                     Spacer()

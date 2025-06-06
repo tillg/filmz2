@@ -26,6 +26,7 @@ struct CollectionView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
                 .padding(.top, DesignTokens.Spacing.small.rawValue)
+                .padding(.bottom, DesignTokens.Spacing.small.rawValue)
                     
                 // Genre Filter Row
                 HStack(spacing: 0) {
