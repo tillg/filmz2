@@ -48,8 +48,9 @@ All UI components and interactions should be reviewed against the Apple Human In
 Primary reference: [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines)
 
 Key areas of focus for filmz2:
-- Navigation patterns (tab bars, navigation controllers)
-- Data presentation (lists, grids, detail views)
-- User input and forms
-- Accessibility features
-- Platform-specific considerations (iOS vs macOS differences)
+
+* Navigation patterns (tab bars, navigation controllers)
+* Data presentation (lists, grids, detail views)
+* User input and forms
+* Accessibility features
+* Platform-specific considerations (iOS vs macOS differences)
