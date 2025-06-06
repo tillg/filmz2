@@ -12,7 +12,7 @@ struct CacheView: View {
                         Text("Total cached films")
                         Spacer()
                         Text("\(cachedFilms.count)")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DesignTokens.Colors.secondary)
                     }
                 }
                 
@@ -32,7 +32,7 @@ struct CacheView: View {
                     Button("Clear All") {
                         clearCache()
                     }
-                    .foregroundColor(.red)
+                    .foregroundColor(DesignTokens.Colors.error)
                 }
             }
             .onAppear {
@@ -64,53 +64,53 @@ struct CachedFilmRow: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(film.title)
-                    .font(.headline)
+                    .font(DesignTokens.Typography.headline)
                 Spacer()
                 if let rating = film.imdbRating {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .foregroundColor(.yellow)
-                            .font(.caption)
+                            .font(DesignTokens.Typography.caption)
                         Text("\(rating)/10")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.secondary)
                     }
                 }
             }
             
             HStack {
                 Text(film.imdbID)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.secondary)
                 
                 Spacer()
                 
                 if film.isStale {
                     Text("Stale")
-                        .font(.caption)
-                        .foregroundColor(.orange)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.warning)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.2))
-                        .cornerRadius(4)
+                        .background(DesignTokens.Colors.warning.opacity(0.2))
+                        .appleCornerRadius(.small)
                 }
             }
             
             HStack {
                 Text("Cached: \(film.lastFetched.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.caption2)
+                    .foregroundColor(DesignTokens.Colors.secondary)
                 
                 if let year = film.year {
                     Text("• \(year)")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.caption2)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
                 
                 if let type = film.type {
                     Text("• \(type.capitalized)")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.caption2)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
             }
         }

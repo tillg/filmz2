@@ -191,4 +191,16 @@ class CollectionViewModel: ObservableObject {
     var hasActiveFilters: Bool {
         !filter.genres.isEmpty || filter.watchedStatus != .all || !searchText.isEmpty
     }
+    
+    func toggleGenre(_ genre: String) {
+        if filter.genres.contains(genre) {
+            filter.genres.remove(genre)
+        } else {
+            filter.genres.insert(genre)
+        }
+    }
+    
+    func clearGenreFilter() {
+        filter.genres.removeAll()
+    }
 }

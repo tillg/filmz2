@@ -8,24 +8,24 @@ struct AboutView: View {
                     Text("Version")
                     Spacer()
                     Text("1.0.0")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
                 
                 HStack {
                     Text("Build")
                     Spacer()
                     Text("2025.06.02")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
             }
             
             Section("Credits") {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Developed by Till Gartner")
-                        .font(.headline)
+                        .font(DesignTokens.Typography.headline)
                     Text("Powered by OMDb API")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
             }
         }

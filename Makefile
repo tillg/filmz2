@@ -18,17 +18,17 @@ build:
 	xcodebuild -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=macOS'
 
 build-ios:
-	xcodebuild -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
+	xcodebuild -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,id=ED40D210-AC39-4CD0-943A-D6485FFB3416'
 
 # Test targets
 test:
 	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=macOS'
 
 test-ios:
-	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
+	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'
 
 testUI:
-	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
+	xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,id=ED40D210-AC39-4CD0-943A-D6485FFB3416' -only-testing:filmz2UITests
 
 # Linting targets
 lint:

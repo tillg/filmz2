@@ -15,7 +15,7 @@ struct IMDBFilmDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium.rawValue) {
                 // Film Poster Section
                 FilmPosterSection(
                     posterURL: viewModel.film.posterURL,
@@ -36,15 +36,15 @@ struct IMDBFilmDetailView: View {
                         .padding(.vertical, 40)
                 } else if let error = viewModel.loadError {
                     // Show error if loading failed
-                    VStack(spacing: 12) {
+                    VStack(spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                         Image(systemName: "exclamationmark.triangle")
-                            .font(.largeTitle)
-                            .foregroundColor(.orange)
+                            .font(DesignTokens.Typography.largeTitle)
+                            .foregroundColor(DesignTokens.Colors.warning)
                         Text("Failed to load film details")
-                            .font(.headline)
+                            .font(DesignTokens.Typography.headline)
                         Text(error)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(DesignTokens.Typography.caption)
+                            .foregroundColor(DesignTokens.Colors.secondary)
                             .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity)
@@ -85,8 +85,8 @@ struct IMDBFilmDetailView: View {
                     additionalInfoSection
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 20)
+            .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+            .padding(.bottom, DesignTokens.Spacing.medium.rawValue)
         }
         .navigationTitle(viewModel.film.title)
     }
@@ -96,34 +96,34 @@ struct IMDBFilmDetailView: View {
     private var titleSection: some View {
         HStack {
             Text(viewModel.film.yearAndRuntime)
-                .font(.title2)
-                .foregroundColor(.secondary)
+                .font(DesignTokens.Typography.title2)
+                .foregroundColor(DesignTokens.Colors.secondary)
             
             if let rating = viewModel.ratingBadge {
                 Spacer()
                 Text(rating)
-                    .font(.caption)
+                    .font(DesignTokens.Typography.caption)
                     .fontWeight(.medium)
-                    .padding(.horizontal, 8)
+                    .padding(.horizontal, DesignTokens.Spacing.extraSmall.rawValue)
                     .padding(.vertical, 4)
-                    .background(Color.gray.opacity(0.2))
+                    .background(DesignTokens.Colors.tertiaryFill)
                     .clipShape(Capsule())
             }
         }
     }
     
     private var ratingsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
             Text("Ratings")
-                .font(.headline)
+                .font(DesignTokens.Typography.headline)
                 .fontWeight(.semibold)
             
             RatingsRow(film: viewModel.film)
             
             if let votes = viewModel.formattedVotes() {
                 Text(votes)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.caption)
+                    .foregroundColor(DesignTokens.Colors.secondary)
             }
         }
     }
@@ -132,12 +132,12 @@ struct IMDBFilmDetailView: View {
     @ViewBuilder
     private var additionalInfoSection: some View {
         if let type = viewModel.film.type {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                 Text("Additional Information")
-                    .font(.headline)
+                    .font(DesignTokens.Typography.headline)
                     .fontWeight(.semibold)
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                     FilmInfoRow(title: "Type", content: type.capitalized)
                 }
             }

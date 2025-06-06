@@ -25,27 +25,27 @@ struct MyFilmDetailView: View {
                 ProgressView("Loading film details...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let error = loadError {
-                VStack(spacing: 20) {
+                VStack(spacing: DesignTokens.Spacing.medium.rawValue) {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 60))
-                        .foregroundColor(.orange)
+                        .foregroundColor(DesignTokens.Colors.warning)
                     Text("Failed to load film details")
-                        .font(.title2)
+                        .font(DesignTokens.Typography.title2)
                     Text(error)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.caption)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                     
                     Button("Retry") {
                         Task {
                             await loadFilmDetails()
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(BorderedProminentButtonStyle())
                 }
                 .padding()
             } else if let details = filmDetails {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium.rawValue) {
                         // Film Poster Section
                         FilmPosterSection(
                             posterURL: details.posterURL,
@@ -88,8 +88,8 @@ struct MyFilmDetailView: View {
                         // Delete Button
                         deleteButton
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 20)
+                    .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
+                    .padding(.bottom, DesignTokens.Spacing.medium.rawValue)
                 }
                 .navigationTitle(details.title)
                 #if os(iOS)
@@ -117,14 +117,14 @@ struct MyFilmDetailView: View {
             VStack(alignment: .leading, spacing: 4) {
                 if let year = details.year {
                     Text(year)
-                        .font(.title2)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.title2)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
                 
                 if let rated = details.rated {
                     Text(rated)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.subheadline)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                 }
             }
             
@@ -132,16 +132,16 @@ struct MyFilmDetailView: View {
             
             if film.watched {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.title)
-                    .foregroundColor(.green)
+                    .font(DesignTokens.Typography.title)
+                    .foregroundColor(DesignTokens.Colors.success)
             }
         }
     }
     
     private var userDataSection: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.medium.rawValue) {
             Text("My Data")
-                .font(.headline)
+                .font(DesignTokens.Typography.headline)
                 .fontWeight(.semibold)
             
             // Watch Status
@@ -149,10 +149,10 @@ struct MyFilmDetailView: View {
             
             // Rating - only show when watched
             if film.watched {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                     Text("My Rating")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(DesignTokens.Typography.subheadline)
+                        .foregroundColor(DesignTokens.Colors.secondary)
                     StarRatingView(rating: $film.myRating)
                 }
                 .transition(.asymmetric(
@@ -168,10 +168,10 @@ struct MyFilmDetailView: View {
             recommendedBySection
             
             // My Notes - moved here from separate section
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
                 Text("My Notes")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(DesignTokens.Typography.subheadline)
+                    .foregroundColor(DesignTokens.Colors.secondary)
                 
                 TextEditor(text: Binding(
                     get: { film.notes ?? "" },
@@ -181,22 +181,22 @@ struct MyFilmDetailView: View {
                     }
                 ))
                 .frame(minHeight: 80)
-                .padding(8)
-                .background(Color.gray.opacity(0.05))
-                .cornerRadius(8)
+                .padding(DesignTokens.Spacing.extraSmall.rawValue)
+                .background(DesignTokens.Colors.tertiaryFill)
+                .appleCornerRadius(.small)
             }
         }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .padding(DesignTokens.Spacing.small.rawValue)
+        .background(DesignTokens.Colors.secondaryFill)
+        .appleCornerRadius(.medium)
         .animation(.easeInOut(duration: 0.3), value: film.watched)
     }
     
     private var watchStatusSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignTokens.Spacing.extraSmall.rawValue) {
             Toggle(isOn: $film.watched) {
                 Text("Watched")
-                    .font(.subheadline)
+                    .font(DesignTokens.Typography.subheadline)
             }
             .onChange(of: film.watched) { oldValue, newValue in
                 if newValue && film.dateWatched == nil {

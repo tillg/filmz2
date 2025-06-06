@@ -76,15 +76,15 @@ struct DesignTokens {
         static let tertiaryFill = Color(UIColor.tertiarySystemFill)
         static let quaternaryFill = Color(UIColor.quaternarySystemFill)
         #else
-        static let background = Color(.windowBackground)
-        static let secondaryBackground = Color(.controlBackgroundColor)
-        static let tertiaryBackground = Color(.controlColor)
+        static let background = Color.clear
+        static let secondaryBackground = Color.gray.opacity(0.1)
+        static let tertiaryBackground = Color.gray.opacity(0.2)
         
         // Fill colors
-        static let fill = Color(.controlColor)
-        static let secondaryFill = Color(.controlBackgroundColor)
-        static let tertiaryFill = Color(.separatorColor)
-        static let quaternaryFill = Color(.quaternaryLabelColor)
+        static let fill = Color.gray.opacity(0.2)
+        static let secondaryFill = Color.gray.opacity(0.1)
+        static let tertiaryFill = Color.gray.opacity(0.15)
+        static let quaternaryFill = Color.gray.opacity(0.05)
         #endif
         
         // Status colors
