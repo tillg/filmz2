@@ -18,9 +18,8 @@ Filmz2 is an App to maintain films, movies and shows: The ones I saw, whether I 
 
 Best read in the following order:
 
-- [Data Structures](DATA_STRUCTURES.md) - explains the main entities we deal with
 - [Glossary](GLOSSARY.md) - explains the words we use from our film domain
-- [Architecture](ARCHITECTURE.md) - describes the moving parts of our application
+- [Architecture](ARCHITECTURE.md) - describes the moving parts and data structures of our application
 - [Coding Guidelines](CODING_GUIDELINES.md) - development standards and definition of done
 
 ## Feature Documentation
