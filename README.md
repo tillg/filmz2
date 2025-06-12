@@ -209,13 +209,30 @@ Feature specifications are in `/docs/features/`:
 
 - **[IMDB Film Detail View](docs/features/2025-05-30-imdb-film-detail-view.md)** - Complete feature spec with UI, testing, and requirements
 
-### API Documentation
+### API Setup
 
 The app uses the [OMDb API](https://www.omdbapi.com/) for film data:
 
-- **API Key Required**: Get your free key at [omdbapi.com](https://www.omdbapi.com/apikey.aspx)
-- **Rate Limits**: 1,000 requests/day on free tier
-- **Sample Data**: See [OMDb_API_example.json](docs/OMDb_API_example.json)
+**Getting Your API Key:**
+1. Visit [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx)
+2. Choose FREE plan (1,000 daily requests) or Patron ($1-$5/month)
+3. Register with your email and verify via activation link
+4. You'll receive your API key via email
+
+**Setting Up Your API Key:**
+```swift
+// filmz2/Config/APIKeys.swift (already configured in project)
+struct APIKeys {
+    static let omdbAPIKey = "YOUR_API_KEY_HERE"
+}
+```
+
+**Important:** The API key is already configured in the project for development use. For production deployments, ensure you:
+- Never commit API keys to version control
+- Use environment variables for CI/CD
+- Monitor usage in OMDb dashboard
+
+**Rate Limits:** 1,000 requests/day on free tier
 
 ## 🧩 Component System
 
