@@ -39,6 +39,7 @@ struct StarRatingView: View {
                     Text("\(rating)/\(maxRating)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .lineLimit(1)
                 } else {
                     Text("")
                         .font(.subheadline)
@@ -46,7 +47,9 @@ struct StarRatingView: View {
             }
             .padding(.leading, 8)
             .frame(minWidth: 30, alignment: .leading)
+            .fixedSize(horizontal: true, vertical: false)
         }
+        .fixedSize(horizontal: true, vertical: false)
     }
     
     private func starImage(for index: Int) -> String {
