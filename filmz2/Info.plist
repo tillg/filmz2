@@ -5,11 +5,11 @@
 	<key>BuildDate</key>
 	<string>2025-06-12</string>
 	<key>CFBundleVersion</key>
-	<string>2025-06-12-f5e641c-dirty</string>
+	<string>2025-06-12-5fb6c96</string>
 	<key>GitBranch</key>
 	<string>main</string>
 	<key>GitCommitHash</key>
-	<string>f5e641c-dirty</string>
+	<string>5fb6c96</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
