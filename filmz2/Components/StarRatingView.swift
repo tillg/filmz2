@@ -33,12 +33,19 @@ struct StarRatingView: View {
                     }
             }
             
-            if let rating = rating {
-                Text("\(rating)/\(maxRating)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.leading, 8)
+            // Always reserve space for rating text to maintain consistent layout
+            Group {
+                if let rating = rating {
+                    Text("\(rating)/\(maxRating)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("")
+                        .font(.subheadline)
+                }
             }
+            .padding(.leading, 8)
+            .frame(minWidth: 30, alignment: .leading)
         }
     }
     
