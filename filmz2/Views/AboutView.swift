@@ -22,15 +22,20 @@ struct AboutView: View {
                 HStack {
                     Text("Version")
                     Spacer()
-                    Text("1.0.0")
+                    Text(BuildInfo.version)
                         .foregroundColor(DesignTokens.Colors.secondary)
                 }
                 
                 HStack {
                     Text("Build")
                     Spacer()
-                    Text("2025.06.02")
-                        .foregroundColor(DesignTokens.Colors.secondary)
+                    if BuildInfo.isValidCommitHash {
+                        Link(BuildInfo.formattedBuildInfo, destination: URL(string: BuildInfo.githubCommitURL)!)
+                            .foregroundColor(.blue)
+                    } else {
+                        Text(BuildInfo.formattedBuildInfo)
+                            .foregroundColor(DesignTokens.Colors.secondary)
+                    }
                 }
             }
             

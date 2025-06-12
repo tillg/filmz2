@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BuildDate</key>
+	<string>2025-06-12</string>
+	<key>CFBundleVersion</key>
+	<string>2025-06-12-f5e641c-dirty</string>
+	<key>GitBranch</key>
+	<string>main</string>
+	<key>GitCommitHash</key>
+	<string>f5e641c-dirty</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

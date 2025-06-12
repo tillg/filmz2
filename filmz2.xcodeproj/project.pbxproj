@@ -112,6 +112,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F99A40182DE8D62800B483BE /* Build configuration list for PBXNativeTarget "filmz2" */;
 			buildPhases = (
+				8F69B88F5F9141898A7DED71 /* Generate Build Info */,
 				F99A3FF02DE8D62600B483BE /* Sources */,
 				F99A3FF12DE8D62600B483BE /* Frameworks */,
 				F99A3FF22DE8D62600B483BE /* Resources */,
@@ -243,6 +244,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		8F69B88F5F9141898A7DED71 /* Generate Build Info */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/scripts/update-build-info.sh",
+			);
+			name = "Generate Build Info";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "\"${SRCROOT}/scripts/update-build-info.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F99A3FF02DE8D62600B483BE /* Sources */ = {
