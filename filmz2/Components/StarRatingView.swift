@@ -18,11 +18,12 @@ struct StarRatingView: View {
     }
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 2) {
             ForEach(1...maxRating, id: \.self) { index in
                 Image(systemName: starImage(for: index))
                     .font(.system(size: starSize))
                     .foregroundColor(starColor(for: index))
+                    .frame(minWidth: 0)
                     .onTapGesture {
                         if rating == index {
                             // Tapping the same rating clears it
@@ -40,16 +41,17 @@ struct StarRatingView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.3)
                 } else {
-                    Text("")
+                    Text(" ")
                         .font(.subheadline)
+                        .opacity(0)
                 }
             }
-            .padding(.leading, 8)
-            .frame(minWidth: 30, alignment: .leading)
-            .fixedSize(horizontal: true, vertical: false)
+            .padding(.leading, 4)
+            .frame(minWidth: 20, alignment: .leading)
         }
-        .fixedSize(horizontal: true, vertical: false)
+        .clipped()
     }
     
     private func starImage(for index: Int) -> String {
@@ -82,5 +84,32 @@ struct StarRatingView: View {
 #Preview("Small Stars") {
     @Previewable @State var rating: Int? = 5
     return StarRatingView(rating: $rating, starSize: 16)
+        .padding()
+}
+
+#Preview("Tight Container - No Rating") {
+    @Previewable @State var rating: Int? = nil
+    return StarRatingView(rating: $rating, starSize: 20)
+        .padding(8)
+        .frame(width: 200, height: 40)
+        .border(Color.red, width: 2)
+        .padding()
+}
+
+#Preview("Tight Container - With Rating") {
+    @Previewable @State var rating: Int? = 8
+    return StarRatingView(rating: $rating, starSize: 20)
+        .padding(8)
+        .frame(width: 200, height: 40)
+        .border(Color.blue, width: 2)
+        .padding()
+}
+
+#Preview("Very Tight Container") {
+    @Previewable @State var rating: Int? = 10
+    return StarRatingView(rating: $rating, starSize: 18)
+        .padding(4)
+        .frame(width: 180, height: 35)
+        .border(Color.green, width: 2)
         .padding()
 }
