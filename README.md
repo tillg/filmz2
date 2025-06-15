@@ -86,12 +86,16 @@ Use Make commands for common development tasks:
 
 ```bash
 # Build the app
-make build          # Build for macOS
+make build          # Build for macOS (Debug)
+make build-release  # Build for macOS (Release)
 make build-ios      # Build for iOS simulator
+make build-ipados   # Build for iPadOS simulator
 
 # Run tests
-make test           # Run unit tests on macOS
+make test-unit      # Run unit tests on macOS (fastest, no simulator)
+make test-macos     # Run unit tests on macOS (alias for test-unit)
 make test-ios       # Run unit tests on iOS simulator
+make test-ipados    # Run unit tests on iPadOS simulator
 make testUI         # Run UI tests on iOS simulator
 
 # Code quality

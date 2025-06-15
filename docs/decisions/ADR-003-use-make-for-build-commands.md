@@ -114,14 +114,27 @@ Rely on Xcode's built-in automation and schemes.
 
 ## More Information
 
-The Makefile will include the following standard targets:
+The Makefile includes the following standard targets:
 
-* `build` - Build for macOS
-* `build-ios` - Build for iOS simulator  
-* `test` - Run unit tests on macOS
+**Build Commands:**
+* `build` - Build for macOS (Debug)
+* `build-release` - Build for macOS (Release)
+* `build-ios` - Build for iOS simulator
+* `build-ipados` - Build for iPadOS simulator
+
+**Test Commands:**
+* `test-unit` - Run unit tests on macOS (fastest, no simulator)
+* `test-macos` - Run unit tests on macOS (alias for test-unit)
 * `test-ios` - Run unit tests on iOS simulator
+* `test-ipados` - Run unit tests on iPadOS simulator
 * `testUI` - Run UI tests on iOS simulator
+
+**Other Commands:**
+* `lint` - Run linting checks on documentation
+* `lint-fix` - Run linting and auto-fix issues
 * `clean` - Clean build artifacts
 * `help` - Show available commands (default target)
+
+Note: `make test` shows an error message directing users to use specific test targets.
 
 This decision aligns with common practices in the Swift/iOS development community and provides a foundation for future automation needs.

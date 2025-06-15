@@ -89,46 +89,15 @@ final class MyFilm {
 }
 ```
 
-### CachedIMDBFilm (Metadata Cache)
-
-```swift
-@Model
-final class CachedIMDBFilm {
-    @Attribute(.unique) var imdbID: String
-    // All film metadata fields...
-    var lastFetched: Date
-    var dataVersion: Int
-
-    var isStale: Bool {
-        // Returns true if older than 30 days
-    }
-}
-```
-
 ## Build and Test Instructions
 
-**CRITICAL**: Always use Make commands for building and testing. Never use direct xcodebuild or other build tools.
-
-### Building the Project
-
-```bash
-make build          # Build the project
-make build-release  # Build release configuration
-```
-
-### Running Tests
-
-```bash
-make test          # Run all tests
-make test-ui       # Run UI tests only
-make test-unit     # Run unit tests only
-```
+**CRITICAL**: Always use the XcodeBuildMCP Server to build, test and run.
 
 ### Linting and Formatting
 
 ```bash
-make lint          # Run all linting
-make format        # Format code
+make lint          # Run linting checks on documentation
+make lint-fix      # Run linting and auto-fix issues
 ```
 
 **IMPORTANT**: Whenever any Markdown (.md) file is created or modified, you MUST run:
@@ -139,17 +108,10 @@ make lint-fix && make lint
 
 ### Complete Workflow
 
+This is the only time you should use make:
+
 ```bash
-make clean build test lint  # Full clean build with testing and linting
+make clean build test-unit lint  # Full clean build with testing and linting
 ```
 
 All team members and AI assistants must use these Make targets exclusively. Do not use direct xcodebuild commands.
-
-## Next Steps (Optional)
-
-No explicit next steps requested. The implementation is complete and functional. Potential future enhancements could include:
-
-- Export/import functionality for collections
-- Social features (sharing collections)
-- Advanced filtering and sorting
-- Batch operations on collections
