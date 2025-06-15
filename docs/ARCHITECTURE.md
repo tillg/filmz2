@@ -318,7 +318,7 @@ sequenceDiagram
     end
 ```
 
-## Service Layer Details
+## Services
 
 ### OMDBSearchService
 

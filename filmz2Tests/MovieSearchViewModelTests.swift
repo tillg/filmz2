@@ -6,13 +6,11 @@ class MockOMDBSearchService: OMDBSearchServiceProtocol {
     var searchFilmsResult: Result<SearchResult, Error>?
     var searchFilmsRawResult: Result<OMDBSearchResponse, Error>?
     var getFilmResult: Result<IMDBFilm, Error>?
-    var getFilmDetailsResult: Result<IMDBFilm, Error>?
     
     var searchFilmsCallCount = 0
     var searchFilmsRawCallCount = 0
     var getFilmByIDCallCount = 0
     var getFilmByTitleCallCount = 0
-    var getFilmDetailsCallCount = 0
     
     var lastSearchQuery: String?
     var lastSearchPage: Int?
@@ -77,19 +75,6 @@ class MockOMDBSearchService: OMDBSearchServiceProtocol {
         throw OMDBError.unknownError("No mock result configured")
     }
     
-    func getFilmDetails(imdbID: String) async throws -> IMDBFilm {
-        getFilmDetailsCallCount += 1
-        
-        if let result = getFilmDetailsResult {
-            switch result {
-            case .success(let film):
-                return film
-            case .failure(let error):
-                throw error
-            }
-        }
-        throw OMDBError.unknownError("No mock result configured")
-    }
 }
 
 @MainActor
@@ -285,7 +270,7 @@ class MovieSearchViewModelTests: XCTestCase {
     func testSelectFilm() async throws {
         // Configure mock film details
         let mockFilm = IMDBFilm.darkKnight
-        mockService.getFilmDetailsResult = .success(mockFilm)
+        mockService.getFilmResult = .success(mockFilm)
         
         // Create search result
         let searchItem = OMDBSearchItem(
@@ -302,12 +287,12 @@ class MovieSearchViewModelTests: XCTestCase {
         // Verify
         XCTAssertNotNil(selectedFilm)
         XCTAssertEqual(selectedFilm?.imdbID, mockFilm.imdbID)
-        XCTAssertEqual(mockService.getFilmDetailsCallCount, 1)
+        XCTAssertEqual(mockService.getFilmByIDCallCount, 1)
     }
     
     func testSelectFilmError() async throws {
         // Configure mock to return error
-        mockService.getFilmDetailsResult = .failure(OMDBError.networkError(URLError(.timedOut)))
+        mockService.getFilmResult = .failure(OMDBError.networkError(URLError(.timedOut)))
         
         // Create search result
         let searchItem = OMDBSearchItem(

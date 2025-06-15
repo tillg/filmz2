@@ -10,30 +10,6 @@ This document defines the coding standards, guidelines, and criteria that must b
 
 ### Markdown Files
 
-#### Linting and Formatting
-
-All markdown files in this project should follow consistent formatting standards:
-
-- **Linting**: Use markdownlint to ensure consistent markdown structure
-- **Auto-formatting**: Prettier handles consistent formatting
-- **VSCode Integration**: Auto-format on save is enabled for team consistency
-
-#### Available Commands
-
-```bash
-# Check markdown files for linting issues
-npm run lint:md
-
-# Auto-fix linting issues where possible
-npm run lint:md:fix
-
-# Format markdown files with Prettier
-npm run format:md
-
-# Run both linting and formatting
-npm run fix:md
-```
-
 #### Markdown Style Guidelines
 
 - **Headings**: Use ATX style (`#` instead of underlines)
@@ -60,14 +36,6 @@ Extensions: Show Recommended Extensions
 
 ## Code Quality
 
-### Implementation Standards
-
-- [ ] Code follows Swift style guidelines and project conventions
-- [ ] All new code has meaningful variable and function names
-- [ ] Complex logic is documented with inline comments
-- [ ] No compiler warnings or errors
-- [ ] Code is properly formatted and consistent with existing codebase
-
 ### Architecture Compliance
 
 - [ ] Implementation follows established architectural patterns
@@ -85,6 +53,7 @@ Extensions: Show Recommended Extensions
 ### Unit Testing
 
 - [ ] Unit tests written for all new business logic
+- [ ] Unit tests should not invoke a simulator
 - [ ] Test coverage minimum 80% for new code
 - [ ] All tests pass consistently
 - [ ] Edge cases and error conditions are tested
@@ -146,7 +115,6 @@ Extensions: Show Recommended Extensions
 
 ### Feature Documentation
 
-- [ ] User-facing features documented in `/docs/features/`
 - [ ] API changes documented if applicable
 - [ ] Architecture decisions recorded as ADRs when significant
 - [ ] README updated if new setup steps required
@@ -198,13 +166,6 @@ Extensions: Show Recommended Extensions
 - [ ] Release notes updated
 
 ## Exception Handling
-
-### When DoD Can Be Modified
-
-- Hotfix releases may have reduced testing requirements
-- Proof-of-concept features may skip some documentation
-- Technical debt items may focus only on code quality
-- Emergency releases may have expedited review process
 
 ### Documenting Exceptions
 
