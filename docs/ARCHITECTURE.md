@@ -459,6 +459,31 @@ actor IMDBFilmManager {
 }
 ```
 
+### CloudKitAvailabilityChecker
+
+Ensures iCloud authentication and triggers system prompts when needed.
+
+**Key Features:**
+
+- Direct CloudKit API calls on app startup
+- Automatic iCloud account status checking
+- Triggers iOS system prompts for authentication
+- Mimics original filmz behavior
+- No custom UI required - uses system prompts
+
+**Integration:**
+
+```swift
+// ContentView.swift - Automatic check on app launch
+@StateObject private var cloudKitChecker = CloudKitAvailabilityChecker()
+
+.onAppear {
+    Task {
+        await cloudKitChecker.checkCloudKitAvailability()
+    }
+}
+```
+
 ### MyFilmsStore
 
 Manages the user's personal film collection with reactive updates.
@@ -691,7 +716,88 @@ graph TD
 
 ## CloudKit Integration and iCloud Requirement
 
-Filmz2 **requires** iCloud sign-in as a core architectural decision. This approach, inspired by the original filmz project, eliminates complexity and provides a seamless user experience.
+Filmz2 **requires** iCloud sign-in as a core architectural decision. This approach eliminates complexity and provides a seamless user experience.
+
+### CloudKit Configuration
+
+Filmz2 uses a centralized configuration approach for CloudKit integration:
+
+```swift
+// Config/AppConfig.swift - Main application configuration
+struct AppConfig {
+    struct Services {
+        static let cloudKitContainer = CloudKitConfig.containerIdentifier
+        static let omdbAPIKey = APIKeys.omdbAPIKey
+        // ... other service configurations
+    }
+}
+
+// Config/CloudKitConfig.swift - CloudKit container configuration
+struct CloudKitConfig {
+    /// Using the same container as the original filmz project for compatibility
+    static let containerIdentifier = "iCloud.com.grtnr.Filmz"
+}
+```
+
+**Key Configuration Files:**
+
+- **`Config/AppConfig.swift`**: Main application configuration
+- **`Config/CloudKitConfig.swift`**: CloudKit container identifier
+- **`Config/APIKeys.swift`**: External API keys
+- **`filmz2.entitlements`**: CloudKit container and capabilities
+- **`filmz2App.swift`**: ModelConfiguration with CloudKit database
+- **`CloudKitAvailabilityChecker.swift`**: Direct CloudKit API integration
+
+### CloudKit Availability Checker
+
+To replicate the automatic iCloud prompts from the original filmz app, Filmz2 implements a `CloudKitAvailabilityChecker` that makes direct CloudKit API calls on app startup:
+
+```swift
+@MainActor
+class CloudKitAvailabilityChecker: ObservableObject {
+    private let container: CKContainer
+
+    init() {
+        self.container = CKContainer(identifier: CloudKitConfig.containerIdentifier)
+    }
+
+    func checkCloudKitAvailability() async {
+        // Direct CloudKit API calls trigger iOS system prompts
+        let accountStatus = try await container.accountStatus()
+
+        switch accountStatus {
+        case .available:
+            await performMinimalDatabaseCheck()
+        case .noAccount:
+            await attemptCloudKitOperation() // Triggers system prompts
+        // ... handle other cases
+        }
+    }
+}
+```
+
+**How It Works:**
+
+1. **App launches** → `CloudKitAvailabilityChecker` runs automatically
+2. **Direct CloudKit API calls** → `container.accountStatus()` and database queries
+3. **iOS detects CloudKit usage** → System shows iCloud prompts when authentication needed
+4. **No custom iCloud UI required** → Leverages built-in system prompts
+
+**Benefits:**
+
+- **Automatic prompts**: iOS handles iCloud login prompts seamlessly
+- **Mimics original filmz**: Same behavior as the working original app
+- **No custom UI needed**: Uses system-provided authentication flows
+- **Works on real devices**: CloudKit prompts function properly on physical hardware
+
+### Container Compatibility
+
+Filmz2 uses the same CloudKit container as the original filmz project (`iCloud.com.grtnr.Filmz`) for:
+
+- **Seamless migration**: Existing film collections automatically available
+- **Proven configuration**: Container already has correct bundle ID permissions
+- **Simplified setup**: No need to configure new CloudKit container
+- **Data continuity**: Users can transition between apps without data loss
 
 ### Key Principles
 
@@ -714,7 +820,7 @@ Filmz2 **requires** iCloud sign-in as a core architectural decision. This approa
 let syncedConfiguration = ModelConfiguration(
     schema: syncedSchema,
     isStoredInMemoryOnly: false,
-    cloudKitDatabase: .private("iCloud.com.grtnr.filmz2")
+    cloudKitDatabase: .private(CloudKitConfig.containerIdentifier)
 )
 ```
 
@@ -817,8 +923,10 @@ Add usage descriptions for user transparency:
 #### 1. Container Setup
 
 1. Navigate to [CloudKit Dashboard](https://icloud.developer.apple.com/dashboard)
-2. Select or create container: `iCloud.com.grtnr.filmz2`
+2. Select container: `iCloud.com.grtnr.Filmz` (shared with original filmz project)
 3. Environment: Development → Production promotion flow
+
+**Note**: Filmz2 uses the same CloudKit container as the original filmz project for seamless data migration and proven configuration.
 
 #### 2. Record Types
 

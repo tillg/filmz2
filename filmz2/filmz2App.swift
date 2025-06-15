@@ -19,10 +19,10 @@ struct filmz2App: App {
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
-            cloudKitDatabase: .private("iCloud.com.grtnr.filmz2")
+            cloudKitDatabase: .private(CloudKitConfig.containerIdentifier)
         )
         
-        print("filmz2App: Initializing with CloudKit container: iCloud.com.grtnr.filmz2")
+        print("filmz2App: Initializing with CloudKit container: \(CloudKitConfig.containerIdentifier)")
 
         do {
             let container = try ModelContainer(for: schema, configurations: [modelConfiguration])

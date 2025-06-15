@@ -7,10 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import CloudKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var selectedTab: MainTab = .collection
+    @StateObject private var cloudKitChecker = CloudKitAvailabilityChecker()
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -39,8 +41,14 @@ struct ContentView: View {
             // Initialize managers with the shared context
             MyFilmsManager.shared.setModelContext(modelContext)
             // CacheManager is deprecated - replaced by IMDBFilmManager actor
+            
+            // Perform CloudKit availability check
+            // This makes direct CloudKit API calls that trigger iOS system prompts
+            // for iCloud login when necessary (mimicking old filmz behavior)
+            Task {
+                await cloudKitChecker.checkCloudKitAvailability()
+            }
         }
-        // Removed iCloudSyncAlert for seamless experience like filmz v1
     }
 }
 

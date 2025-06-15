@@ -4,6 +4,8 @@
 <dict>
 	<key>BuildDate</key>
 	<string>2025-06-12</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleVersion</key>
 	<string>2025-06-12-5fb6c96</string>
 	<key>GitBranch</key>
