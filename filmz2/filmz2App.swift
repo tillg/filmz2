@@ -32,6 +32,21 @@ struct filmz2App: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    init() {
+        // Configure services with dependency injection
+        configureServices()
+    }
+    
+    private func configureServices() {
+        // Create IMDBFilmManager with the shared model container
+        let filmManager = IMDBFilmManager(modelContainer: sharedModelContainer)
+        
+        // Configure OMDBSearchService with the film manager
+        OMDBSearchService.setSharedFilmManager(filmManager)
+        
+        print("filmz2App: Services configured with IMDBFilmManager")
+    }
 
     var body: some Scene {
         WindowGroup {

@@ -417,12 +417,12 @@ actor FilmCacheActor {
         )
         return try modelContext.fetch(descriptor).first
     }
-    
+
     func saveFilm(_ film: IMDBFilm) throws {
         modelContext.insert(film)
         try modelContext.save()
     }
-    
+
     func fetchAllFilms() throws -> [IMDBFilm] {
         let descriptor = FetchDescriptor<IMDBFilm>()
         return try modelContext.fetch(descriptor)
@@ -439,19 +439,19 @@ let cacheActor = FilmCacheActor(modelContainer: container)
 // Use in service layer
 class OMDBSearchService {
     private let cacheActor: FilmCacheActor
-    
+
     func getFilm(byID: String) async throws -> IMDBFilm {
         // Check actor-managed cache first
         if let cached = try await cacheActor.fetchFilm(imdbID: byID) {
             return cached
         }
-        
+
         // Fetch from API
         let film = try await fetchFromAPI(byID)
-        
+
         // Save through actor
         try await cacheActor.saveFilm(film)
-        
+
         return film
     }
 }
@@ -467,18 +467,6 @@ class OMDBSearchService {
 - **Memory Management**: SwiftData handles ModelContext lifecycle automatically
 - **Scalability**: Handles background operations efficiently as the app grows
 - **Clean Architecture**: Separates database concerns from service logic
-
-### Future Considerations
-
-With the ModelActor approach in place, future enhancements should consider:
-
-1. **Performance Monitoring**: Track actor queue performance under heavy load
-2. **Actor Specialization**: Consider separate actors for different data domains (films, user data, etc.)
-3. **Bulk Operations**: Leverage ModelActor for efficient bulk data processing
-4. **Background Sync**: Use the actor pattern for CloudKit synchronization operations
-5. **Advanced Querying**: Implement complex database queries within the actor context
-
-The ModelActor pattern provides a solid foundation that scales well with additional concurrency requirements and aligns with Apple's evolving SwiftData best practices.
 
 ## UI Component Architecture
 

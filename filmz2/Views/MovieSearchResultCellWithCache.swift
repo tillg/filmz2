@@ -3,21 +3,46 @@ import SwiftData
 
 /// A wrapper view that fetches cached data for MovieSearchResultCell
 struct MovieSearchResultCellWithCache: View {
+    @Environment(\.modelContext) private var modelContext
     let result: OMDBSearchItem
     @State private var cachedFilm: IMDBFilm?
+    @State private var filmManager: IMDBFilmManager?
     
     var body: some View {
         MovieSearchResultCellContent(result: result, cachedFilm: cachedFilm)
             .onAppear {
-                fetchCachedFilm()
+                setupFilmManager()
             }
             .onChange(of: result.imdbID) { _, _ in
-                fetchCachedFilm()
+                Task {
+                    await fetchCachedFilm()
+                }
             }
     }
     
-    private func fetchCachedFilm() {
-        cachedFilm = CacheManager.shared.fetchFilm(imdbID: result.imdbID)
+    private func setupFilmManager() {
+        if filmManager == nil {
+            filmManager = IMDBFilmManager(modelContainer: modelContext.container)
+            Task {
+                await fetchCachedFilm()
+            }
+        }
+    }
+    
+    private func fetchCachedFilm() async {
+        guard let filmManager = filmManager else { return }
+        
+        do {
+            let film = try await filmManager.fetchFilm(imdbID: result.imdbID)
+            await MainActor.run {
+                cachedFilm = film
+            }
+        } catch {
+            // Silently handle errors - cached data is optional for display
+            await MainActor.run {
+                cachedFilm = nil
+            }
+        }
     }
 }
 

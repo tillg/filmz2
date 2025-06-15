@@ -96,15 +96,29 @@ enum OMDBError: Error, LocalizedError {
 
 /// Service class for interacting with the OMDB API.
 /// Implements a sophisticated caching strategy with both in-memory and persistent storage:
-/// 1. Persistent cache via CacheManager (30-day staleness policy)
+/// 1. Persistent cache via IMDBFilmManager (30-day staleness policy)
 /// 2. In-memory cache for session-based performance
 /// 3. Cache-first approach: check persistent cache → check memory cache → fetch from API
 ///
 /// The service handles API rate limiting, error mapping, and automatic wildcard search enhancement.
 /// Thread-safe for concurrent access patterns.
 class OMDBSearchService: OMDBSearchServiceProtocol {
-    /// Shared singleton instance configured with production API key
-    static let shared = OMDBSearchService(apiKey: APIKeys.omdbAPIKey)
+    /// Shared singleton instance configured with production API key and film manager
+    /// Must be configured at app startup with setSharedFilmManager()
+    private static var _shared: OMDBSearchService?
+    
+    static var shared: OMDBSearchService {
+        guard let instance = _shared else {
+            fatalError("OMDBSearchService.shared accessed before setSharedFilmManager() was called")
+        }
+        return instance
+    }
+    
+    /// Configures the shared singleton instance with the required film manager
+    /// Must be called during app initialization before any other usage
+    static func setSharedFilmManager(_ filmManager: IMDBFilmManager) {
+        _shared = OMDBSearchService(apiKey: APIKeys.omdbAPIKey, filmManager: filmManager)
+    }
     
     /// OMDB API key for authentication
     private let apiKey: String
@@ -114,22 +128,26 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     private let session: URLSessionProtocol
     /// In-memory cache for session-based performance optimization
     private var cache: [String: Any] = [:]
+    /// Actor-based manager for persistent film data
+    private let filmManager: IMDBFilmManager
     
-    /// Initializes the service with API credentials and optional session override.
+    /// Initializes the service with API credentials and film manager.
     /// - Parameters:
     ///   - apiKey: OMDB API key for authentication
+    ///   - filmManager: Actor-based manager for persistent film data
     ///   - session: URL session for network requests (defaults to URLSession.shared)
-    init(apiKey: String, session: URLSessionProtocol = URLSession.shared) {
+    init(apiKey: String, filmManager: IMDBFilmManager, session: URLSessionProtocol = URLSession.shared) {
         self.apiKey = apiKey
+        self.filmManager = filmManager
         self.session = session
     }
     
     /// Legacy method for setting SwiftData context - now deprecated.
-    /// Cache management is handled by CacheManager singleton.
+    /// Cache management is handled by IMDBFilmManager actor.
     /// - Parameter context: SwiftData model context (ignored)
-    @available(*, deprecated, message: "Cache management is now handled by CacheManager")
+    @available(*, deprecated, message: "Cache management is now handled by IMDBFilmManager")
     func setModelContext(_ context: ModelContext) {
-        // No longer needed - using CacheManager
+        // No longer needed - using IMDBFilmManager
         print("OMDBSearchService: Model context set (deprecated)")
     }
     
@@ -224,7 +242,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     /// Retrieves detailed film information using sophisticated cache-first strategy.
     /// 
     /// **Cache-First Algorithm:**
-    /// 1. **Persistent Cache Check**: Query CacheManager for stored film data
+    /// 1. **Persistent Cache Check**: Query IMDBFilmManager for stored film data
     ///    - If found and fresh (< 30 days old): Return immediately
     ///    - If found but stale (> 30 days old): Continue to API fetch
     /// 2. **In-Memory Cache Check**: Check session cache for recent requests
@@ -247,12 +265,8 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     /// - Returns: Complete IMDBFilm object with all available metadata
     /// - Throws: OMDBError for various failure scenarios
     func getFilm(byID: String) async throws -> IMDBFilm {
-        // First check persistent cache
-        let cachedFilm = await MainActor.run {
-            CacheManager.shared.fetchFilm(imdbID: byID)
-        }
-        
-        if let cachedFilm = cachedFilm {
+        // First check persistent cache using IMDBFilmManager
+        if let cachedFilm = try await filmManager.fetchFilm(imdbID: byID) {
             // Return cached film if fresh
             if !cachedFilm.isStale {
                 print("OMDBSearchService: Returning cached film '\(cachedFilm.title)' with rating \(cachedFilm.imdbRating ?? "nil")")
@@ -291,10 +305,8 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
             let film = IMDBFilm(from: response)
             cache[cacheKey] = film
             
-            // Save to persistent cache using CacheManager for future requests
-            await MainActor.run {
-                CacheManager.shared.saveFilm(film)
-            }
+            // Save to persistent cache using IMDBFilmManager
+            try await filmManager.saveFilm(film)
             
             return film
             

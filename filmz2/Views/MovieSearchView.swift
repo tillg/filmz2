@@ -3,8 +3,17 @@ import SwiftUI
 /// Movie search view following Apple Human Interface Guidelines
 /// Uses native search patterns and proper spacing/typography
 struct MovieSearchView: View {
-    @StateObject private var viewModel = MovieSearchViewModel()
+    @StateObject private var viewModel: MovieSearchViewModel
     @FocusState private var isSearchFieldFocused: Bool
+    
+    /// Initialize with optional dependency injection for testing
+    init(searchService: OMDBSearchServiceProtocol? = nil) {
+        if let searchService = searchService {
+            self._viewModel = StateObject(wrappedValue: MovieSearchViewModel(searchService: searchService))
+        } else {
+            self._viewModel = StateObject(wrappedValue: MovieSearchViewModel())
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -24,6 +33,8 @@ struct MovieSearchView: View {
                 }
             }
             .searchable(text: $viewModel.searchQuery, prompt: "Search movies...")
+            .accessibilityIdentifier("MovieSearchField")
+            .navigationTitle("Search Movies")
         }
     }
     

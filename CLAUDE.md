@@ -91,7 +91,11 @@ final class MyFilm {
 
 ## Build and Test Instructions
 
-**CRITICAL**: Always use the XcodeBuildMCP Server to build, test and run.
+**CRITICAL**: Always launch the clean, build, tests...
+
+- via the XcodeBuildMCP Server if possible
+- via the appropriate `make` command otherwise
+- Only use `xcodebuild` and other command line commands is the other methods don't work!
 
 ### Linting and Formatting
 

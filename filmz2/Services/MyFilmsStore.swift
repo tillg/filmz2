@@ -115,7 +115,7 @@ class MyFilmsStore: ObservableObject {
     
     /// Adds a film to the collection from complete IMDB film data.
     /// **Alternative Entry Point:** Used when full film details are already available
-    /// **Automatic Caching:** Film details saved to persistent cache via CacheManager
+    /// **Automatic Caching:** Film details saved to persistent cache via IMDBFilmManager
     /// 
     /// **Use Cases:**
     /// - Adding from film detail view

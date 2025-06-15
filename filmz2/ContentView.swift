@@ -21,12 +21,12 @@ struct ContentView: View {
                 }
                 .tag(MainTab.collection)
             
-            MovieSearchView()
-                .tabItem {
-                    Label(MainTab.search.title, 
-                          systemImage: MainTab.search.icon)
-                }
-                .tag(MainTab.search)
+            MovieSearchView(searchService: OMDBServiceFactory.createSearchService())
+            .tabItem {
+                Label(MainTab.search.title, 
+                      systemImage: MainTab.search.icon)
+            }
+            .tag(MainTab.search)
             
             SettingsView()
                 .tabItem {
@@ -38,7 +38,7 @@ struct ContentView: View {
         .onAppear {
             // Initialize managers with the shared context
             MyFilmsManager.shared.setModelContext(modelContext)
-            CacheManager.shared.setModelContext(modelContext)
+            // CacheManager is deprecated - replaced by IMDBFilmManager actor
         }
         // Removed iCloudSyncAlert for seamless experience like filmz v1
     }

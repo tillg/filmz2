@@ -6,8 +6,8 @@ For him the new film has different areas:
 
 * The IMDB film part about the film itself
 * His "My Data" section that he can edit
-* A section "Filmz rating" in which he sees the average rating of other filmz users.
+* A section "Community Data" in which he sees the average rating of other filmz users and comments that have been passed along.
 
-When sending i can select wether my comments should be sent along. If so, they are copied over into the My Data/comments field of the recieving user.
+When sending i can select wether my comments should be sent along. If so, they are visible in the "Comunity Data" field of the recieving user. Whenever I change my comments, the changes are also visible in the views at the receiving user.
 
 In the receiving user's My Data/Recommended by my name appears. But the receiving user can overwrite it.

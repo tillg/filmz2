@@ -32,7 +32,7 @@ import Foundation
 /// Conforms to the OMDb API response structure with proper optional handling
 /// Only imdbID and title are guaranteed - all other fields may be missing
 @Model
-final class IMDBFilm: Codable, Identifiable, @unchecked Sendable {
+final class IMDBFilm: Codable, Identifiable {
     // MARK: - Core Properties
     
     /// Unique identifier using imdbID for consistency with external APIs
@@ -65,6 +65,7 @@ final class IMDBFilm: Codable, Identifiable, @unchecked Sendable {
     
     // Cache metadata
     var lastFetched: Date = Date()
+    var lastUpdated: Date = Date()
     var dataVersion: Int = 1
     
     // MARK: - Nested Types
@@ -248,12 +249,13 @@ extension IMDBFilm {
     /// Returns true if the cached data is older than 30 days
     var isStale: Bool {
         let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date.distantPast
-        return lastFetched < thirtyDaysAgo
+        return lastUpdated < thirtyDaysAgo
     }
     
     /// Updates the cache metadata when refreshing from API
     func updateCacheMetadata() {
         lastFetched = Date()
+        lastUpdated = Date()
         dataVersion += 1
     }
 }

@@ -1,5 +1,23 @@
 import XCTest
+import SwiftData
 @testable import filmz2
+
+// Test helper to create in-memory model container
+extension ModelContainer {
+    static func testContainer() throws -> ModelContainer {
+        let schema = Schema([
+            MyFilm.self,
+            IMDBFilm.self
+        ])
+        
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true
+        )
+        
+        return try ModelContainer(for: schema, configurations: [modelConfiguration])
+    }
+}
 
 class MockURLSession: URLSessionProtocol {
     var mockData: Data?
@@ -18,16 +36,22 @@ class MockURLSession: URLSessionProtocol {
 class OMDBSearchServiceTests: XCTestCase {
     var sut: OMDBSearchService!
     var mockSession: MockURLSession!
+    var filmManager: IMDBFilmManager!
+    var testContainer: ModelContainer!
     
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
+        testContainer = try ModelContainer.testContainer()
         mockSession = MockURLSession()
-        sut = OMDBSearchService(apiKey: "test-api-key", session: mockSession)
+        filmManager = IMDBFilmManager(modelContainer: testContainer)
+        sut = OMDBSearchService(apiKey: "test-api-key", filmManager: filmManager, session: mockSession)
     }
     
     override func tearDown() {
         sut = nil
         mockSession = nil
+        filmManager = nil
+        testContainer = nil
         super.tearDown()
     }
     

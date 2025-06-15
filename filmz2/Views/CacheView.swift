@@ -2,7 +2,10 @@ import SwiftUI
 import SwiftData
 
 struct CacheView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var cachedFilms: [IMDBFilm] = []
+    @State private var filmManager: IMDBFilmManager?
+    @State private var isLoading = false
     
     var body: some View {
         NavigationStack {
@@ -11,16 +14,30 @@ struct CacheView: View {
                     HStack {
                         Text("Total cached films")
                         Spacer()
-                        Text("\(cachedFilms.count)")
-                            .foregroundColor(DesignTokens.Colors.secondary)
+                        if isLoading {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else {
+                            Text("\(cachedFilms.count)")
+                                .foregroundColor(DesignTokens.Colors.secondary)
+                        }
                     }
                 }
                 
                 Section("Cached Films") {
-                    ForEach(cachedFilms) { film in
-                        CachedFilmRow(film: film)
+                    if isLoading {
+                        HStack {
+                            Spacer()
+                            ProgressView("Loading cached films...")
+                            Spacer()
+                        }
+                        .padding()
+                    } else {
+                        ForEach(cachedFilms) { film in
+                            CachedFilmRow(film: film)
+                        }
+                        .onDelete(perform: deleteFilms)
                     }
-                    .onDelete(perform: deleteFilms)
                 }
             }
             .navigationTitle("Cache")
@@ -30,30 +47,73 @@ struct CacheView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("Clear All") {
-                        clearCache()
+                        Task {
+                            await clearCache()
+                        }
                     }
                     .foregroundColor(DesignTokens.Colors.error)
+                    .disabled(isLoading)
                 }
             }
             .onAppear {
-                loadCache()
+                setupFilmManager()
             }
         }
     }
     
-    private func loadCache() {
-        cachedFilms = CacheManager.shared.fetchAllFilms()
+    private func setupFilmManager() {
+        if filmManager == nil {
+            filmManager = IMDBFilmManager(modelContainer: modelContext.container)
+            Task {
+                await loadCache()
+            }
+        }
+    }
+    
+    private func loadCache() async {
+        guard let filmManager = filmManager else { return }
+        
+        isLoading = true
+        do {
+            let films = try await filmManager.fetchAllFilms()
+            await MainActor.run {
+                cachedFilms = films
+                isLoading = false
+            }
+        } catch {
+            print("CacheView: Failed to load cached films: \(error)")
+            await MainActor.run {
+                isLoading = false
+            }
+        }
     }
     
     private func deleteFilms(at offsets: IndexSet) {
-        // Note: This would need to be implemented in CacheManager
+        // TODO: Implement individual film deletion in IMDBFilmManager
         // For now, just refresh the list
-        loadCache()
+        Task {
+            await loadCache()
+        }
     }
     
-    private func clearCache() {
-        CacheManager.shared.clearCache()
-        cachedFilms = []
+    private func clearCache() async {
+        guard let filmManager = filmManager else { return }
+        
+        isLoading = true
+        do {
+            let removed = try await filmManager.clearAllFilms()
+            print("CacheView: Cleared \(removed) films from cache")
+            
+            await MainActor.run {
+                cachedFilms = []
+                isLoading = false
+            }
+        } catch {
+            print("CacheView: Failed to clear cache: \(error)")
+            await MainActor.run {
+                isLoading = false
+            }
+        }
     }
 }
 

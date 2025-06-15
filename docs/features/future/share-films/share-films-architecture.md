@@ -41,10 +41,9 @@ C4Context
 
 ### Key Principles
 
-1. **Privacy First**: Each user's collection remains private
-2. **Leverage Existing Architecture**: Uses ID-only pattern and cached metadata
-3. **Standard iOS Integration**: Native sharing and deep linking
-4. **Optional Social Layer**: Community ratings without personal data sharing
+1. **Leverage Existing Architecture**: Uses ID-only pattern and cached metadata
+2. **Standard iOS Integration**: Native sharing and deep linking
+3. **Optional Social Layer**: Community ratings without personal data sharing
 
 ## Architecture Components
 
