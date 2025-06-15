@@ -4,7 +4,7 @@ import SwiftData
 /// A wrapper view that fetches cached data for MovieSearchResultCell
 struct MovieSearchResultCellWithCache: View {
     let result: OMDBSearchItem
-    @State private var cachedFilm: CachedIMDBFilm?
+    @State private var cachedFilm: IMDBFilm?
     
     var body: some View {
         MovieSearchResultCellContent(result: result, cachedFilm: cachedFilm)
@@ -24,7 +24,7 @@ struct MovieSearchResultCellWithCache: View {
 /// The actual cell content view
 struct MovieSearchResultCellContent: View {
     let result: OMDBSearchItem
-    let cachedFilm: CachedIMDBFilm?
+    let cachedFilm: IMDBFilm?
     
     var body: some View {
         HStack(spacing: 12) {
@@ -141,5 +141,5 @@ struct MovieSearchResultCellContent: View {
             )
         )
     }
-    .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
+    .modelContainer(for: [IMDBFilm.self], inMemory: true)
 }

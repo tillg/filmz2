@@ -1,7 +1,8 @@
 import Foundation
 import SwiftData
 
-/// Manages the cache database using the shared app container
+/// Manages persistent caching of IMDB film metadata to reduce API calls and enable offline access.
+/// Provides save, fetch, and cache management operations for IMDBFilm objects.
 @MainActor
 class CacheManager {
     static let shared = CacheManager()
@@ -24,7 +25,7 @@ class CacheManager {
         }
         
         // Check if already exists
-        let descriptor = FetchDescriptor<CachedIMDBFilm>(
+        let descriptor = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { cached in
                 cached.imdbID == film.imdbID
             }
@@ -36,8 +37,9 @@ class CacheManager {
                 context.delete(old)
             }
             
-            let cachedFilm = CachedIMDBFilm(from: film)
-            context.insert(cachedFilm)
+            // Update cache metadata and insert
+            film.updateCacheMetadata()
+            context.insert(film)
             try context.save()
             
             print("CacheManager: Cached film '\(film.title)' with rating \(film.imdbRating ?? "nil")")
@@ -46,13 +48,13 @@ class CacheManager {
         }
     }
     
-    func fetchFilm(imdbID: String) -> CachedIMDBFilm? {
+    func fetchFilm(imdbID: String) -> IMDBFilm? {
         guard let context = modelContext else {
             print("CacheManager: No context available for fetching")
             return nil
         }
         
-        let descriptor = FetchDescriptor<CachedIMDBFilm>(
+        let descriptor = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { film in
                 film.imdbID == imdbID
             }
@@ -70,14 +72,14 @@ class CacheManager {
         }
     }
     
-    func fetchAllFilms() -> [CachedIMDBFilm] {
+    func fetchAllFilms() -> [IMDBFilm] {
         guard let context = modelContext else {
             print("CacheManager: No context available for fetching all")
             return []
         }
         
         do {
-            let descriptor = FetchDescriptor<CachedIMDBFilm>(
+            let descriptor = FetchDescriptor<IMDBFilm>(
                 sortBy: [SortDescriptor(\.lastFetched, order: .reverse)]
             )
             return try context.fetch(descriptor)
@@ -91,7 +93,7 @@ class CacheManager {
         guard let context = modelContext else { return }
         
         do {
-            let all = try context.fetch(FetchDescriptor<CachedIMDBFilm>())
+            let all = try context.fetch(FetchDescriptor<IMDBFilm>())
             for film in all {
                 context.delete(film)
             }

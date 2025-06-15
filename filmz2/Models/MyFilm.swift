@@ -11,7 +11,7 @@
  * This model represents a film in the user's personal collection. It follows the
  * ID-only architecture pattern where we only store the IMDB ID reference and 
  * user-specific data. The actual film metadata (title, actors, plot, etc.) is
- * stored separately in CachedIMDBFilm to avoid data duplication.
+ * stored separately in IMDBFilm to avoid data duplication.
  *
  * Architecture Benefits:
  * - Clean separation between user data and movie metadata

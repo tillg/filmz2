@@ -44,7 +44,7 @@ C4Context
 
 ## Core Architecture Pattern: ID-Only with Cached Metadata
 
-Filmz2 uses an innovative ID-only architecture pattern where user data (MyFilm) only stores the IMDB ID reference, while film metadata is cached separately (CachedIMDBFilm). This provides several key benefits:
+Filmz2 uses an ID-only architecture pattern where user data (MyFilm) only stores the IMDB ID reference, while film metadata is cached separately using IMDBFilm as both API response and persistent cache model. This provides several key benefits:
 
 ### Benefits
 
@@ -58,9 +58,9 @@ Filmz2 uses an innovative ID-only architecture pattern where user data (MyFilm) 
 ### How It Works
 
 1. User adds a film to collection → MyFilm created with just imdbID
-2. Film details needed → Check CachedIMDBFilm first
-3. Cache miss or stale → Fetch from OMDb API and cache
-4. Display film → Combine MyFilm (user data) + CachedIMDBFilm (metadata)
+2. Film details needed → Check cached IMDBFilm first
+3. Cache miss or stale → Fetch from OMDb API, decode to IMDBFilm, and cache
+4. Display film → Combine MyFilm (user data) + IMDBFilm (metadata)
 
 ```mermaid
 sequenceDiagram
@@ -113,7 +113,7 @@ graph TB
 
     subgraph "Data Layer"
         MF[MyFilm - User Data]
-        CIF[CachedIMDBFilm - Metadata Cache]
+        IF[IMDBFilm - API Response & Cache]
     end
 
     subgraph "External"
@@ -134,11 +134,11 @@ graph TB
     FC --> MFDV
     IFDV --> IFDVM
     OMDB --> API
-    OMDB --> CIF
+    OMDB --> IF
     MFS --> MF
     MF --> LS
     MF --> CK
-    CIF --> LS
+    IF --> LS
     CK --> MF
 
     classDef ui fill:#e1f5fe,stroke:#01579b,stroke-width:2px
@@ -148,7 +148,7 @@ graph TB
 
     class CV,MSV,MSVM,FC,MSRC,MFC,IFDV,IFDVM,CollV,MFDV ui
     class OMDB,MFS service
-    class MF,CIF data
+    class MF,IF data
     class API,LS,CK external
 ```
 
@@ -165,7 +165,7 @@ graph TB
 
 ```mermaid
 erDiagram
-    MyFilm ||--o| CachedIMDBFilm : "references via imdbID"
+    MyFilm ||--o| IMDBFilm : "references via imdbID"
     MyFilm {
         uuid id PK "No unique constraint for CloudKit"
         string imdbID "No unique constraint for CloudKit"
@@ -178,27 +178,18 @@ erDiagram
         date dateAdded "Default: Date()"
     }
 
-    CachedIMDBFilm {
-        string imdbID PK
+    IMDBFilm {
+        string imdbID "No unique constraint for CloudKit"
         string title
         string year
+        string rated
         string actors
         string plot
         string poster
+        array ratings
         string imdbRating
         date lastFetched
         int dataVersion
-    }
-
-    CachedIMDBFilm ||--|| IMDBFilm : "converts to/from"
-    IMDBFilm {
-        string title
-        string imdbID
-        string year
-        string rated
-        string plot
-        array ratings
-        string imdbRating
     }
 
     OMDBSearchItem {
@@ -211,14 +202,33 @@ erDiagram
 
     SearchResult ||--o{ IMDBFilm : contains
     OMDBSearchResponse ||--o{ OMDBSearchItem : contains
+    OMDBSearchItem ||--|| IMDBFilm : "converts to"
 ```
 
 ### Key Models
 
 1. **MyFilm**: Stores user-specific data (ratings, notes, watch status) - Synced via CloudKit
-2. **CachedIMDBFilm**: Persistent cache of movie metadata from API - Local only
-3. **IMDBFilm**: Runtime model for displaying film details
-4. **OMDBSearchItem**: Search result from API
+2. **IMDBFilm**: Unified model serving as both API response decoder and persistent cache - Local only
+3. **OMDBSearchItem**: Search result from API (converted to IMDBFilm for detail views)
+
+### Model Consolidation Architecture
+
+**Design Decision**: IMDBFilm serves dual purposes as both API response decoder and persistent cache model.
+
+**Benefits of Consolidation**:
+
+- **Simplified Architecture**: Single model instead of separate API and cache models
+- **No Data Conversion**: Eliminates transformation between CachedIMDBFilm and IMDBFilm
+- **Unified Lifecycle**: API responses directly cached without intermediate steps
+- **CloudKit Compatible**: No unique constraints, manual uniqueness handling in CacheManager
+- **Reduced Complexity**: Fewer model types to maintain and test
+
+**Implementation Details**:
+
+- **SwiftData @Model**: IMDBFilm is a SwiftData-managed class for persistence
+- **Codable Conformance**: Custom encode/decode for API communication
+- **Cache Metadata**: Built-in lastFetched and dataVersion fields for staleness detection
+- **Manual Uniqueness**: CacheManager handles duplicate prevention (CloudKit requirement)
 
 ### CloudKit Considerations
 
@@ -318,7 +328,7 @@ The core service for interacting with the OMDb API with intelligent caching.
 
 - Search films by title with pagination
 - Get detailed film information by IMDB ID
-- Persistent caching using CachedIMDBFilm
+- Persistent caching using IMDBFilm model
 - Cache-first approach with 30-day freshness
 - Automatic retry and error handling
 - In-memory response caching
@@ -329,7 +339,7 @@ The core service for interacting with the OMDb API with intelligent caching.
 sequenceDiagram
     participant VM as ViewModel
     participant OS as OMDBSearchService
-    participant Cache as CachedIMDBFilm Store
+    participant Cache as CacheManager
     participant Mem as In-Memory Cache
     participant API as OMDb API
 
@@ -350,11 +360,11 @@ sequenceDiagram
     OS->>Cache: Check persistent cache
 
     alt Cache Fresh
-        Cache-->>OS: Return CachedIMDBFilm
+        Cache-->>OS: Return IMDBFilm
     else Cache Stale/Miss
         OS->>API: GET /i=imdbID
-        API-->>OS: Film Details
-        OS->>Cache: Update cache
+        API-->>OS: Film Details (decoded to IMDBFilm)
+        OS->>Cache: Cache IMDBFilm
     end
 
     OS-->>VM: IMDBFilm
@@ -537,7 +547,7 @@ let syncedConfiguration = ModelConfiguration(
 The app uses separate model configurations:
 
 - **MyFilm**: Synced via CloudKit (user's collection data)
-- **CachedIMDBFilm**: Local only (movie metadata cache)
+- **IMDBFilm**: Local only (movie metadata cache and API response model)
 
 ### iCloud Check Flow
 

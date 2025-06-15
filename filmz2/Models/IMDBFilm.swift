@@ -8,7 +8,7 @@
  * Architecture Role:
  * - Data transfer object for OMDB API responses
  * - Used throughout the app for displaying film information
- * - Converted to/from CachedIMDBFilm for persistence
+ * - Supports both API responses and persistent caching with SwiftData
  * - Provides computed properties for UI convenience
  *
  * Key Features:
@@ -26,40 +26,46 @@
  */
 
 import Foundation
+import SwiftData
 
 /// Represents a film from the IMDB/OMDb API
 /// Conforms to the OMDb API response structure with proper optional handling
 /// Only imdbID and title are guaranteed - all other fields may be missing
-struct IMDBFilm: Codable, Identifiable {
+@Model
+final class IMDBFilm: Codable, Identifiable {
     // MARK: - Core Properties
     
     /// Unique identifier using imdbID for consistency with external APIs
     var id: String { imdbID }
     
     // Required fields - these must exist
-    let title: String
-    let imdbID: String
+    var imdbID: String = ""
+    var title: String = ""
     
     // Optional fields - may be missing or "N/A" from API
-    let year: String?
-    let rated: String?
-    let released: String?
-    let runtime: String?
-    let genre: String?
-    let director: String?
-    let writer: String?
-    let actors: String?
-    let plot: String?
-    let language: String?
-    let country: String?
-    let awards: String?
-    let poster: String?
-    let ratings: [Rating]?
-    let metascore: String?
-    let imdbRating: String?
-    let imdbVotes: String?
-    let type: String?
-    let response: String?
+    var year: String?
+    var rated: String?
+    var released: String?
+    var runtime: String?
+    var genre: String?
+    var director: String?
+    var writer: String?
+    var actors: String?
+    var plot: String?
+    var language: String?
+    var country: String?
+    var awards: String?
+    var poster: String?
+    var ratings: [Rating]?
+    var metascore: String?
+    var imdbRating: String?
+    var imdbVotes: String?
+    var type: String?
+    var response: String?
+    
+    // Cache metadata
+    var lastFetched: Date = Date()
+    var dataVersion: Int = 1
     
     // MARK: - Nested Types
     
@@ -99,9 +105,15 @@ struct IMDBFilm: Codable, Identifiable {
         case response = "Response"
     }
     
+    // MARK: - Initializers
+    
+    init() {
+        // SwiftData requires a default initializer
+    }
+    
     // MARK: - Custom Decoding
     
-    init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         // Required fields
@@ -130,6 +142,36 @@ struct IMDBFilm: Codable, Identifiable {
         
         // Handle ratings array
         ratings = try? container.decode([Rating].self, forKey: .ratings)
+        
+        // Cache metadata - set defaults when decoding from API
+        lastFetched = Date()
+        dataVersion = 1
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(title, forKey: .title)
+        try container.encode(imdbID, forKey: .imdbID)
+        try container.encodeIfPresent(year, forKey: .year)
+        try container.encodeIfPresent(rated, forKey: .rated)
+        try container.encodeIfPresent(released, forKey: .released)
+        try container.encodeIfPresent(runtime, forKey: .runtime)
+        try container.encodeIfPresent(genre, forKey: .genre)
+        try container.encodeIfPresent(director, forKey: .director)
+        try container.encodeIfPresent(writer, forKey: .writer)
+        try container.encodeIfPresent(actors, forKey: .actors)
+        try container.encodeIfPresent(plot, forKey: .plot)
+        try container.encodeIfPresent(language, forKey: .language)
+        try container.encodeIfPresent(country, forKey: .country)
+        try container.encodeIfPresent(awards, forKey: .awards)
+        try container.encodeIfPresent(poster, forKey: .poster)
+        try container.encodeIfPresent(ratings, forKey: .ratings)
+        try container.encodeIfPresent(metascore, forKey: .metascore)
+        try container.encodeIfPresent(imdbRating, forKey: .imdbRating)
+        try container.encodeIfPresent(imdbVotes, forKey: .imdbVotes)
+        try container.encodeIfPresent(type, forKey: .type)
+        try container.encodeIfPresent(response, forKey: .response)
     }
     
     /// Helper method to decode strings and treat "N/A" as nil
@@ -142,8 +184,13 @@ struct IMDBFilm: Codable, Identifiable {
         return value
     }
     
-    /// Memberwise initializer for testing and manual creation
-    init(
+}
+
+// MARK: - Convenience Initializers
+
+extension IMDBFilm {
+    /// Convenience initializer for testing and manual creation
+    convenience init(
         title: String,
         imdbID: String,
         year: String? = nil,
@@ -164,8 +211,11 @@ struct IMDBFilm: Codable, Identifiable {
         imdbRating: String? = nil,
         imdbVotes: String? = nil,
         type: String? = nil,
-        response: String? = nil
+        response: String? = nil,
+        lastFetched: Date = Date(),
+        dataVersion: Int = 1
     ) {
+        self.init()
         self.title = title
         self.imdbID = imdbID
         self.year = year
@@ -187,6 +237,24 @@ struct IMDBFilm: Codable, Identifiable {
         self.imdbVotes = imdbVotes
         self.type = type
         self.response = response
+        self.lastFetched = lastFetched
+        self.dataVersion = dataVersion
+    }
+}
+
+// MARK: - Cache Management
+
+extension IMDBFilm {
+    /// Returns true if the cached data is older than 30 days
+    var isStale: Bool {
+        let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date.distantPast
+        return lastFetched < thirtyDaysAgo
+    }
+    
+    /// Updates the cache metadata when refreshing from API
+    func updateCacheMetadata() {
+        lastFetched = Date()
+        dataVersion += 1
     }
 }
 

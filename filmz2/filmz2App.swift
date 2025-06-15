@@ -13,7 +13,7 @@ struct filmz2App: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             MyFilm.self,
-            CachedIMDBFilm.self
+            IMDBFilm.self
         ])
         
         let modelConfiguration = ModelConfiguration(

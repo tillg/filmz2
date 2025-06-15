@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct CacheView: View {
-    @State private var cachedFilms: [CachedIMDBFilm] = []
+    @State private var cachedFilms: [IMDBFilm] = []
     
     var body: some View {
         NavigationStack {
@@ -58,7 +58,7 @@ struct CacheView: View {
 }
 
 struct CachedFilmRow: View {
-    let film: CachedIMDBFilm
+    let film: IMDBFilm
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -120,5 +120,5 @@ struct CachedFilmRow: View {
 
 #Preview {
     CacheView()
-        .modelContainer(for: [CachedIMDBFilm.self], inMemory: true)
+        .modelContainer(for: [IMDBFilm.self], inMemory: true)
 }

@@ -20,7 +20,7 @@ final class FilmDetailCachingTests: XCTestCase {
         // Create in-memory model container
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         modelContainer = try! ModelContainer(
-            for: CachedIMDBFilm.self, MyFilm.self,
+            for: IMDBFilm.self, MyFilm.self,
             configurations: config
         )
         modelContext = ModelContext(modelContainer)
@@ -41,7 +41,7 @@ final class FilmDetailCachingTests: XCTestCase {
         let imdbID = "tt10986410" // Ted Lasso
         
         // Verify not in cache
-        let initialFetch = FetchDescriptor<CachedIMDBFilm>(
+        let initialFetch = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { $0.imdbID == imdbID }
         )
         let initialResults = try modelContext.fetch(initialFetch)
@@ -78,8 +78,7 @@ final class FilmDetailCachingTests: XCTestCase {
         )
         
         // Simulate the caching that would happen in OMDBSearchService
-        let cachedFilm = CachedIMDBFilm(from: filmData)
-        modelContext.insert(cachedFilm)
+        modelContext.insert(filmData)
         try modelContext.save()
         
         // Then: Film should be in cache with rating
@@ -99,19 +98,19 @@ final class FilmDetailCachingTests: XCTestCase {
             poster: "https://example.com/poster.jpg"
         )
         
-        let cachedFilm = CachedIMDBFilm(from: IMDBFilm(
+        let cachedFilm = IMDBFilm(
             title: searchItem.title,
             imdbID: searchItem.imdbID,
             year: searchItem.year,
             imdbRating: "8.8",
             type: searchItem.type
-        ))
+        )
         
         modelContext.insert(cachedFilm)
         try modelContext.save()
         
         // When: Querying with the same imdbID
-        let descriptor = FetchDescriptor<CachedIMDBFilm>(
+        let descriptor = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { film in
                 film.imdbID == searchItem.imdbID
             }
@@ -129,20 +128,20 @@ final class FilmDetailCachingTests: XCTestCase {
         let imdbID = "tt10986410"
         
         // First search - no cache
-        var descriptor = FetchDescriptor<CachedIMDBFilm>(
+        var descriptor = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { $0.imdbID == imdbID }
         )
         var results = try modelContext.fetch(descriptor)
         XCTAssertTrue(results.isEmpty)
         
         // View details - film gets cached
-        let cachedFilm = CachedIMDBFilm(from: IMDBFilm(
+        let cachedFilm = IMDBFilm(
             title: "Ted Lasso",
             imdbID: imdbID,
             year: "2020–",
             imdbRating: "8.8",
             type: "series"
-        ))
+        )
         modelContext.insert(cachedFilm)
         try modelContext.save()
         
@@ -160,13 +159,13 @@ final class FilmDetailCachingTests: XCTestCase {
     func testCacheUpdateBehavior() throws {
         // Given: An existing cached film
         let imdbID = "tt10986410"
-        let oldCachedFilm = CachedIMDBFilm(from: IMDBFilm(
+        let oldCachedFilm = IMDBFilm(
             title: "Ted Lasso",
             imdbID: imdbID,
             year: "2020–",
             imdbRating: "8.5", // Old rating
             type: "series"
-        ))
+        )
         
         modelContext.insert(oldCachedFilm)
         try modelContext.save()
@@ -181,7 +180,7 @@ final class FilmDetailCachingTests: XCTestCase {
         )
         
         // Find and update existing cached film
-        let descriptor = FetchDescriptor<CachedIMDBFilm>(
+        let descriptor = FetchDescriptor<IMDBFilm>(
             predicate: #Predicate { $0.imdbID == imdbID }
         )
         let results = try modelContext.fetch(descriptor)
@@ -189,8 +188,7 @@ final class FilmDetailCachingTests: XCTestCase {
         if let existingCached = results.first {
             // Delete old and insert new
             modelContext.delete(existingCached)
-            let newCachedFilm = CachedIMDBFilm(from: newFilmData)
-            modelContext.insert(newCachedFilm)
+            modelContext.insert(newFilmData)
             try modelContext.save()
         }
         

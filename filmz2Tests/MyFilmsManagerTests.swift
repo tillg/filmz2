@@ -17,7 +17,7 @@ final class MyFilmsManagerTests: XCTestCase {
         
         // Set up an in-memory model context for testing
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        let container = try! ModelContainer(for: MyFilm.self, CachedIMDBFilm.self, configurations: config)
+        let container = try! ModelContainer(for: MyFilm.self, IMDBFilm.self, configurations: config)
         let context = ModelContext(container)
         
         // Set the context on the shared manager

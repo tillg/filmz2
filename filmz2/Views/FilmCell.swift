@@ -130,7 +130,7 @@ extension IMDBFilmDetailView {
             Divider().padding(.leading, 88)
         }
     }
-    .modelContainer(for: [MyFilm.self, CachedIMDBFilm.self], inMemory: true)
+    .modelContainer(for: [MyFilm.self, IMDBFilm.self], inMemory: true)
 }
 
 #Preview("Film Cell - Not In Collection") {
@@ -149,7 +149,7 @@ extension IMDBFilmDetailView {
             Divider().padding(.leading, 88)
         }
     }
-    .modelContainer(for: [MyFilm.self, CachedIMDBFilm.self], inMemory: true)
+    .modelContainer(for: [MyFilm.self, IMDBFilm.self], inMemory: true)
 }
 
 #Preview("Film Cell - Mixed States") {
@@ -195,5 +195,5 @@ extension IMDBFilmDetailView {
             }
         }
     }
-    .modelContainer(for: [MyFilm.self, CachedIMDBFilm.self], inMemory: true)
+    .modelContainer(for: [MyFilm.self, IMDBFilm.self], inMemory: true)
 }

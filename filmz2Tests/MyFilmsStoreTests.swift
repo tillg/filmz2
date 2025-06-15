@@ -19,7 +19,7 @@ class MyFilmsStoreTests: XCTestCase {
         try await super.setUp()
         
         // Create in-memory container for testing
-        let schema = Schema([MyFilm.self, CachedIMDBFilm.self])
+        let schema = Schema([MyFilm.self, IMDBFilm.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
         modelContext = ModelContext(modelContainer)

@@ -103,19 +103,6 @@ make clean          # Clean build artifacts
 make help           # Show all available commands
 ```
 
-**Manual Build (alternative):**
-
-```bash
-# Open Xcode and press Cmd+R, or use xcodebuild:
-xcodebuild -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' build
-```
-
-**Component Library (UI Development):**
-The app includes a component library for developing and testing UI components. To access it:
-
-1. Run the app
-2. Navigate to the ComponentLibrary view (add navigation in ContentView for development)
-
 ### Testing
 
 **Quick Testing:**
@@ -125,19 +112,6 @@ The app includes a component library for developing and testing UI components. T
 make test           # Run unit tests
 make test-ios       # Run unit tests on iOS simulator  
 make testUI         # Run UI tests on iOS simulator
-```
-
-**Manual Testing:**
-
-```bash
-# In Xcode: Cmd+U, or via command line:
-xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16'
-
-# Unit tests only
-xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2Tests
-
-# UI tests only  
-xcodebuild test -project filmz2.xcodeproj -scheme filmz2 -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:filmz2UITests
 ```
 
 **Test Coverage:**
@@ -214,12 +188,14 @@ Feature specifications are in `/docs/features/`:
 The app uses the [OMDb API](https://www.omdbapi.com/) for film data:
 
 **Getting Your API Key:**
+
 1. Visit [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx)
 2. Choose FREE plan (1,000 daily requests) or Patron ($1-$5/month)
 3. Register with your email and verify via activation link
 4. You'll receive your API key via email
 
 **Setting Up Your API Key:**
+
 ```swift
 // filmz2/Config/APIKeys.swift (already configured in project)
 struct APIKeys {
@@ -228,6 +204,7 @@ struct APIKeys {
 ```
 
 **Important:** The API key is already configured in the project for development use. For production deployments, ensure you:
+
 - Never commit API keys to version control
 - Use environment variables for CI/CD
 - Monitor usage in OMDb dashboard

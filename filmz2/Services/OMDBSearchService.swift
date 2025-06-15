@@ -137,7 +137,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
             // Return cached film if fresh
             if !cachedFilm.isStale {
                 print("OMDBSearchService: Returning cached film '\(cachedFilm.title)' with rating \(cachedFilm.imdbRating ?? "nil")")
-                return cachedFilm.toIMDBFilm()
+                return cachedFilm
             }
         }
         
@@ -287,7 +287,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
 }
 
 extension IMDBFilm {
-    init(from searchItem: OMDBSearchItem) {
+    convenience init(from searchItem: OMDBSearchItem) {
         self.init(
             title: searchItem.title,
             imdbID: searchItem.imdbID,
@@ -313,7 +313,7 @@ extension IMDBFilm {
         )
     }
     
-    init(from detail: OMDBDetailResponse) {
+    convenience init(from detail: OMDBDetailResponse) {
         let ratings = detail.ratings?.compactMap { rating in
             IMDBFilm.Rating(
                 source: rating.source,
