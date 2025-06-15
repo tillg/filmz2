@@ -220,7 +220,7 @@ erDiagram
 - **Simplified Architecture**: Single model instead of separate API and cache models
 - **No Data Conversion**: Eliminates transformation between CachedIMDBFilm and IMDBFilm
 - **Unified Lifecycle**: API responses directly cached without intermediate steps
-- **CloudKit Compatible**: No unique constraints, manual uniqueness handling in CacheManager
+- **CloudKit Compatible**: No unique constraints, manual uniqueness handling in IMDBFilmManager
 - **Reduced Complexity**: Fewer model types to maintain and test
 
 **Implementation Details**:
@@ -228,7 +228,7 @@ erDiagram
 - **SwiftData @Model**: IMDBFilm is a SwiftData-managed class for persistence
 - **Codable Conformance**: Custom encode/decode for API communication
 - **Cache Metadata**: Built-in lastFetched and dataVersion fields for staleness detection
-- **Manual Uniqueness**: CacheManager handles duplicate prevention (CloudKit requirement)
+- **Manual Uniqueness**: IMDBFilmManager handles duplicate prevention (CloudKit requirement)
 
 ### CloudKit Considerations
 
@@ -320,6 +320,55 @@ sequenceDiagram
 
 ## Services
 
+### Service Layer Architecture
+
+The service layer consists of two main components that work together to provide film data management:
+
+#### Service Relationship: OMDBSearchService → IMDBFilmManager
+
+```mermaid
+graph TB
+    subgraph "Service Dependencies"
+        OMDB[OMDBSearchService<br/>API & Cache Orchestration]
+        IFM[IMDBFilmManager<br/>Actor-based Persistence]
+    end
+
+    subgraph "External Systems"
+        API[OMDb API<br/>External Data Source]
+        SD[SwiftData<br/>Persistent Storage]
+    end
+
+    OMDB -->|"Dependency Injection"| IFM
+    OMDB -->|"API Calls"| API
+    IFM -->|"Persistence Operations"| SD
+
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+    class OMDB,IFM service
+    class API,SD external
+```
+
+**Key Relationship**: OMDBSearchService **depends on** IMDBFilmManager in a **composition relationship**. This is a unidirectional dependency where OMDBSearchService calls IMDBFilmManager methods, but IMDBFilmManager never calls OMDBSearchService.
+
+#### Service Responsibilities
+
+**IMDBFilmManager (Lower Layer - Persistence)**
+
+- Thread-safe database operations using ModelActor pattern
+- Provides CRUD operations for IMDBFilm entities
+- Implements cache staleness checking (30-day policy)
+- Handles SwiftData persistence and error handling
+- Abstracts database complexity from business logic
+
+**OMDBSearchService (Higher Layer - Business Logic)**
+
+- Orchestrates API communication with OMDb
+- Implements cache-first strategy using IMDBFilmManager
+- Manages dual caching (persistent + in-memory)
+- Handles API response mapping and error handling
+- Provides business logic for search and film retrieval
+
 ### OMDBSearchService
 
 The core service for interacting with the OMDb API with intelligent caching.
@@ -333,13 +382,13 @@ The core service for interacting with the OMDb API with intelligent caching.
 - Automatic retry and error handling
 - In-memory response caching
 
-**Architecture:**
+**Cache-First Architecture:**
 
 ```mermaid
 sequenceDiagram
     participant VM as ViewModel
     participant OS as OMDBSearchService
-    participant Cache as CacheManager
+    participant IFM as IMDBFilmManager
     participant Mem as In-Memory Cache
     participant API as OMDb API
 
@@ -357,17 +406,57 @@ sequenceDiagram
     OS-->>VM: SearchResult
 
     VM->>OS: getFilm(imdbID)
-    OS->>Cache: Check persistent cache
+    OS->>IFM: fetchFilm(imdbID)
 
     alt Cache Fresh
-        Cache-->>OS: Return IMDBFilm
+        IFM-->>OS: Return IMDBFilm
     else Cache Stale/Miss
         OS->>API: GET /i=imdbID
         API-->>OS: Film Details (decoded to IMDBFilm)
-        OS->>Cache: Cache IMDBFilm
+        OS->>IFM: saveFilm(IMDBFilm)
+        IFM-->>OS: Confirmation
     end
 
     OS-->>VM: IMDBFilm
+```
+
+**Service Initialization Pattern:**
+
+```swift
+// App startup configuration
+private func configureServices() {
+    // 1. Create persistence layer
+    let filmManager = IMDBFilmManager(modelContainer: sharedModelContainer)
+
+    // 2. Inject into business logic layer
+    OMDBSearchService.setSharedFilmManager(filmManager)
+}
+```
+
+### IMDBFilmManager
+
+Actor-based persistence manager for IMDBFilm entities using SwiftData's ModelActor pattern.
+
+**Key Features:**
+
+- Thread-safe database operations
+- Implements 30-day cache staleness policy
+- Provides async/await interface for SwiftData operations
+- Handles cache maintenance and cleanup
+- Abstracts persistence complexity
+
+**Actor Interface:**
+
+```swift
+@ModelActor
+actor IMDBFilmManager {
+    func fetchFilm(imdbID: String) throws -> IMDBFilm?
+    func saveFilm(_ film: IMDBFilm) throws
+    func updateFilm(_ film: IMDBFilm) throws
+    func deleteFilm(imdbID: String) throws
+    func fetchAllFilms() throws -> [IMDBFilm]
+    func removeStaleFilms() throws -> Int
+}
 ```
 
 ### MyFilmsStore
