@@ -44,18 +44,10 @@ struct MyFilmCell: View {
             
             Spacer()
             
-            // Collection Indicator & Chevron
-            VStack(spacing: DesignTokens.Spacing.extraSmall.rawValue) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(DesignTokens.Typography.title3)
-                    .foregroundColor(DesignTokens.Colors.success)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(DesignTokens.Typography.caption)
-                    .foregroundColor(DesignTokens.Colors.secondary)
-            }
+            // Collection Indicator
+            Image(systemName: "checkmark.circle.fill")
+                .font(DesignTokens.Typography.title3)
+                .foregroundColor(DesignTokens.Colors.success)
         }
         .padding(.horizontal, DesignTokens.Spacing.small.rawValue)
         .padding(.vertical, DesignTokens.Spacing.extraSmall.rawValue)
