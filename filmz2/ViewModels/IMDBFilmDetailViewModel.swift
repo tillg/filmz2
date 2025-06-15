@@ -180,13 +180,7 @@ class IMDBFilmDetailViewModel: ObservableObject {
 }
 
 // MARK: - Supporting Types
-
-struct RatingDisplayInfo {
-    let source: String
-    let value: String
-    let icon: String
-    let color: Color
-}
+// RatingDisplayInfo moved to separate file
 
 // MARK: - Preview Support
 

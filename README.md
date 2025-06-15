@@ -109,7 +109,7 @@ make help           # Show all available commands
 
 ```bash
 # Use Make commands (recommended)
-make test           # Run unit tests
+make test-unit      # Run unit tests
 make test-ios       # Run unit tests on iOS simulator  
 make testUI         # Run UI tests on iOS simulator
 ```

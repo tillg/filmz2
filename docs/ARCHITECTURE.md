@@ -433,10 +433,9 @@ FilmCell (Wrapper Component)
   ├── If YES → Renders: MyFilmCell
   │   └── Shows: Personal data (rating, watched status)
   │   └── Navigates to: MyFilmDetailView
-  ├── If NO → Renders: MovieSearchResultCell
-  │   └── Shows: Basic info + "Add to Collection" button
-  │   └── Navigates to: IMDBFilmDetailView
-  └── Provides: Consistent layout across both states
+  └── If NO → Renders: MovieSearchResultCell
+      └── Shows: Basic info + "Add to Collection" button
+      └── Navigates to: IMDBFilmDetailView
 ```
 
 ## State Management
