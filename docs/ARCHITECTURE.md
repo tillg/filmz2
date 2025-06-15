@@ -382,6 +382,104 @@ Manages the user's personal film collection with reactive updates.
 - SwiftUI integration with @Published
 - Automatic UI updates
 
+## Swift Concurrency and Sendable Compliance
+
+### The Challenge
+
+Swift 6's strict concurrency model introduces Sendable requirements that create challenges when working with SwiftData models. The core issue is that SwiftData's `@Model` classes are inherently non-Sendable because they:
+
+- Contain mutable state managed by SwiftData
+- Use internal synchronization mechanisms
+- Cannot be safely passed across actor boundaries without explicit handling
+
+### Our Solution: ModelActor Pattern
+
+Filmz2 uses SwiftData's `ModelActor` pattern to handle all database operations safely across concurrent environments. The `ModelActor` protocol provides a dedicated actor context for performing SwiftData operations on background queues while maintaining thread safety.
+
+### What is ModelActor?
+
+`ModelActor` is a protocol that conforms to Swift's `Actor` protocol, providing isolated access to a `ModelContext`. When you create a custom actor that conforms to `ModelActor`, SwiftData automatically provides the necessary infrastructure for safe concurrent database operations.
+
+### Key Features
+
+- **Automatic ModelContext Management**: SwiftData automatically creates and manages a `ModelContext` instance for your actor
+- **Thread Safety**: All operations are automatically serialized, preventing data races
+- **Background Processing**: Perfect for performing heavy database operations without blocking the main thread
+
+### Implementation
+
+```swift
+@ModelActor
+actor FilmCacheActor {
+    func fetchFilm(imdbID: String) throws -> IMDBFilm? {
+        let descriptor = FetchDescriptor<IMDBFilm>(
+            predicate: #Predicate { $0.imdbID == imdbID }
+        )
+        return try modelContext.fetch(descriptor).first
+    }
+    
+    func saveFilm(_ film: IMDBFilm) throws {
+        modelContext.insert(film)
+        try modelContext.save()
+    }
+    
+    func fetchAllFilms() throws -> [IMDBFilm] {
+        let descriptor = FetchDescriptor<IMDBFilm>()
+        return try modelContext.fetch(descriptor)
+    }
+}
+```
+
+### Usage Pattern
+
+```swift
+// Create the actor instance
+let cacheActor = FilmCacheActor(modelContainer: container)
+
+// Use in service layer
+class OMDBSearchService {
+    private let cacheActor: FilmCacheActor
+    
+    func getFilm(byID: String) async throws -> IMDBFilm {
+        // Check actor-managed cache first
+        if let cached = try await cacheActor.fetchFilm(imdbID: byID) {
+            return cached
+        }
+        
+        // Fetch from API
+        let film = try await fetchFromAPI(byID)
+        
+        // Save through actor
+        try await cacheActor.saveFilm(film)
+        
+        return film
+    }
+}
+```
+
+### Benefits
+
+- **Best Practice Compliance**: Follows Apple's recommended SwiftData concurrency patterns
+- **True Thread Safety**: Provides genuine actor isolation without compiler workarounds
+- **Automatic Isolation**: No need to manually manage thread safety
+- **Simplified Error Handling**: Clean async/await error handling
+- **Better Performance**: Background operations don't block UI
+- **Memory Management**: SwiftData handles ModelContext lifecycle automatically
+- **Scalability**: Handles background operations efficiently as the app grows
+- **Clean Architecture**: Separates database concerns from service logic
+
+### Future Considerations
+
+With the ModelActor approach in place, future enhancements should consider:
+
+1. **Performance Monitoring**: Track actor queue performance under heavy load
+2. **Actor Specialization**: Consider separate actors for different data domains (films, user data, etc.)
+3. **Bulk Operations**: Leverage ModelActor for efficient bulk data processing
+4. **Background Sync**: Use the actor pattern for CloudKit synchronization operations
+5. **Advanced Querying**: Implement complex database queries within the actor context
+
+The ModelActor pattern provides a solid foundation that scales well with additional concurrency requirements and aligns with Apple's evolving SwiftData best practices.
+
 ## UI Component Architecture
 
 ### Component Hierarchy

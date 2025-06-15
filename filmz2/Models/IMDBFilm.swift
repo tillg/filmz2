@@ -32,7 +32,7 @@ import Foundation
 /// Conforms to the OMDb API response structure with proper optional handling
 /// Only imdbID and title are guaranteed - all other fields may be missing
 @Model
-final class IMDBFilm: Codable, Identifiable {
+final class IMDBFilm: Codable, Identifiable, @unchecked Sendable {
     // MARK: - Core Properties
     
     /// Unique identifier using imdbID for consistency with external APIs
