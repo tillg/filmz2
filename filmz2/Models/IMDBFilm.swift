@@ -26,7 +26,7 @@
  */
 
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Represents a film from the IMDB/OMDb API
 /// Conforms to the OMDb API response structure with proper optional handling
@@ -69,7 +69,7 @@ final class IMDBFilm: Codable, Identifiable {
     
     // MARK: - Nested Types
     
-    struct Rating: Codable {
+    struct Rating: Codable, Sendable {
         let source: String
         let value: String
         
