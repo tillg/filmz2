@@ -18,12 +18,12 @@ struct AppConfig {
     /// External services configuration
     struct Services {
         /// OMDb API configuration
-        static let omdbAPIKey = APIKeys.omdbAPIKey
+        static let omdbAPIKey = "1b5a29bf"
         static let omdbBaseURL = "http://www.omdbapi.com/"
         static let omdbPosterURL = "http://img.omdbapi.com/"
         
         /// CloudKit configuration
-        static let cloudKitContainer = CloudKitConfig.containerIdentifier
+        static let cloudKitContainer = "iCloud.com.grtnr.filmz2.data"
     }
     
     /// Cache configuration

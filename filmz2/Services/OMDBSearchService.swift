@@ -117,7 +117,7 @@ class OMDBSearchService: OMDBSearchServiceProtocol {
     /// Configures the shared singleton instance with the required film manager
     /// Must be called during app initialization before any other usage
     static func setSharedFilmManager(_ filmManager: IMDBFilmManager) {
-        _shared = OMDBSearchService(apiKey: APIKeys.omdbAPIKey, filmManager: filmManager)
+        _shared = OMDBSearchService(apiKey: AppConfig.Services.omdbAPIKey, filmManager: filmManager)
     }
     
     /// OMDB API key for authentication

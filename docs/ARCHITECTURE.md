@@ -923,18 +923,33 @@ Add usage descriptions for user transparency:
 #### 1. Container Setup
 
 1. Navigate to [CloudKit Dashboard](https://icloud.developer.apple.com/dashboard)
-2. Select container: `iCloud.com.grtnr.Filmz` (shared with original filmz project)
+2. Select container: `iCloud.com.grtnr.filmz2.data` (configured in `AppConfig.Services.cloudKitContainer`)
 3. Environment: Development → Production promotion flow
 
-**Note**: Filmz2 uses the same CloudKit container as the original filmz project for seamless data migration and proven configuration.
+#### 2. Record Types and Schema Configuration
 
-#### 2. Record Types
+SwiftData automatically creates record types, but manual schema configuration is required:
 
-SwiftData automatically creates record types, but understanding them helps with debugging:
+**CD_MyFilm Record Type:**
 
-- **CD_MyFilm**: User's film collection data
-  - Fields map to MyFilm properties
-  - Indexed on: modifiedAt, recordName
+- Automatically created when first MyFilm record is saved
+- Fields map to MyFilm properties (id, imdbID, myRating, watched, etc.)
+
+**Required Manual Configuration:**
+
+1. **Make recordName Queryable**:
+
+   - Go to CloudKit Dashboard → Data → Record Types → CD_MyFilm
+   - Click "Add Index"
+   - Select field: `recordName`
+   - Index Type: `QUERYABLE`
+   - This fixes "Field 'recordName' is not marked queryable" errors
+
+2. **Verify Default Indexes**:
+   - `modifiedAt`: Automatically queryable
+   - `recordName`: Must be manually made queryable (see above)
+
+**Important**: Without the recordName index, CloudKit availability checking will fail with predicate errors.
 
 #### 3. Security Roles
 
@@ -957,6 +972,29 @@ func checkiCloudStatus() -> Bool {
     }
 }
 ```
+
+#### Common CloudKit Configuration Errors
+
+1. **"Invalid bundle ID for container"**
+
+   - **Cause**: CloudKit container not associated with app's bundle ID
+   - **Solution**:
+     - Go to Apple Developer Portal → App IDs
+     - Edit your App ID (`com.grtnr.filmz2`)
+     - Enable iCloud → CloudKit
+     - Select the correct container (`iCloud.com.grtnr.filmz2.data`)
+     - Regenerate provisioning profiles
+
+2. **"Field 'recordName' is not marked queryable"**
+
+   - **Cause**: Missing queryable index on recordName field
+   - **Solution**:
+     - Go to CloudKit Dashboard → CD_MyFilm record type
+     - Add Index: field=`recordName`, type=`QUERYABLE`
+
+3. **"Invalid predicate" errors**
+   - **Cause**: Complex predicates not supported in CloudKit
+   - **Solution**: Use simple predicates like `NSPredicate(value: true)`
 
 #### Common Access Errors
 

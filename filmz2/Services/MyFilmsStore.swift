@@ -104,7 +104,7 @@ class MyFilmsStore: ObservableObject {
         
         do {
             try modelContext.save()
-            print("MyFilmsStore: Successfully saved film \(myFilm.imdbID)")
+            print("MyFilmsStore: Successfully saved film \(myFilm.imdbID) - queued for CloudKit sync")
             fetchFilms()
             return myFilm
         } catch {

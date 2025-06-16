@@ -22,7 +22,7 @@ class CloudKitAvailabilityChecker: ObservableObject {
     
     /// Initialize with the app's CloudKit container
     init() {
-        self.container = CKContainer(identifier: CloudKitConfig.containerIdentifier)
+        self.container = CKContainer(identifier: AppConfig.Services.cloudKitContainer)
     }
     
     /// Performs a lightweight CloudKit operation to trigger system iCloud prompts.
@@ -79,7 +79,8 @@ class CloudKitAvailabilityChecker: ObservableObject {
         do {
             // Perform a minimal query to the private database
             // This ensures we can access CloudKit and may trigger additional prompts
-            let query = CKQuery(recordType: "CD_MyFilm", predicate: NSPredicate(format: "TRUEPREDICATE"))
+            // Use TRUEPREDICATE which is always valid in CloudKit
+            let query = CKQuery(recordType: "CD_MyFilm", predicate: NSPredicate(value: true))
             
             let database = container.privateCloudDatabase
             let (_, _) = try await database.records(matching: query, resultsLimit: 1)
